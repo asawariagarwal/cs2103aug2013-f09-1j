@@ -98,7 +98,7 @@ class Task {
 	 * @author Karan
 	 * 
 	 */
-	class FloatingTasks extends Task {
+	class FloatingTask extends Task {
 		/**
 		 * Constructor to set up FloatingTasks object
 		 * 
@@ -107,7 +107,7 @@ class Task {
 		 * @param tags
 		 *            tags for this task
 		 */
-		FloatingTasks(String description, ArrayList<String> tags) {
+		FloatingTask(String description, ArrayList<String> tags) {
 			super(description, tags);
 		}
 	}
@@ -118,7 +118,7 @@ class Task {
 	 * @author Karan
 	 * 
 	 */
-	class DeadlineTasks extends Task {
+	class DeadlineTask extends Task {
 		/**
 		 * Variable to store the deadline
 		 */
@@ -134,7 +134,7 @@ class Task {
 		 * @param deadline
 		 *            Task deadline
 		 */
-		DeadlineTasks(String description, ArrayList<String> tags, Date deadline) {
+		DeadlineTask(String description, ArrayList<String> tags, Date deadline) {
 			super(description, tags);
 			_deadline = deadline;
 		}
@@ -165,7 +165,7 @@ class Task {
 	 * @author Karan
 	 * 
 	 */
-	class TimedTasks extends Task {
+	class TimedTask extends Task {
 		/**
 		 * Variables to store start and end times of tasks as Date objects
 		 */
@@ -185,7 +185,7 @@ class Task {
 		 * @param endDate
 		 *            Task end Date object
 		 */
-		TimedTasks(String description, ArrayList<String> tags, Date startDate,
+		TimedTask(String description, ArrayList<String> tags, Date startDate,
 				Date endDate) {
 			super(description, tags);
 			_startDate = startDate;
