@@ -14,6 +14,11 @@ import logic.Task.*;
  */
 
 public class State {
+
+	/**
+	 * Stores the feedback to be displayed
+	 */
+	private String _feedback;
 	/**
 	 * ArrayLists to store the three types of tasks
 	 */
@@ -25,6 +30,7 @@ public class State {
 		_currentTimedTasks = new ArrayList<TimedTask>();
 		_currentFloatingTasks = new ArrayList<FloatingTask>();
 		_currentDeadlineTasks = new ArrayList<DeadlineTask>();
+		_feedback = new String();
 	}
 
 	/**
@@ -202,4 +208,22 @@ public class State {
 		return requiredTasks;
 	}
 
+	/**
+	 * Routine to set the feedback to a string
+	 * 
+	 * @param feedback
+	 *            feedback to be set
+	 */
+	protected void setFeedback(String feedback) {
+		_feedback = feedback;
+	}
+
+	/**
+	 * Routine to get the feedback to be displayed
+	 * 
+	 * @return the feedback currently set
+	 */
+	protected String getFeedback() {
+		return _feedback;
+	}
 }

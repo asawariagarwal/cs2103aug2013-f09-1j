@@ -11,8 +11,7 @@ import java.util.Date;
  * 
  * @author Karan
  * 
- */
-
+ */ 
 class Task {
 	/**
 	 * Stores the task descriptions and user defined tags as private members
@@ -179,7 +178,6 @@ class Task {
 		 *            Task description
 		 * @param tags
 		 *            Task tags
-		 * 
 		 * @param startDate
 		 *            Task start Date object
 		 * @param endDate
