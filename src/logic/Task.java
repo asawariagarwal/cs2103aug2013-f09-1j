@@ -1,7 +1,7 @@
 package logic;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 
 /**
  * This class encapsulates the Tasks of particular types and provides routines
@@ -11,7 +11,7 @@ import java.util.Date;
  * 
  * @author Karan
  * 
- */ 
+ */
 class Task {
 	/**
 	 * Stores the task descriptions and user defined tags as private members
@@ -121,7 +121,7 @@ class Task {
 		/**
 		 * Variable to store the deadline
 		 */
-		private Date _deadline;
+		private Calendar _deadline;
 
 		/**
 		 * Constructor to set up a deadline task
@@ -133,7 +133,8 @@ class Task {
 		 * @param deadline
 		 *            Task deadline
 		 */
-		DeadlineTask(String description, ArrayList<String> tags, Date deadline) {
+		DeadlineTask(String description, ArrayList<String> tags,
+				Calendar deadline) {
 			super(description, tags);
 			_deadline = deadline;
 		}
@@ -144,16 +145,16 @@ class Task {
 		 * @param deadline
 		 *            deadline to be set
 		 */
-		protected void setDeadline(Date deadline) {
+		protected void setDeadline(Calendar deadline) {
 			_deadline = deadline;
 		}
 
 		/**
 		 * Routine to get the Task deadline
 		 * 
-		 * @return the Task deadline as a Date object
+		 * @return the Task deadline as a Calendar object
 		 */
-		protected Date getDeadline() {
+		protected Calendar getDeadline() {
 			return _deadline;
 		}
 	}
@@ -166,10 +167,10 @@ class Task {
 	 */
 	class TimedTask extends Task {
 		/**
-		 * Variables to store start and end times of tasks as Date objects
+		 * Variables to store start and end times of tasks as Calendar objects
 		 */
-		private Date _startDate;
-		private Date _endDate;
+		private Calendar _startDate;
+		private Calendar _endDate;
 
 		/**
 		 * Constructor to set up TimedTasks
@@ -179,12 +180,12 @@ class Task {
 		 * @param tags
 		 *            Task tags
 		 * @param startDate
-		 *            Task start Date object
+		 *            Task start Calendar object
 		 * @param endDate
-		 *            Task end Date object
+		 *            Task end Calendar object
 		 */
-		TimedTask(String description, ArrayList<String> tags, Date startDate,
-				Date endDate) {
+		TimedTask(String description, ArrayList<String> tags,
+				Calendar startDate, Calendar endDate) {
 			super(description, tags);
 			_startDate = startDate;
 			_endDate = endDate;
@@ -196,7 +197,7 @@ class Task {
 		 * @param startDate
 		 *            start date to be set
 		 */
-		protected void setStartDate(Date startDate) {
+		protected void setStartDate(Calendar startDate) {
 			_startDate = startDate;
 		}
 
@@ -206,25 +207,25 @@ class Task {
 		 * @param endDate
 		 *            end date to be set
 		 */
-		protected void setEndDate(Date endDate) {
+		protected void setEndDate(Calendar endDate) {
 			_endDate = endDate;
 		}
 
 		/**
 		 * Routine to get the start date of a Task
 		 * 
-		 * @return the start date as a Date object
+		 * @return the start date as a Calendar object
 		 */
-		protected Date getStartDate() {
+		protected Calendar getStartDate() {
 			return _startDate;
 		}
 
 		/**
 		 * Routine to get the end date of a Task
 		 * 
-		 * @return the end date as a Date object
+		 * @return the end date as a Calendar object
 		 */
-		protected Date getEndDate() {
+		protected Calendar getEndDate() {
 			return _endDate;
 		}
 	}
