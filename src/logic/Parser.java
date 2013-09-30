@@ -1,14 +1,32 @@
 package logic;
 
-public class Parser {
+import java.util.ArrayList;
 
-	String _userInput;
+public class Parser 
+{
 
-	boolean parseInput(String userInput) //return true is the input is valid else return false
+	private String _userInput;
+	
+	public boolean main(string userInput)
 	{
-		_userInput= userInput;
+		Parser parse_obj=new Parser(userInput);
+		if(parse_obj.parseInput())
+			return true;
+		else
+			return false;
+	}
+	
+	Parser(String userInput)
+	{
+		_userInput=userInput;
+	}
+	
+    
+	private boolean parseInput() //return true is the input is valid else return false
+	{
+	
 		String first_word;
-		first_word=extractFirstWord(_userInput);
+		first_word=extractFirstWord();
 
 
 		switch(first_word)
@@ -21,7 +39,7 @@ public class Parser {
 			}
 			else
 			{
-				return parseAdd(_userInput);
+				return parseAdd();
 			}
 
 		}
@@ -42,7 +60,7 @@ public class Parser {
 						//create ViewFloatingObject and call command using it
 						else if(_userInput.startsWith("#"))
 						{
-							String hashtag= extractFirstWord(_userInput);
+							String hashtag= extractFirstWord();
 							if(_userInput!="")
 								return false;
 							//create ViewHashtagObject and call command using it
@@ -50,7 +68,7 @@ public class Parser {
 						else
 						{
 							String Date;
-							Date= extractTillKeyword(_userInput,"ordered");
+							Date= extractTillKeyword("ordered");
 							if(isDateValid(Date)&&(_userInput.equals("by tags")))
 								//create Date Type object
 								else 
@@ -77,7 +95,7 @@ public class Parser {
 						//create DeleteAllDoneObject and call command using it
 						else if(_userInput.startsWith("all #"))
 						{
-							String hashtag= extractFirstWord(_userInput);
+							String hashtag= extractFirstWord();
 							if(_userInput!="")
 								return false;
 							//create DeleteHashtagObject and call command using it
@@ -102,7 +120,7 @@ public class Parser {
 			else
 			{
 				String old_task, new_task;
-				old_task= extractTillKeyword(_userInput,"to");
+				old_task= extractTillKeyword("to");
 				new_task=_userInput;
 				//create ChangeObject and call command using it 
 			}
@@ -119,10 +137,10 @@ public class Parser {
 			else
 			{
 				String task_name;
-				task_name=extractTillKeyword(_userInput,"to");
+				task_name=extractTillKeyword("to");
 				if(_userInput.contains("to"))
 				{
-					String date_start=extractTillKeyword(_userInput,"to");
+					String date_start=extractTillKeyword("to");
 					String date_end=_userInput;
 					if((isDateValid(date_start))&&(isDateValid(date_end)))
 						//Create Date Type objects for both 
@@ -221,7 +239,7 @@ public class Parser {
 
 		}//end of function 
 
-		String  extractFirstWord(String _userInput)//removes first word from user Input 
+		private String  extractFirstWord()//removes first word from user Input 
 		{
 			String first_word;
 			int posOfSpace;
@@ -232,7 +250,7 @@ public class Parser {
 		}
 
 
-		String extractTillKeyword(String _userInput, String next_keyword)//removes the extracted string and keyword from the Input
+		private String extractTillKeyword(String next_keyword)//removes the extracted string and keyword from the Input
 		{
 			String extractedString;
 			int posOfKeyword;
@@ -243,19 +261,19 @@ public class Parser {
 		}
 
 
-		boolean isDateValid(String Date)//Checks if the date format is correct or not 
+		private boolean isDateValid(String Date)//Checks if the date format is correct or not 
 		{
 			return true;
 		}
 
 
-		boolean  parseAdd(String _userInput)
+		private boolean  parseAdd()
 		{
-			if(!parseDeadlineTask(_userInput))
+			if(!parseDeadlineTask())
 			{
-				if(!parseTimedTask(_userInput))
+				if(!parseTimedTask())
 				{
-					return parseFloatingTask(_userInput);
+					return parseFloatingTask());
 				}
 				else 
 				{
@@ -269,7 +287,7 @@ public class Parser {
 
 		}
 
-		boolean parseDeadlineTask(String _userInput)
+		private boolean parseDeadlineTask()
 		{
 			ArrayList <String> hashtags = new ArrayList<String>();
 
@@ -277,14 +295,14 @@ public class Parser {
 			{
 				return false;
 			}
-			String TaskDes=extractTillKeyword(_userInput,"by");
+			String TaskDes=extractTillKeyword("by");
 			while(_userInput.contains("by"))
 			{
 				TaskDes.concat(" ");
-				TaskDes.concat(extractTillKeyword(_userInput,"by"));
+				TaskDes.concat(extractTillKeyword("by"));
 			}
 			String Date;
-			Date=extractTillHashtagOrEnd(_userInput);
+			Date=extractTillHashtagOrEnd();
 			if(!Date.isDateValid())
 			{
 				return false;
@@ -305,7 +323,7 @@ public class Parser {
 		}
 
 
-		boolean parseFloatingTask(string _userInput)
+		private boolean parseFloatingTask()
 		{
 			ArrayList <String> hashtags = new ArrayList<String>();
             String TaskDes=extractTillHashtagOrEnd(_userInput);
@@ -324,7 +342,7 @@ public class Parser {
 		}
 		
 		
-		String extractTillHashtagOrEnd(String _userInput)
+		private extractTillHashtagOrEnd()
 		{
 			String extractedString;
 			if(_userInput.contains("#"))
@@ -341,7 +359,7 @@ public class Parser {
 		}
 
 
-		String extractHashtag(string _userInput)
+		private String extractHashtag()
 	    {
 			if(_userInput.startsWith("#"))
 				return extractFirstWord(_userInput);
@@ -350,8 +368,6 @@ public class Parser {
 
 	    }
 	}
-		
-		
 		
 		/*
 	boolean processTimedTask(string _userInput)
