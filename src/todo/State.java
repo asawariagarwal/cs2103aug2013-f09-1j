@@ -1,9 +1,9 @@
-package logic;
+package todo;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
-import logic.Task.*;
+import todo.Task.*;
 
 /**
  * This class helps maintain the state of the application, containing all

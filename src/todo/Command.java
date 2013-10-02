@@ -1,4 +1,4 @@
-package logic;
+package todo;
 
 public class Command {
 

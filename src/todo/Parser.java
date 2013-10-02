@@ -1,4 +1,4 @@
-package logic;
+package todo;
 
 import java.util.ArrayList;
 
@@ -7,7 +7,7 @@ public class Parser
 
 	private String _userInput;
 	
-	public boolean main(string userInput)
+	public boolean main(String userInput)
 	{
 		Parser parse_obj=new Parser(userInput);
 		if(parse_obj.parseInput())

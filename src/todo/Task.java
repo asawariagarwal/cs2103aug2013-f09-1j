@@ -1,4 +1,4 @@
-package logic;
+package todo;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -12,7 +12,7 @@ import java.util.Calendar;
  * @author Karan
  * 
  */
-class Task {
+public class Task {
 	/**
 	 * Stores the task descriptions and user defined tags as private members
 	 */
