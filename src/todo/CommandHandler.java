@@ -2,13 +2,21 @@ package todo;
 
 class CommandHandler {
 	
-	public static void handle(Command command) {
+	public CommandHandler(State state){
+		//TODO
+	}
+	
+	public State handle(Command command) {
 		if(isValidCommand(command)) {
 			command.execute();
 		}
 	}
 	
-	private static boolean isValidCommand(Command command) {
+	public State handleInput(String commandString){
+		//parse and handle
+	}
+	
+	private boolean isValidCommand(Command command) {
 		if(command isInstanceOf )
 	}
 }

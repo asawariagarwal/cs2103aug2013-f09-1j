@@ -7,14 +7,14 @@ import java.io.IOException;
 
 public class StorageManager {
 
-	private String _filename = "taskstore.txt";
-	private final String TASK_SEPARATOR = "\n";
+	private static String _filename = "taskstore.txt";
+	private final static String TASK_SEPARATOR = "\n";
 	
-	protected State readStore(){
-		return State;
+	protected static State readStore(){
+		//TODO
 	}
 	
-	protected void writeStore(State saveState) throws IOException{
+	protected static void writeStore(State saveState) throws IOException{
 		File saveFile = new File(_filename);
 		
 		String writeOut = "";
