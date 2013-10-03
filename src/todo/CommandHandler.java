@@ -6,17 +6,18 @@ class CommandHandler {
 		//TODO
 	}
 	
-	public State handle(Command command) {
+	public void handle(Command command) {
 		if(isValidCommand(command)) {
-			command.execute();
+			command.execute(new State());
 		}
 	}
 	
 	public State handleInput(String commandString){
+		return new State();
 		//parse and handle
 	}
 	
 	private boolean isValidCommand(Command command) {
-		if(command isInstanceOf )
+		return false;
 	}
 }
