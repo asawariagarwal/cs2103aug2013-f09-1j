@@ -3,6 +3,7 @@ package todo;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import todo.Command.ViewCommand;
@@ -41,9 +42,10 @@ public class Parser {
 	 * Else it returns false
 	 * 
 	 * Return Type: boolean
+	 * @throws ParseException 
 	 */
 
-	public boolean parseInput() { // return true is the user Input is valid else
+	public boolean parseInput() throws ParseException { // return true is the user Input is valid else
 									// return false
 
 		String first_word;
@@ -66,15 +68,15 @@ public class Parser {
 				return false;
 			} else {
 				if (_userInput.equals("all ordered by tags")) {
-					ViewCommand command = new ViewCommand(false, true);
+					//ViewCommand command = new ViewCommand(false, true);
 				} else if (_userInput.equals("floating")) {
-					ViewCommand command = new ViewCommand(true);
+					//ViewCommand command = new ViewCommand(true);
 				} else if (_userInput.startsWith("#")) {
 					String hashtag = extractFirstWord();
 					if (_userInput != "") {
 						return false;
 					}
-					ViewCommand command = new ViewCommand(hashtag);
+					//ViewCommand command = new ViewCommand(hashtag);
 				} else {
 					String Date_str;
 					Date_str = extractTillKeyword("ordered");
@@ -87,11 +89,11 @@ public class Parser {
 						Date dateObj = curFormater.parse(Date_str);
 						Calendar calendar = Calendar.getInstance();
 						calendar.setTime(dateObj);
-
+						//ViewCommand command = new ViewCommand(calendar);
 					} else {
 						return false;
 					}
-					ViewCommand command = new ViewCommand(calendar);
+					
 				}
 
 			}
@@ -100,7 +102,7 @@ public class Parser {
 
 		/*
 		 * The following commands haven't been implemented yet so the code has
-		 * been commeted out for the walking skeleton
+		 * been commented out for the walking skeleton
 		 * 
 		 * case "delete":{ if(_userInput.equals("")){ return false; } else {
 		 * if(_userInput.equals("all expired")){ //create DeleteAllExpiredObject
@@ -227,16 +229,17 @@ public class Parser {
 
 	/**
 	 * This function Parses the input in case the command type is add
+	 * @throws ParseException 
 	 */
 
-	private boolean  parseAdd()
+	private boolean parseAdd() throws ParseException
 	{
 		
 		if(!parseDeadlineTask())
 		{
 			if(!parseTimedTask())
 			{
-				return parseFloatingTask());
+				return parseFloatingTask();
 			}
 			else 
 			{
@@ -253,8 +256,9 @@ public class Parser {
 	/**
 	 * This function is used in case the Task is a deadline task and it parses
 	 * the input to create a deadline type object
+	 * @throws ParseException 
 	 */
-	private boolean parseDeadlineTask() {
+	private boolean parseDeadlineTask() throws ParseException {
 
 		ArrayList<String> hashtags = new ArrayList<String>();
 
@@ -281,13 +285,13 @@ public class Parser {
 
 		int i = 0;
 		while (!_userInput.equals("")) {
-			hashtags[i++] = extractHashtag(_userInput);
-			if (hashtags[i].equals(""))
+			hashtags.set(i++,extractHashtag());
+			if (hashtags.get(i).equals(""))
 				return false;
 		}
 
-		DeadlineTask TaskObj = new DeadLineTask(TaskDes, hashtags, calendar);
-		AddCommand command = new AddCommand(TaskObj);
+		//Task.DeadlineTask TaskObj = new Task.DeadlineTask(TaskDes, hashtags, calendar);
+		//AddCommand command = new AddCommand(TaskObj);
 		return true;
 	}
 
@@ -298,25 +302,26 @@ public class Parser {
 	private boolean parseFloatingTask() {
 
 		ArrayList<String> hashtags = new ArrayList<String>();
-		String TaskDes = extractTillHashtagOrEnd(_userInput);
+		String TaskDes = extractTillHashtagOrEnd();
 		int i = 0;
-		while (input != "") {
-			hashtags[i++] = extractHashtag(_userInput);
-			if (hashtags[i] == "")
+		while (!_userInput.equals("")) {
+			hashtags.set(i++,extractHashtag());
+			if (hashtags.get(i).equals(""))
 				return false;
 		}
 
-		FloatingTask TaskObj = new FloatinfTask(TaskDes, hashtags);
-		AddCommand command = new AddCommand(TaskObj);
+		//FloatingTask TaskObj = new FloatingTask(TaskDes, hashtags);
+		//AddCommand command = new AddCommand(TaskObj);
 		return true;
 	}
 
 	/**
 	 * This function is used in case the Task is a timed task and it parses the
 	 * input to create a timed task type object
+	 * @throws ParseException 
 	 */
-	private boolean parseTimedTask(string _userInput) {
-		return true;
+	private boolean parseTimedTask() throws ParseException {
+		//return true;
 		ArrayList<String> hashtags = new ArrayList<String>();
 
 		if (!_userInput.contains("from")) {
@@ -335,8 +340,9 @@ public class Parser {
 		if (_userInput.contains("on")) {
 			Date2 = extractTillKeyword("on");
 			Day = extractTillHashtagOrEnd();
-			Date1 = Date.concat(Day);
-			Date2 = Date.concat(Day);
+			//Note changes here
+			Date1 = Date1.concat(Day);
+			Date2 = Date2.concat(Day);
 		} else {
 			Date2 = extractTillHashtagOrEnd();
 		}
@@ -358,13 +364,13 @@ public class Parser {
 
 		int i = 0;
 		while (!_userInput.equals("")) {
-			hashtags[i++] = extractHashtag(_userInput);
-			if (hashtags[i].equals(""))
+			hashtags.set(i++,extractHashtag());
+			if (hashtags.get(i).equals(""))
 				return false;
 		}
-		TimedTask taskObj = new TimedTask(TaskDes, hashtags, calendar1,
-				calendar2);
-		AddCommand command = new AddCommand(TaskObj);
+		//TimedTask taskObj = new TimedTask(TaskDes, hashtags, calendar1,
+				//calendar2);
+		//AddCommand command = new AddCommand(TaskObj);
 		return true;
 
 	}
@@ -383,7 +389,7 @@ public class Parser {
 			extractedString = _userInput.substring(0, posOfHash);
 			_userInput = _userInput.substring(posOfHash);
 		} else {
-			extractString = _userInput;
+			extractedString = _userInput;
 		}
 		return extractedString;
 	}
@@ -394,7 +400,7 @@ public class Parser {
 	private String extractHashtag() {
 
 		if (_userInput.startsWith("#"))
-			return extractFirstWord(_userInput);
+			return extractFirstWord();
 		else
 			return "";
 
