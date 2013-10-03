@@ -1,5 +1,6 @@
 package todo;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -12,7 +13,7 @@ import java.util.Calendar;
  * @author Karan
  * 
  */
-public class Task {
+class Task {
 	/**
 	 * Stores the task descriptions and user defined tags as private members
 	 */
@@ -92,6 +93,15 @@ public class Task {
 	}
 
 	/**
+	 * Routine to get list of tags
+	 * 
+	 * @return tags list for a task
+	 */
+	protected ArrayList<String> getTags() {
+		return _tags;
+	}
+
+	/**
 	 * Subclass to encapsulate floating tasks
 	 * 
 	 * @author Karan
@@ -108,6 +118,20 @@ public class Task {
 		 */
 		FloatingTask(String description, ArrayList<String> tags) {
 			super(description, tags);
+		}
+
+		/**
+		 * Routine to get floating task as a String
+		 */
+		public String toString() {
+			String taskString = "";
+
+			for (String tag : getTags()) {
+				taskString += " #" + tag;
+			}
+			taskString = getTaskDescription() + taskString;
+
+			return taskString;
 		}
 	}
 
@@ -157,6 +181,23 @@ public class Task {
 		protected Calendar getDeadline() {
 			return _deadline;
 		}
+
+		/**
+		 * Routine to return the deadline task as a String
+		 */
+		public String toString() {
+			String taskString = "";
+
+			String deadlineFormat = " 'by' EEEEEEEEE',' dd MMMMMMMMM',' yyyy";
+
+			SimpleDateFormat sdf = new SimpleDateFormat(deadlineFormat);
+
+			taskString = (getTaskDescription() + sdf.format(getDeadline()
+					.getTime()));
+
+			return taskString;
+		}
+
 	}
 
 	/**
@@ -227,6 +268,19 @@ public class Task {
 		 */
 		protected Calendar getEndDate() {
 			return _endDate;
+		}
+
+		/**
+		 * Routine that returns a timed task as a String
+		 */
+		public String toString() {
+			String taskString = "";
+			String timedTaskFormat = "hh:mm aa 'on' EEEEEEEEE ',' dd MMMMMMMMM, yyyy";
+			SimpleDateFormat sdf = new SimpleDateFormat(timedTaskFormat);
+			taskString = getTaskDescription() + " from "
+					+ sdf.format(getStartDate().getTime()) + " to "
+					+ sdf.format(getEndDate().getTime());
+			return taskString;
 		}
 	}
 }

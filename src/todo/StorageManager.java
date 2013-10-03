@@ -11,7 +11,8 @@ public class StorageManager {
 	private final static String TASK_SEPARATOR = "\n";
 	
 	protected static State readStore(){
-		//TODO
+		return new State();
+		//Stub
 	}
 	
 	protected static void writeStore(State saveState) throws IOException{

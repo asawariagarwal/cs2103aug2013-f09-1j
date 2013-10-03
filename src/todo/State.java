@@ -6,7 +6,7 @@ import java.util.Collections;
 import todo.Task.*;
 
 /**
- * This class helps maintain the state of the application, containing all
+ * This class helps maintain a state of the application, containing all
  * neccessary data and methods to manipulate them
  * 
  * @author Karan
@@ -73,7 +73,7 @@ public class State {
 	}
 
 	/**
-	 * routine to get a list of all tasks
+	 * Routine to get a list of all tasks
 	 * 
 	 * @return an arraylist containing all tasks
 	 */
