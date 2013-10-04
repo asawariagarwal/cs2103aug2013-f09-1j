@@ -188,12 +188,16 @@ class Task {
 		public String toString() {
 			String taskString = "";
 
-			String deadlineFormat = " 'by' EEEEEEEEE',' dd MMMMMMMMM',' yyyy";
+			String deadlineFormat = " 'by' EEEEEEEEE',' dd MMMMMMMMM',' yyyy ";
 
 			SimpleDateFormat sdf = new SimpleDateFormat(deadlineFormat);
 
 			taskString = (getTaskDescription() + sdf.format(getDeadline()
 					.getTime()));
+
+			for (String tag : getTags()) {
+				taskString += ("#" + tag);
+			}
 
 			return taskString;
 		}
@@ -275,11 +279,16 @@ class Task {
 		 */
 		public String toString() {
 			String taskString = "";
-			String timedTaskFormat = "hh:mm aa 'on' EEEEEEEEE ',' dd MMMMMMMMM, yyyy";
+			String timedTaskFormat = "hh:mm aa 'on' EEEEEEEEE ',' dd MMMMMMMMM, yyyy ";
 			SimpleDateFormat sdf = new SimpleDateFormat(timedTaskFormat);
 			taskString = getTaskDescription() + " from "
-					+ sdf.format(getStartDate().getTime()) + " to "
+					+ sdf.format(getStartDate().getTime()) + "to "
 					+ sdf.format(getEndDate().getTime());
+
+			for (String tag : getTags()) {
+				taskString += ("#" + tag);
+			}
+
 			return taskString;
 		}
 	}
