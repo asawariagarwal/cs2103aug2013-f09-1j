@@ -31,6 +31,8 @@ import javax.swing.JTextField;
 import java.awt.Cursor;
 import java.awt.Component;
 import java.awt.Point;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 public class testUI implements ActionListener {
 
@@ -113,6 +115,12 @@ public class testUI implements ActionListener {
 		Prompt.setText(">");
 		
 		UserInputField = new JTextField();
+		UserInputField.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				UserInputField.setText("");
+			}
+		});
 		UserInputArea.add(UserInputField, BorderLayout.CENTER);
 		UserInputField.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 		UserInputField.setBorder(null);
@@ -122,6 +130,7 @@ public class testUI implements ActionListener {
 		UserInputField.setFont(new Font("Courier New", Font.PLAIN, 15));
 		UserInputField.setSize(20, 1);
 		UserInputField.requestFocusInWindow();
+		
 		frmTodo.setTitle("ToDo");
 		frmTodo.setBounds(1100, 0, 500, 850);
 		//frmTodo.setLocationByPlatform(true);
