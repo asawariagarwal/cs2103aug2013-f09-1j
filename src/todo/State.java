@@ -88,6 +88,22 @@ public class State {
 	}
 
 	/**
+	 * Routine to add a generic task object
+	 * 
+	 * @param task
+	 *            task to be added
+	 */
+	protected void addTask(Task task) {
+		if (task instanceof FloatingTask) {
+			addTask((FloatingTask) (task));
+		} else if (task instanceof TimedTask) {
+			addTask((TimedTask) (task));
+		} else if (task instanceof DeadlineTask) {
+			addTask((DeadlineTask) (task));
+		}
+	}
+
+	/**
 	 * Routine to add a task to the timed tasks list
 	 * 
 	 * @param task
