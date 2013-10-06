@@ -204,6 +204,22 @@ public class State {
 	}
 
 	/**
+	 * Routine to remove generic task object
+	 * 
+	 * @param task
+	 *            task object to be removed
+	 */
+	protected void removeTask(Task task) {
+		if (task instanceof FloatingTask) {
+			removeTask((FloatingTask) (task));
+		} else if (task instanceof TimedTask) {
+			removeTask((TimedTask) (task));
+		} else if (task instanceof DeadlineTask) {
+			removeTask((DeadlineTask) (task));
+		}
+	}
+
+	/**
 	 * Routine to get all tasks containing a given snippet
 	 * 
 	 * @param taskSnippet
