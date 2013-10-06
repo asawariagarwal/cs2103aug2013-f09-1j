@@ -115,6 +115,7 @@ public class testUI implements ActionListener {
 		Prompt.setText(">");
 		
 		UserInputField = new JTextField();
+		UserInputField.setCaretColor(new Color(0, 153, 51));
 		UserInputField.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent arg0) {
