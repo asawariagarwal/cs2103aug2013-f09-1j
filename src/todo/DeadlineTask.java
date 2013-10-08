@@ -65,7 +65,7 @@ import java.util.Calendar;
 					.getTime()));
 
 			for (String tag : getTags()) {
-				taskString += ("#" + tag);
+				taskString += (" #" + tag);
 			}
 
 			return taskString;

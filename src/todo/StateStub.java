@@ -14,16 +14,17 @@ public class StateStub {
 		stub.addTask(task1);
 		
 		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.DAY_OF_WEEK_IN_MONTH, Calendar.THURSDAY);
-		DeadlineTask task2 = new DeadlineTask("Do V0.1", tags, cal);
+		cal.add(Calendar.DATE, 2);
+		DeadlineTask task2 = new DeadlineTask("Do V0.1", new ArrayList<String>(), cal);
 		task2.addTag("Work");
-		task2.removeTag("Home");
 		stub.addTask(task2);
 		
-		cal.add(Calendar.DAY_OF_WEEK_IN_MONTH, Calendar.SATURDAY);
+		Calendar cal3 = Calendar.getInstance();
+		cal3.add(Calendar.MONTH, 1);
 		Calendar cal2 = Calendar.getInstance();
-		cal2.add(Calendar.DAY_OF_WEEK_IN_MONTH, Calendar.MONDAY);
-		TimedTask task3 = new TimedTask("Watch TV", tags, cal, cal2 );
+		cal2.add(Calendar.MONTH, 1);
+		cal2.add(Calendar.MINUTE, 300);
+		TimedTask task3 = new TimedTask("Watch TV", new ArrayList<String>(), cal3, cal2 );
 		task3.addTag("Leisure");
 		task3.removeTag("Work");
 		stub.addTask(task3);

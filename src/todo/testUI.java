@@ -45,7 +45,9 @@ public class testUI implements ActionListener {
 	private JTextField UserInputField;
 	private JTextField Prompt;
 	private JPanel UserInputArea;
-	private JTextPane textPane;
+	private JTextPane TimedTaskView;
+	private JTextPane DeadlineTaskView;
+	private JTextPane FloatingTaskView;
 
 	/**
 	 * Launch the application.
@@ -76,6 +78,9 @@ public class testUI implements ActionListener {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		StateStub stateGen = new StateStub();
+		State testState = stateGen.getStateStub();
+		
 		frmTodo = new JFrame();
 		frmTodo.getContentPane().setForeground(new Color(0, 0, 0));
 		frmTodo.getContentPane().setBackground(new Color(0, 0, 0));
@@ -87,11 +92,47 @@ public class testUI implements ActionListener {
 		frmTodo.getContentPane().add(MainViewArea, BorderLayout.WEST);
 		MainViewArea.setLayout(new BorderLayout(0, 0));
 
-		textPane = new JTextPane();
-		textPane.setFont(new Font("Courier New", Font.BOLD, 15));
-		textPane.setForeground(new Color(0, 153, 51));
-		textPane.setBackground(new Color(0, 0, 0));
-		MainViewArea.add(textPane);
+		TimedTaskView = new JTextPane();
+		TimedTaskView.setEditable(false);
+		TimedTaskView.setFont(new Font("Courier New", Font.BOLD, 15));
+		TimedTaskView.setForeground(new Color(0, 153, 51));
+		TimedTaskView.setBackground(new Color(0, 0, 0));
+		if(testState.getTimedTasks() != null) {
+			String timedTaskText = "Timed Tasks :\n";
+			for(TimedTask task : testState.getTimedTasks()) {
+				timedTaskText += (task.toString() + "\n");
+			}
+			TimedTaskView.setText(timedTaskText);
+		}
+		MainViewArea.add(TimedTaskView, BorderLayout.NORTH);
+		
+		DeadlineTaskView = new JTextPane();
+		DeadlineTaskView.setEditable(false);
+		DeadlineTaskView.setForeground(new Color(0, 153, 51));
+		DeadlineTaskView.setFont(new Font("Courier New", Font.BOLD, 15));
+		DeadlineTaskView.setBackground(Color.BLACK);
+		if(testState.getDeadlineTasks() != null) {
+			String deadlineTaskText = "Deadline Tasks :\n";
+			for(DeadlineTask task : testState.getDeadlineTasks()) {
+				deadlineTaskText += (task.toString() + "\n");
+			}
+			DeadlineTaskView.setText(deadlineTaskText);
+		}
+		MainViewArea.add(DeadlineTaskView, BorderLayout.CENTER);
+		
+		FloatingTaskView = new JTextPane();
+		FloatingTaskView.setEditable(false);
+		FloatingTaskView.setForeground(new Color(0, 153, 51));
+		FloatingTaskView.setFont(new Font("Courier New", Font.BOLD, 15));
+		FloatingTaskView.setBackground(Color.BLACK);
+		if(testState.getFloatingTasks() != null) {
+			String floatingTaskText = "Floating Tasks :\n";
+			for(FloatingTask task : testState.getFloatingTasks()) {
+				floatingTaskText += (task.toString() + "\n");
+			}
+			FloatingTaskView.setText(floatingTaskText);
+		}
+		MainViewArea.add(FloatingTaskView, BorderLayout.SOUTH);
 
 		JPanel NotificationsArea = new JPanel();
 		NotificationsArea.setBackground(new Color(0, 0, 0));
@@ -130,10 +171,10 @@ public class testUI implements ActionListener {
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 					String input = UserInputField.getText();
-					String currMainText = textPane.getText();
+					String currMainText = TimedTaskView.getText();
 					currMainText += ("\n" + input);
 					UserInputField.setText("");
-					textPane.setText(currMainText);
+					TimedTaskView.setText(currMainText);
 					
 					if(input.equals("exit")) {
 						System.exit(0);

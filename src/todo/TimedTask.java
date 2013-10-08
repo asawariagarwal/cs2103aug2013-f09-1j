@@ -86,7 +86,7 @@ class TimedTask extends Task {
 				+ sdf.format(getEndDate().getTime());
 
 		for (String tag : getTags()) {
-			taskString += ("#" + tag);
+			taskString += (" #" + tag);
 		}
 
 		return taskString;
