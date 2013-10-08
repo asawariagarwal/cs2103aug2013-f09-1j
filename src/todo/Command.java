@@ -2,9 +2,9 @@ package todo;
  
 import java.util.ArrayList;
 import java.util.Calendar;
-import todo.Task.DeadlineTask;
-import todo.Task.TimedTask;
-import todo.Task.FloatingTask;
+import todo.DeadlineTask;
+import todo.TimedTask;
+import todo.FloatingTask;
 
 /**
  * This class encapsulates different types of Commands
