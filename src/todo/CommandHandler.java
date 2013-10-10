@@ -1,5 +1,6 @@
 package todo;
 
+import java.io.IOException;
 import java.util.LinkedList;
 
 /**
@@ -70,6 +71,7 @@ class CommandHandler {
 			State newState = command.execute(getCurrentState());
 			if (command.isMutator()) {
 				stateList.add(newState);
+				updateStorage(newState);
 			}
 			return newState;
 		} else {
@@ -97,5 +99,22 @@ class CommandHandler {
 		State s = new State(getCurrentState());
 		s.setFeedback("Invalid Command");
 		return s;
+	}
+	
+	/**
+	 * Updates text file with new state
+	 * 
+	 * @param state
+	 * 			state to be used to update Storage
+	 * 
+	 * @return true if update is successful.
+	 */
+	private boolean updateStorage(State state) {
+		try {
+			StorageManager.writeStore(state);
+			return true;
+		} catch (IOException e) {
+			return false;
+		}
 	}
 }
