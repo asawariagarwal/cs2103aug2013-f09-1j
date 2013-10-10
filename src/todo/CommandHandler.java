@@ -68,7 +68,7 @@ class CommandHandler {
 	 */
 	protected State handle(Command command) {
 		if(command==null){
-			System.out.println("null error");
+			return makeInvalidState();
 		}
 		if (isValidCommand(command)) {
 			State newState = command.execute(getCurrentState());
