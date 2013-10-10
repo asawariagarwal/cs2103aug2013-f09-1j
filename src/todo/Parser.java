@@ -214,17 +214,21 @@ public class Parser {
 
 	private AddCommand parseAdd() throws ParseException {
 		AddCommand command;
+		String copyInput1 , copyInput2;
+		copyInput1=_userInput;
+		copyInput2=_userInput;
 		command = parseDeadlineTask();
 		if (command != null) {
 			return command;
 		}
+		_userInput=copyInput1;
 		command = parseTimedTask();
 		if (command != null) {
 			return command;
 		}
+		_userInput=copyInput2;
 		command = parseFloatingTask();
 		return command;
-
 	}
 
 	/**
@@ -292,9 +296,9 @@ public class Parser {
 
 		String date1, date2;
 
-		date1 = extractTillKeyword("to");
+		date1 = extractTillKeyword("to").trim();
 
-		date2 = extractTillHashtagOrEnd();
+		date2 = extractTillHashtagOrEnd().trim();
 
 		if ((isDateValid(date1)) && (isDateValid(date2))) {
 
@@ -311,12 +315,12 @@ public class Parser {
 			Calendar calendar2 = Calendar.getInstance();
 			calendar2.setTime(dateObj2);
 
-			int i = 0;
+			/*int i = 0;
 			while (!_userInput.equals("")) {
 				hashtags.set(i++, extractHashtag());
 				if (hashtags.get(i).equals(""))
 					return null;
-			}
+			}*/
 
 			TimedTask taskObj = new TimedTask(TaskDes, hashtags, calendar1,
 					calendar2);
