@@ -53,7 +53,7 @@ class CommandHandler {
 	 * @return true if command is valid, false otherwise.
 	 * 
 	 */
-	private boolean isValidCommand(Command command) {
+	protected boolean isValidCommand(Command command) {
 		return command.isValid(getCurrentState());
 	}
 	
@@ -66,7 +66,7 @@ class CommandHandler {
 	 * 
 	 * @return State
 	 */
-	private State handle(Command command) {
+	protected State handle(Command command) {
 		if (isValidCommand(command)) {
 			State newState = command.execute(getCurrentState());
 			if (command.isMutator()) {
@@ -85,7 +85,7 @@ class CommandHandler {
 	 * 
 	 * @return the current State
 	 */
-	private State getCurrentState() {
+	protected State getCurrentState() {
 		return stateList.getLast();
 	}
 	
@@ -95,7 +95,7 @@ class CommandHandler {
 	 * 
 	 * @return an invalid state
 	 */
-	private State makeInvalidState() {
+	protected State makeInvalidState() {
 		State s = new State(getCurrentState());
 		s.setFeedback("Invalid Command");
 		return s;

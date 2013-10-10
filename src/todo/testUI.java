@@ -56,7 +56,9 @@ public class testUI implements ActionListener {
 	private JTextPane DeadlineTaskView;
 	private JTextPane FloatingTaskView;
 	private JTextPane FeedbackPane;
-
+	
+	private static CommandHandler _handler;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -64,7 +66,7 @@ public class testUI implements ActionListener {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					testUI window = new testUI();
+					testUI window = new testUI(_handler);
 					window.frmTodo.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -76,8 +78,10 @@ public class testUI implements ActionListener {
 	/**
 	 * Create the application.
 	 */
-	public testUI() {
-		initialize();
+	public testUI(CommandHandler handler) {
+		StateStub stateGen = new StateStub();
+		State testState = stateGen.getStateStub();
+		initialize(testState);
 		timer = new Timer(1000, this);
 		timer.start();
 	}
@@ -85,9 +89,7 @@ public class testUI implements ActionListener {
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	private void initialize() {
-		StateStub stateGen = new StateStub();
-		State testState = stateGen.getStateStub();
+	private void initialize(State testState) {
 
 		frmTodo = new JFrame();
 		frmTodo.getContentPane().setForeground(new Color(0, 0, 0));
