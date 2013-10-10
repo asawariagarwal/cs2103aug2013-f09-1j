@@ -4,7 +4,7 @@ public class MainHandler {
 	public static void main(String[] args){
 		State initState = StorageManager.readStore();
 		CommandHandler initCommandHandler = new CommandHandler(initState);
-		UserInterface initUI = new SimpleUI();
+		IUserInterface initUI = new SimpleUI();
 		initUI.loadCommandHandler(initCommandHandler);
 		initUI.init();
 	}
