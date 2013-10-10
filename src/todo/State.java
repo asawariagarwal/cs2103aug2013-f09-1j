@@ -40,9 +40,9 @@ public class State {
 	 */
 	State(State previous) {
 		this();
-		Collections.copy(_currentTimedTasks, previous.getTimedTasks());
-		Collections.copy(_currentDeadlineTasks, previous.getDeadlineTasks());
-		Collections.copy(_currentFloatingTasks, previous.getFloatingTasks());
+		_currentTimedTasks = new ArrayList<TimedTask>(previous.getTimedTasks());
+		_currentDeadlineTasks = new ArrayList<DeadlineTask>(previous.getDeadlineTasks());
+		_currentFloatingTasks = new ArrayList<FloatingTask>(previous.getFloatingTasks());
 	}
 
 	/**

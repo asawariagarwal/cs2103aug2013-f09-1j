@@ -85,7 +85,7 @@ public class testUI implements ActionListener {
 		//StateStub stateGen = new StateStub();
 		//State testState = stateGen.getStateStub();
 		//initialize(testState);
-		initialize(_displayState);
+		initialize();
 		timer = new Timer(1000, this);
 		timer.start();
 	}
@@ -93,7 +93,7 @@ public class testUI implements ActionListener {
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	private void initialize(State testState) {
+	private void initialize() {
 
 		frmTodo = new JFrame();
 		frmTodo.getContentPane().setForeground(new Color(0, 0, 0));
@@ -119,8 +119,8 @@ public class testUI implements ActionListener {
 		FeedbackPane.setFont(new Font("Tahoma", Font.BOLD, 15));
 		FeedbackPane.setEditable(false);
 		FeedbackPane.setDisabledTextColor(Color.BLUE);
-		if (!testState.getFeedback().equals("")) {
-			FeedbackPane.setText(testState.getFeedback());
+		if (!_displayState.getFeedback().equals("")) {
+			FeedbackPane.setText(_displayState.getFeedback());
 			MainViewArea.add(FeedbackPane);
 		}
 
@@ -144,27 +144,7 @@ public class testUI implements ActionListener {
 		FloatingTaskView.setBackground(Color.BLACK);
 		// MainViewArea.add(FloatingTaskView);
 
-		if (testState.getTimedTasks() != null) {
-			String timedTaskText = "Timed Tasks :\n";
-			for (TimedTask task : testState.getTimedTasks()) {
-				timedTaskText += (task.toString() + "\n");
-			}
-			TimedTaskView.setText(timedTaskText);
-		}
-		if (testState.getDeadlineTasks() != null) {
-			String deadlineTaskText = "Deadline Tasks :\n";
-			for (DeadlineTask task : testState.getDeadlineTasks()) {
-				deadlineTaskText += (task.toString() + "\n");
-			}
-			DeadlineTaskView.setText(deadlineTaskText);
-		}
-		if (testState.getFloatingTasks() != null) {
-			String floatingTaskText = "Floating Tasks :\n";
-			for (FloatingTask task : testState.getFloatingTasks()) {
-				floatingTaskText += (task.toString() + "\n");
-			}
-			FloatingTaskView.setText(floatingTaskText);
-		}
+		updateTaskFields();
 		JPanel NotificationsArea = new JPanel();
 		NotificationsArea.setBackground(new Color(0, 0, 0));
 		frmTodo.getContentPane().add(NotificationsArea, BorderLayout.EAST);
@@ -199,18 +179,21 @@ public class testUI implements ActionListener {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-
 					String input = UserInputField.getText();
+					if (input.equals("exit")) {
+						System.exit(0);
+					}
+					
 					_displayState = _handler.handleInput(input);
+					UserInputField.setText("");
+					FeedbackPane.setText(_displayState.getFeedback());
+					updateTaskFields();
 					/*
 					 * Dummy Event test String currMainText =
 					 * TimedTaskView.getText(); currMainText += ("\n" + input);
 					 * UserInputField.setText("");
 					 * TimedTaskView.setText(currMainText);
 					 */
-					if (input.equals("exit")) {
-						System.exit(0);
-					}
 				}
 			}
 		});
@@ -250,6 +233,42 @@ public class testUI implements ActionListener {
 		// frmTodo.setLocationByPlatform(true);
 		frmTodo.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+	}
+
+	private void updateTaskFields() {
+		updateTimedTaskField();
+		updateDeadlineTaskField();
+		updateFloatingTaskField();
+	}
+
+	private void updateTimedTaskField() {
+		if (_displayState.getTimedTasks() != null) {
+			String timedTaskText = "Timed Tasks :\n";
+			for (TimedTask task : _displayState.getTimedTasks()) {
+				timedTaskText += (task.toString() + "\n");
+			}
+			TimedTaskView.setText(timedTaskText);
+		}
+	}
+
+	private void updateDeadlineTaskField() {
+		if (_displayState.getDeadlineTasks() != null) {
+			String deadlineTaskText = "Deadline Tasks :\n";
+			for (DeadlineTask task : _displayState.getDeadlineTasks()) {
+				deadlineTaskText += (task.toString() + "\n");
+			}
+			DeadlineTaskView.setText(deadlineTaskText);
+		}
+	}
+
+	private void updateFloatingTaskField() {
+		if (_displayState.getFloatingTasks() != null) {
+			String floatingTaskText = "Floating Tasks :\n";
+			for (FloatingTask task : _displayState.getFloatingTasks()) {
+				floatingTaskText += (task.toString() + "\n");
+			}
+			FloatingTaskView.setText(floatingTaskText);
+		}
 	}
 
 	private static String getCurrentDisplayTime() {

@@ -67,6 +67,9 @@ class CommandHandler {
 	 * @return State
 	 */
 	protected State handle(Command command) {
+		if(command==null){
+			System.out.println("null error");
+		}
 		if (isValidCommand(command)) {
 			State newState = command.execute(getCurrentState());
 			if (command.isMutator()) {

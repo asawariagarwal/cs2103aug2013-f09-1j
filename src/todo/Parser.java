@@ -256,12 +256,12 @@ public class Parser {
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(dateObj);
 
-			int i = 0;
+			/*int i = 0;
 			while (!_userInput.equals("")) {
 				hashtags.set(i++, extractHashtag());
 				if (hashtags.get(i).equals(""))
 					return null;
-			}
+			}*/
 
 			DeadlineTask TaskObj = new DeadlineTask(TaskDes, hashtags, calendar);
 
@@ -476,6 +476,7 @@ public class Parser {
 			_userInput = _userInput.substring(posOfHash);
 		} else {
 			extractedString = _userInput;
+			_userInput="";
 		}
 		return extractedString;
 	}
