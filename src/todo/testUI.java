@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 
 import java.awt.BorderLayout;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import javax.swing.JTextArea;
@@ -35,13 +36,16 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+
 import javax.swing.JTextPane;
 import javax.swing.JScrollPane;
+
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.CardLayout;
 import java.awt.GridLayout;
+
 import javax.swing.JLabel;
 
 public class testUI implements ActionListener {
@@ -57,9 +61,10 @@ public class testUI implements ActionListener {
 	private JTextPane FloatingTaskView;
 	private JTextPane FeedbackPane;
 	private JPanel MainViewArea;
-
+	private ArrayList<String> previousInputs;
 	private static CommandHandler _handler;
 	private static State _displayState;
+	private static int UP_KEYPRESS_COUNTER;
 
 	/**
 	 * Launch the application.
@@ -83,10 +88,12 @@ public class testUI implements ActionListener {
 	public testUI(CommandHandler handler) {
 		_handler = handler;
 		_displayState = _handler.getCurrentState();
-		//StateStub stateGen = new StateStub();
-		//State testState = stateGen.getStateStub();
-		//initialize(testState);
+		// StateStub stateGen = new StateStub();
+		// State testState = stateGen.getStateStub();
+		// initialize(testState);
 		initialize();
+		UP_KEYPRESS_COUNTER = 1;
+		previousInputs = new ArrayList<String>();
 		timer = new Timer(1000, this);
 		timer.start();
 	}
@@ -95,7 +102,6 @@ public class testUI implements ActionListener {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-
 		frmTodo = new JFrame();
 		frmTodo.getContentPane().setForeground(new Color(0, 0, 0));
 		frmTodo.getContentPane().setBackground(new Color(0, 0, 0));
@@ -184,10 +190,12 @@ public class testUI implements ActionListener {
 					if (input.equals("exit")) {
 						System.exit(0);
 					}
-					
+
 					_displayState = _handler.handleInput(input);
 					UserInputField.setText("");
 					FeedbackPane.setText(_displayState.getFeedback());
+					previousInputs.add(input);
+					UP_KEYPRESS_COUNTER = 1;
 					updateTaskFields();
 					/*
 					 * Dummy Event test String currMainText =
@@ -195,6 +203,18 @@ public class testUI implements ActionListener {
 					 * UserInputField.setText("");
 					 * TimedTaskView.setText(currMainText);
 					 */
+				}
+				if (e.getKeyCode() == KeyEvent.VK_UP) {
+					if (previousInputs.size() - UP_KEYPRESS_COUNTER > 0) {
+						UserInputField.setText(previousInputs
+								.get(previousInputs.size()
+										- UP_KEYPRESS_COUNTER++));
+					} else {
+						UP_KEYPRESS_COUNTER = 1;
+						UserInputField.setText(previousInputs
+								.get(previousInputs.size()
+										- UP_KEYPRESS_COUNTER++));
+					}
 				}
 			}
 		});
@@ -216,17 +236,16 @@ public class testUI implements ActionListener {
 		UserInputField.setSize(20, 1);
 		UserInputField.requestFocusInWindow();
 
-		/*if (!TimedTaskView.getText().equals("")) {
-			MainViewArea.add(TimedTaskView);
-		}
-
-		if (!DeadlineTaskView.getText().equals("")) {
-			MainViewArea.add(DeadlineTaskView);
-		}
-
-		if (!FloatingTaskView.getText().equals("")) {
-			MainViewArea.add(FloatingTaskView);
-		}*/
+		/*
+		 * if (!TimedTaskView.getText().equals("")) {
+		 * MainViewArea.add(TimedTaskView); }
+		 * 
+		 * if (!DeadlineTaskView.getText().equals("")) {
+		 * MainViewArea.add(DeadlineTaskView); }
+		 * 
+		 * if (!FloatingTaskView.getText().equals("")) {
+		 * MainViewArea.add(FloatingTaskView); }
+		 */
 
 		frmTodo.setTitle("ToDo");
 		frmTodo.setBounds(1100, 0, 800, 850);
@@ -250,7 +269,7 @@ public class testUI implements ActionListener {
 			}
 			TimedTaskView.setText(timedTaskText);
 			MainViewArea.add(TimedTaskView);
-		} else if(_displayState.getTimedTasks().isEmpty()){
+		} else if (_displayState.getTimedTasks().isEmpty()) {
 			MainViewArea.remove(TimedTaskView);
 			TimedTaskView.setText("");
 		}
@@ -264,7 +283,7 @@ public class testUI implements ActionListener {
 			}
 			DeadlineTaskView.setText(deadlineTaskText);
 			MainViewArea.add(DeadlineTaskView);
-		} else if(_displayState.getDeadlineTasks().isEmpty()) {
+		} else if (_displayState.getDeadlineTasks().isEmpty()) {
 			DeadlineTaskView.setText("");
 			MainViewArea.remove(DeadlineTaskView);
 		}
@@ -278,7 +297,7 @@ public class testUI implements ActionListener {
 			}
 			FloatingTaskView.setText(floatingTaskText);
 			MainViewArea.add(FloatingTaskView);
-		} else if(_displayState.getFloatingTasks().isEmpty()){
+		} else if (_displayState.getFloatingTasks().isEmpty()) {
 			FloatingTaskView.setText("");
 			MainViewArea.remove(FloatingTaskView);
 		}
