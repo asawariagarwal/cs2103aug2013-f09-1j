@@ -90,7 +90,7 @@ public class StorageManager {
 	private static Task parseTimedTaskString(String taskString) {
 		
 		int indexOfFrom = taskString.indexOf("from");
-		int indexOfTo = taskString.indexOf("to");
+		int indexOfTo = taskString.indexOf("to",indexOfFrom);
 		
 		String taskDescription = taskString.substring(0,indexOfFrom);
 		
