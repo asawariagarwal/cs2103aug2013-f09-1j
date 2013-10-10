@@ -122,8 +122,8 @@ public class testUI implements ActionListener {
 		FeedbackPane.setDisabledTextColor(Color.BLUE);
 		if (!_displayState.getFeedback().equals("")) {
 			FeedbackPane.setText(_displayState.getFeedback());
-			MainViewArea.add(FeedbackPane);
 		}
+		MainViewArea.add(FeedbackPane);
 
 		TimedTaskView = new JTextPane();
 		TimedTaskView.setEditable(false);
