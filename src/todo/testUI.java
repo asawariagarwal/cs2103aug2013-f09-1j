@@ -80,9 +80,11 @@ public class testUI implements ActionListener {
 	 * Create the application.
 	 */
 	public testUI(CommandHandler handler) {
-		State _displayState = handler.getCurrentState();
-		// StateStub stateGen = new StateStub();
-		// State testState = stateGen.getStateStub();
+		_handler = handler;
+		_displayState = _handler.getCurrentState();
+		//StateStub stateGen = new StateStub();
+		//State testState = stateGen.getStateStub();
+		//initialize(testState);
 		initialize(_displayState);
 		timer = new Timer(1000, this);
 		timer.start();
