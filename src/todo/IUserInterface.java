@@ -1,6 +1,6 @@
 package todo;
 
-interface UserInterface {
+interface IUserInterface {
 	
 	void loadCommandHandler(CommandHandler handler);
 	

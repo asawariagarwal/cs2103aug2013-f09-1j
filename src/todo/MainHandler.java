@@ -1,8 +1,15 @@
 package todo;
 
+import java.io.IOException;
+
 public class MainHandler {
 	public static void main(String[] args){
-		State initState = StorageManager.readStore();
+		try {
+			State initState = StorageManager.readStore();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		//CommandHandler initCommandHandler = new CommandHandler(initState);
 		State dummy = new State();
 		dummy.setFeedback("Nothing to display");
