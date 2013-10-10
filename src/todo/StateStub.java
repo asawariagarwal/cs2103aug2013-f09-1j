@@ -7,6 +7,8 @@ public class StateStub {
 	protected State getStateStub() {
 		State stub = new State();
 		
+		stub.setFeedback("Some FeedBack");
+		
 		ArrayList<String> tags =  new ArrayList<String>();
 		tags.add("priority");
 		tags.add("home");
