@@ -56,9 +56,10 @@ public class testUI implements ActionListener {
 	private JTextPane DeadlineTaskView;
 	private JTextPane FloatingTaskView;
 	private JTextPane FeedbackPane;
-	
+
 	private static CommandHandler _handler;
-	
+	private static State _displayState;
+
 	/**
 	 * Launch the application.
 	 */
@@ -79,9 +80,10 @@ public class testUI implements ActionListener {
 	 * Create the application.
 	 */
 	public testUI(CommandHandler handler) {
-		StateStub stateGen = new StateStub();
-		State testState = stateGen.getStateStub();
-		initialize(testState);
+		State _displayState = handler.getCurrentState();
+		// StateStub stateGen = new StateStub();
+		// State testState = stateGen.getStateStub();
+		initialize(_displayState);
 		timer = new Timer(1000, this);
 		timer.start();
 	}
@@ -195,12 +197,15 @@ public class testUI implements ActionListener {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					String input = UserInputField.getText();
-					String currMainText = TimedTaskView.getText();
-					currMainText += ("\n" + input);
-					UserInputField.setText("");
-					TimedTaskView.setText(currMainText);
 
+					String input = UserInputField.getText();
+					_displayState = _handler.handleInput(input);
+					/*
+					 * Dummy Event test String currMainText =
+					 * TimedTaskView.getText(); currMainText += ("\n" + input);
+					 * UserInputField.setText("");
+					 * TimedTaskView.setText(currMainText);
+					 */
 					if (input.equals("exit")) {
 						System.exit(0);
 					}

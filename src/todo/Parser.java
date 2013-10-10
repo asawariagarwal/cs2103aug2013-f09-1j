@@ -38,17 +38,24 @@ public class Parser {
 	/**
 	 * Constructor to initialize the user input
 	 */
+	Parser() {
+		_userInput = null;
+	}
 	Parser(String userInput) {
 		_userInput = userInput;
 	}
-
+	
+	private void setInput(String inputString) {
+		_userInput = inputString;
+	}
 	/**
 	 * This function does the main parsing - high level of abstraction
 	 * 
 	 * @return
 	 */
 
-	public Command parseInput() {
+	public Command parseInput(String inputString) {
+		setInput(inputString);
 		try {
 
 			String commandTypeKeyword = getCommandType();
