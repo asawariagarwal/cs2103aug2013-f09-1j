@@ -16,14 +16,13 @@ import java.util.Date;
 public class StorageManager {
 
 	private static String _filename = "C:\\ToDo\\taskstore.txt";
-	private final static String TASK_SEPARATOR = "\n";
+	private final static String TASK_SEPARATOR = "\r\n";
 	
 	protected static State readStore() throws IOException{
-		//return new State();
-		//Stub
 		File storeFile = new File(_filename);
 		boolean isCreated = storeFile.isFile();
 		if (!isCreated){
+			storeFile.getParentFile().mkdirs();
 			storeFile.createNewFile();
 			return new State();
 		} else {
@@ -32,7 +31,7 @@ public class StorageManager {
 			State storeState = new State();
 			do{
 				String taskString = storeReader.readLine();
-				if (storeReader.equals(null)){
+				if (taskString == null){
 					endOfFile = true;
 				}
 				else {
@@ -50,7 +49,7 @@ public class StorageManager {
 	private static Task parseTaskString(String taskString) {
 		if (taskString.contains("by")){
 			return parseDeadlineTaskString(taskString);
-		} else if (taskString.contains("on")){
+		} else if (taskString.contains("from") && taskString.contains("to")){
 			return parseTimedTaskString(taskString);
 		} else {
 			return parseFloatingTaskString(taskString);
@@ -77,7 +76,12 @@ public class StorageManager {
 			nextCounter = taskString.indexOf('#',nextCounter+1);
 		}
 		
-		String taskDescription = taskString.substring(0,firstTagCounter-1);
+		String taskDescription;
+		if (firstTagCounter == -1){
+			taskDescription = taskString;
+		} else {
+			taskDescription = taskString.substring(0,firstTagCounter-1);
+		}
 		
 		FloatingTask parsedTask = new FloatingTask(taskDescription, tags);
 		return parsedTask;
@@ -114,7 +118,13 @@ public class StorageManager {
 		int toSpace = taskString.indexOf(' ', indexOfTo);
 		
 		String fromString = taskString.substring(fromSpace, indexOfTo);
-		String toString = taskString.substring(toSpace, firstTagCounter-1);
+		
+		String toString;
+		if (firstTagCounter == -1){
+			toString = taskString.substring(toSpace);
+		} else{
+			toString = taskString.substring(toSpace, firstTagCounter-1); 
+		}
 		
 		SimpleDateFormat curFormater = new SimpleDateFormat(timedTaskFormat);
 		Date fromObj;
@@ -185,7 +195,11 @@ public class StorageManager {
 		SimpleDateFormat curFormater = new SimpleDateFormat(deadlineFormat);
 		Date dateObj;
 		try {
-			dateObj = curFormater.parse(taskString.substring(indexOfBy-1,firstTagCounter-1));
+			if (firstTagCounter == -1){
+				dateObj = curFormater.parse(taskString.substring(indexOfBy-1));
+			} else {
+				dateObj = curFormater.parse(taskString.substring(indexOfBy-1,firstTagCounter-1));
+			}
 		} catch (ParseException e) {
 			System.out.println("Read Error - Format");
 			dateObj = null;
