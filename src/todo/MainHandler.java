@@ -6,6 +6,9 @@ public class MainHandler {
 	public static void main(String[] args){
 		try {
 			State initState = StorageManager.readStore();
+			CommandHandler initCommandHandler = new CommandHandler(initState);
+			testUI initUI = new testUI(initCommandHandler);
+			initUI.main(null);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -13,10 +16,10 @@ public class MainHandler {
 		//CommandHandler initCommandHandler = new CommandHandler(initState);
 		State dummy = new State();
 		dummy.setFeedback("Nothing to display");
-		CommandHandler initCommandHandler = new CommandHandler(dummy);
+		//CommandHandler initCommandHandler = new CommandHandler(dummy);
 		//UserInterface initUI = new SimpleUI();
-		testUI initUI = new testUI(initCommandHandler);
-		initUI.main(null);
+		//testUI initUI = new testUI(initCommandHandler);
+		//initUI.main(null);
 		//initUI.loadCommandHandler(initCommandHandler);
 		//initUI.init();
 	}
