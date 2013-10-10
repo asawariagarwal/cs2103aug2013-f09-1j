@@ -162,8 +162,8 @@ public class Parser {
 
 	private ModifyCommand parseChange() {
 		String oldTask, newTask;
-		oldTask = extractTaskDescription();
-		newTask = _userInput;
+		oldTask = extractTaskDescription().trim();
+		newTask = _userInput.trim();
 		ModifyCommand command = new ModifyCommand(oldTask, newTask);
 		return command;
 	}
@@ -244,8 +244,8 @@ public class Parser {
 
 		String TaskDes = extractTillKeyword("by");
 		while (_userInput.contains("by")) {
-			TaskDes.concat(" ");
-			TaskDes.concat(extractTillKeyword("by"));
+			TaskDes= TaskDes.concat("by ");
+			TaskDes=TaskDes.concat(extractTillKeyword("by"));
 		}
 
 		String dateStr;
@@ -290,8 +290,8 @@ public class Parser {
 
 		String TaskDes = extractTillKeyword("from");
 		while (_userInput.contains("from")) {
-			TaskDes.concat(" ");
-			TaskDes.concat(extractTillKeyword("from"));
+			TaskDes=TaskDes.concat("from ");
+			TaskDes=TaskDes.concat(extractTillKeyword("from"));
 		}
 
 		String date1, date2;
@@ -359,8 +359,8 @@ public class Parser {
 	private String extractTaskDescription() {
 		String TaskDes = extractTillKeyword("to");
 		while (_userInput.contains("to")) {
-			TaskDes.concat(" ");
-			TaskDes.concat(extractTillKeyword("to"));
+			TaskDes=TaskDes.concat("to ");
+			TaskDes=TaskDes.concat(extractTillKeyword("to"));
 		}
 		return TaskDes;
 	}
