@@ -56,6 +56,7 @@ public class testUI implements ActionListener {
 	private JTextPane DeadlineTaskView;
 	private JTextPane FloatingTaskView;
 	private JTextPane FeedbackPane;
+	private JPanel MainViewArea;
 
 	private static CommandHandler _handler;
 	private static State _displayState;
@@ -100,7 +101,7 @@ public class testUI implements ActionListener {
 		frmTodo.getContentPane().setBackground(new Color(0, 0, 0));
 		frmTodo.getContentPane().setLayout(new BorderLayout(0, 0));
 
-		JPanel MainViewArea = new JPanel();
+		MainViewArea = new JPanel();
 		MainViewArea.setForeground(new Color(0, 153, 51));
 		MainViewArea.setBackground(new Color(0, 0, 0));
 		// frmTodo.getContentPane().add(MainViewArea, BorderLayout.WEST);
@@ -215,7 +216,7 @@ public class testUI implements ActionListener {
 		UserInputField.setSize(20, 1);
 		UserInputField.requestFocusInWindow();
 
-		if (!TimedTaskView.getText().equals("")) {
+		/*if (!TimedTaskView.getText().equals("")) {
 			MainViewArea.add(TimedTaskView);
 		}
 
@@ -225,7 +226,7 @@ public class testUI implements ActionListener {
 
 		if (!FloatingTaskView.getText().equals("")) {
 			MainViewArea.add(FloatingTaskView);
-		}
+		}*/
 
 		frmTodo.setTitle("ToDo");
 		frmTodo.setBounds(1100, 0, 800, 850);
@@ -242,32 +243,44 @@ public class testUI implements ActionListener {
 	}
 
 	private void updateTimedTaskField() {
-		if (_displayState.getTimedTasks() != null) {
+		if (!_displayState.getTimedTasks().isEmpty()) {
 			String timedTaskText = "Timed Tasks :\n";
 			for (TimedTask task : _displayState.getTimedTasks()) {
 				timedTaskText += (task.toString() + "\n");
 			}
 			TimedTaskView.setText(timedTaskText);
+			MainViewArea.add(TimedTaskView);
+		} else if(_displayState.getTimedTasks().isEmpty()){
+			MainViewArea.remove(TimedTaskView);
+			TimedTaskView.setText("");
 		}
 	}
 
 	private void updateDeadlineTaskField() {
-		if (_displayState.getDeadlineTasks() != null) {
+		if (!_displayState.getDeadlineTasks().isEmpty()) {
 			String deadlineTaskText = "Deadline Tasks :\n";
 			for (DeadlineTask task : _displayState.getDeadlineTasks()) {
 				deadlineTaskText += (task.toString() + "\n");
 			}
 			DeadlineTaskView.setText(deadlineTaskText);
+			MainViewArea.add(DeadlineTaskView);
+		} else if(_displayState.getDeadlineTasks().isEmpty()) {
+			DeadlineTaskView.setText("");
+			MainViewArea.remove(DeadlineTaskView);
 		}
 	}
 
 	private void updateFloatingTaskField() {
-		if (_displayState.getFloatingTasks() != null) {
+		if (!_displayState.getFloatingTasks().isEmpty()) {
 			String floatingTaskText = "Floating Tasks :\n";
 			for (FloatingTask task : _displayState.getFloatingTasks()) {
 				floatingTaskText += (task.toString() + "\n");
 			}
 			FloatingTaskView.setText(floatingTaskText);
+			MainViewArea.add(FloatingTaskView);
+		} else if(_displayState.getFloatingTasks().isEmpty()){
+			FloatingTaskView.setText("");
+			MainViewArea.remove(FloatingTaskView);
 		}
 	}
 
