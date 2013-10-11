@@ -411,7 +411,7 @@ public class Parser {
 												// correct or not use regex here
 												// to check
 	{
-		String regex = "\\d{2}[- /]\\d{2}[- /]\\d{4}";
+		String regex = "\\d{1,2}[- /]\\d{1,2}[- /]\\d{4}";
 		if (Date_str.matches(regex))
 			return true;
 		else
@@ -452,10 +452,13 @@ public class Parser {
 		String extractedString;
 		int posOfKeyword;
 		posOfKeyword = _userInput.indexOf(next_keyword);
+		if(posOfKeyword!=-1){
 		extractedString = _userInput.substring(0, posOfKeyword);
 		_userInput = (_userInput
 				.substring(posOfKeyword + next_keyword.length())).trim();
-		return extractedString;// returns extracted string just before keyword
+		return extractedString;
+		}
+		return "";// returns extracted string just before keyword
 	}
 
 	/**
