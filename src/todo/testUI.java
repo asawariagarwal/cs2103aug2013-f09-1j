@@ -106,9 +106,10 @@ public class testUI implements ActionListener {
 		frmTodo.getContentPane().setForeground(new Color(0, 0, 0));
 		frmTodo.getContentPane().setBackground(new Color(0, 0, 0));
 		frmTodo.getContentPane().setLayout(new BorderLayout(0, 0));
-
+		frmTodo.setDefaultLookAndFeelDecorated(true);
+		
 		MainViewArea = new JPanel();
-		MainViewArea.setForeground(new Color(0, 153, 51));
+		MainViewArea.setForeground(Color.GREEN);
 		MainViewArea.setBackground(new Color(0, 0, 0));
 		// frmTodo.getContentPane().add(MainViewArea, BorderLayout.WEST);
 		JScrollPane TaskScrollPane = new JScrollPane(MainViewArea);
@@ -121,7 +122,7 @@ public class testUI implements ActionListener {
 		MainViewArea.setLayout(new GridLayout(0, 1, 0, 0));
 
 		FeedbackPane = new JTextPane();
-		FeedbackPane.setForeground(new Color(0, 0, 204));
+		FeedbackPane.setForeground(Color.YELLOW);
 		FeedbackPane.setBackground(new Color(0, 0, 0));
 		FeedbackPane.setFont(new Font("Tahoma", Font.BOLD, 15));
 		FeedbackPane.setEditable(false);
@@ -134,19 +135,19 @@ public class testUI implements ActionListener {
 		TimedTaskView = new JTextPane();
 		TimedTaskView.setEditable(false);
 		TimedTaskView.setFont(new Font("Courier New", Font.BOLD, 15));
-		TimedTaskView.setForeground(new Color(0, 153, 51));
+		TimedTaskView.setForeground(Color.GREEN);
 		TimedTaskView.setBackground(new Color(0, 0, 0));
 
 		DeadlineTaskView = new JTextPane();
 		DeadlineTaskView.setEditable(false);
-		DeadlineTaskView.setForeground(new Color(0, 153, 51));
+		DeadlineTaskView.setForeground(Color.GREEN);
 		DeadlineTaskView.setFont(new Font("Courier New", Font.BOLD, 15));
 		DeadlineTaskView.setBackground(Color.BLACK);
 		// MainViewArea.add(DeadlineTaskView);
 
 		FloatingTaskView = new JTextPane();
 		FloatingTaskView.setEditable(false);
-		FloatingTaskView.setForeground(new Color(0, 153, 51));
+		FloatingTaskView.setForeground(Color.GREEN);
 		FloatingTaskView.setFont(new Font("Courier New", Font.BOLD, 15));
 		FloatingTaskView.setBackground(Color.BLACK);
 		// MainViewArea.add(FloatingTaskView);
@@ -158,7 +159,7 @@ public class testUI implements ActionListener {
 		NotificationsArea.setLayout(new BorderLayout(0, 0));
 
 		_currentDateTimeArea.setFont(new Font("Courier New", Font.BOLD, 13));
-		_currentDateTimeArea.setForeground(new Color(0, 153, 51));
+		_currentDateTimeArea.setForeground(Color.GREEN);
 		_currentDateTimeArea.setText("Fetching System Time...\n\n");
 		_currentDateTimeArea.setBackground(new Color(0, 0, 0));
 
@@ -174,7 +175,7 @@ public class testUI implements ActionListener {
 		UserInputArea.add(Prompt, BorderLayout.WEST);
 		Prompt.setEditable(false);
 		Prompt.setText(">");
-		Prompt.setForeground(new Color(0, 153, 51));
+		Prompt.setForeground(Color.GREEN);
 		Prompt.setFont(new Font("Courier New", Font.PLAIN, 15));
 		Prompt.setColumns(1);
 		Prompt.setBorder(null);
@@ -218,7 +219,7 @@ public class testUI implements ActionListener {
 				}
 			}
 		});
-		UserInputField.setCaretColor(new Color(0, 153, 51));
+		UserInputField.setCaretColor(Color.GREEN);
 		UserInputField.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -229,7 +230,7 @@ public class testUI implements ActionListener {
 		UserInputField
 				.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 		UserInputField.setBorder(null);
-		UserInputField.setForeground(new Color(0, 153, 51));
+		UserInputField.setForeground(Color.GREEN);
 		UserInputField.setBackground(new Color(0, 0, 0));
 		UserInputField.setText("Start Typing Here....");
 		UserInputField.setFont(new Font("Courier New", Font.PLAIN, 15));
