@@ -366,6 +366,7 @@ public class Parser {
 	}
 
 	private boolean isViewCommandDisplayingAllTasks() {
+		_userInput=_userInput.trim();
 		if (_userInput.equals("all ordered by tags")) {
 			return true;
 		}
@@ -387,7 +388,8 @@ public class Parser {
 	}
 
 	private boolean isViewCommandDisplayingTasksOnADate(String[] date) {
-		date[0] = extractDate();
+		date[0] = extractDate().trim();
+		_userInput=_userInput.trim();
 		if ((isDateValid(date[0])) && (_userInput.equals("by tags"))) {
 			return true;
 		}
