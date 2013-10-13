@@ -16,7 +16,7 @@ class CommandHandler {
 	
 	Parser parser;
 	LinkedList<State> stateList;
-	StorageManager store;
+	JSONStorage store;
 	
 	/**
 	 * Constructor for CommandHandler
@@ -26,7 +26,7 @@ class CommandHandler {
 	public CommandHandler(){
 		parser = new Parser();
 		stateList = new LinkedList<State>();
-		store = new StorageManager();
+		store = new JSONStorage();
 		State initState = readStorage();
 		stateList.add(initState);
 	}
