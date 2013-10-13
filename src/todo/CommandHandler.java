@@ -22,15 +22,15 @@ class CommandHandler {
 	 * Constructor for CommandHandler
 	 * Initializes parser and stateList
 	 * 
-	 * @param initState
-	 * 			initial state loaded fromm storage
 	 */
-	public CommandHandler(State initState){
+	public CommandHandler(){
 		parser = new Parser();
 		stateList = new LinkedList<State>();
-		stateList.add(initState);
 		store = new StorageManager();
+		State initState = readStorage();
+		stateList.add(initState);
 	}
+	
 	
 	/**
 	 * Takes in a user input string and returns the new state
@@ -121,6 +121,23 @@ class CommandHandler {
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
+		}
+	}
+	
+	/**
+	 * Reads storage to get init state
+	 * 
+	 * 
+	 * @return initial state if successful, empty state otherwise.
+	 */
+	private State readStorage() {
+		State initState = new State();
+		try {
+			initState = store.readStore();
+			return initState;
+		} catch (IOException e) {
+			initState.setFeedback("Corrupted Previous State");
+			return initState;
 		}
 	}
 }

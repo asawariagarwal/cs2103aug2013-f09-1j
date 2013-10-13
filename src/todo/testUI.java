@@ -50,7 +50,6 @@ public class testUI implements ActionListener {
 	private static CommandHandler _handler;
 	private static State _displayState;
 	private static int UP_KEYPRESS_COUNTER;
-	private static StorageManager _store;
 	
 
 	/**
@@ -73,21 +72,13 @@ public class testUI implements ActionListener {
 	 * Create the application.
 	 */
 	public testUI() {
-		_displayState = new State();
-		_store = new StorageManager();
-		_displayState.setFeedback("Corrupted Previous State");
-		try {
-			_displayState = _store.readStore();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			_handler = new CommandHandler(_displayState);
-			initialize();
-			UP_KEYPRESS_COUNTER = 1;
-			previousInputs = new ArrayList<String>();
-			timer = new Timer(1000, this);
-			timer.start();
-		}
+		_handler = new CommandHandler();
+		_displayState = _handler.getCurrentState();
+		initialize();
+		UP_KEYPRESS_COUNTER = 1;
+		previousInputs = new ArrayList<String>();
+		timer = new Timer(1000, this);
+		timer.start();
 	}
 
 	/**
