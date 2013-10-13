@@ -56,7 +56,7 @@ class CommandHandler {
 	 * 
 	 */
 	protected boolean isValidCommand(Command command) {
-		return command.isValid(getCurrentState());
+		return command != null && command.isValid(getCurrentState());
 	}
 	
 	/**
@@ -69,9 +69,6 @@ class CommandHandler {
 	 * @return State
 	 */
 	protected State handle(Command command) {
-		if(command==null){
-			return makeInvalidState();
-		}
 		if (isValidCommand(command)) {
 			State newState = command.execute(getCurrentState());
 			if (command.isMutator()) {
@@ -135,7 +132,7 @@ class CommandHandler {
 		try {
 			initState = store.readStore();
 			return initState;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			initState.setFeedback("Corrupted Previous State");
 			return initState;
 		}
