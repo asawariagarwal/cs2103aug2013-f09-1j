@@ -88,9 +88,6 @@ public class testUI implements ActionListener {
 	public testUI(CommandHandler handler) {
 		_handler = handler;
 		_displayState = _handler.getCurrentState();
-		// StateStub stateGen = new StateStub();
-		// State testState = stateGen.getStateStub();
-		// initialize(testState);
 		initialize();
 		UP_KEYPRESS_COUNTER = 1;
 		previousInputs = new ArrayList<String>();
@@ -102,71 +99,45 @@ public class testUI implements ActionListener {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frmTodo = new JFrame();
-		frmTodo.getContentPane().setForeground(new Color(0, 0, 0));
-		frmTodo.getContentPane().setBackground(new Color(0, 0, 0));
-		frmTodo.getContentPane().setLayout(new BorderLayout(0, 0));
-		frmTodo.setDefaultLookAndFeelDecorated(true);
+		initMainWindow();
 		
-		MainViewArea = new JPanel();
-		MainViewArea.setForeground(Color.GREEN);
-		MainViewArea.setBackground(new Color(0, 0, 0));
-		// frmTodo.getContentPane().add(MainViewArea, BorderLayout.WEST);
-		JScrollPane TaskScrollPane = new JScrollPane(MainViewArea);
-		TaskScrollPane.setBorder(null);
-		TaskScrollPane.setViewportBorder(null);
-		TaskScrollPane
-				.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		initMainViewArea();
 
-		frmTodo.getContentPane().add(TaskScrollPane, BorderLayout.CENTER);
-		MainViewArea.setLayout(new GridLayout(0, 1, 0, 0));
+		initFeedbackPane();
 
-		FeedbackPane = new JTextPane();
-		FeedbackPane.setForeground(Color.YELLOW);
-		FeedbackPane.setBackground(new Color(0, 0, 0));
-		FeedbackPane.setFont(new Font("Tahoma", Font.BOLD, 15));
-		FeedbackPane.setEditable(false);
-		FeedbackPane.setDisabledTextColor(Color.BLUE);
-		if (!_displayState.getFeedback().equals("")) {
-			FeedbackPane.setText(_displayState.getFeedback());
-		}
-		MainViewArea.add(FeedbackPane);
+		initTimedTaskView();
 
-		TimedTaskView = new JTextPane();
-		TimedTaskView.setEditable(false);
-		TimedTaskView.setFont(new Font("Courier New", Font.BOLD, 15));
-		TimedTaskView.setForeground(Color.GREEN);
-		TimedTaskView.setBackground(new Color(0, 0, 0));
-
-		DeadlineTaskView = new JTextPane();
-		DeadlineTaskView.setEditable(false);
-		DeadlineTaskView.setForeground(Color.GREEN);
-		DeadlineTaskView.setFont(new Font("Courier New", Font.BOLD, 15));
-		DeadlineTaskView.setBackground(Color.BLACK);
+		initDeadlineTaskView();
 		// MainViewArea.add(DeadlineTaskView);
 
-		FloatingTaskView = new JTextPane();
-		FloatingTaskView.setEditable(false);
-		FloatingTaskView.setForeground(Color.GREEN);
-		FloatingTaskView.setFont(new Font("Courier New", Font.BOLD, 15));
-		FloatingTaskView.setBackground(Color.BLACK);
+		initFloatingTaskView();
 		// MainViewArea.add(FloatingTaskView);
 
 		updateTaskFields();
-		JPanel NotificationsArea = new JPanel();
-		NotificationsArea.setBackground(new Color(0, 0, 0));
-		frmTodo.getContentPane().add(NotificationsArea, BorderLayout.EAST);
-		NotificationsArea.setLayout(new BorderLayout(0, 0));
+		initNotificationsArea();
 
-		_currentDateTimeArea.setFont(new Font("Courier New", Font.BOLD, 13));
-		_currentDateTimeArea.setForeground(Color.GREEN);
-		_currentDateTimeArea.setText("Fetching System Time...\n\n");
-		_currentDateTimeArea.setBackground(new Color(0, 0, 0));
+		initUserInputArea();
 
-		_currentDateTimeArea.setEditable(false);
+		/*
+		 * if (!TimedTaskView.getText().equals("")) {
+		 * MainViewArea.add(TimedTaskView); }
+		 * 
+		 * if (!DeadlineTaskView.getText().equals("")) {
+		 * MainViewArea.add(DeadlineTaskView); }
+		 * 
+		 * if (!FloatingTaskView.getText().equals("")) {
+		 * MainViewArea.add(FloatingTaskView); }
+		 */
 
-		NotificationsArea.add(_currentDateTimeArea, BorderLayout.EAST);
+		frmTodo.setTitle("ToDo");
+		frmTodo.setBounds(1100, 0, 800, 850);
+		frmTodo.setLocationRelativeTo(null);
+		// frmTodo.setLocationByPlatform(true);
+		frmTodo.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+	}
+
+	private void initUserInputArea() {
 		UserInputArea = new JPanel();
 		frmTodo.getContentPane().add(UserInputArea, BorderLayout.SOUTH);
 		UserInputArea.setLayout(new BorderLayout(0, 0));
@@ -191,22 +162,16 @@ public class testUI implements ActionListener {
 					if (input.equals("exit")) {
 						System.exit(0);
 					}
-
+					
 					_displayState = _handler.handleInput(input);
 					UserInputField.setText("");
 					FeedbackPane.setText(_displayState.getFeedback());
 					previousInputs.add(input);
 					UP_KEYPRESS_COUNTER = 1;
 					updateTaskFields();
-					/*
-					 * Dummy Event test String currMainText =
-					 * TimedTaskView.getText(); currMainText += ("\n" + input);
-					 * UserInputField.setText("");
-					 * TimedTaskView.setText(currMainText);
-					 */
 				}
 				if (e.getKeyCode() == KeyEvent.VK_UP) {
-					if (previousInputs.size() - UP_KEYPRESS_COUNTER > 0) {
+					if (previousInputs.size() - UP_KEYPRESS_COUNTER >= 0) {
 						UserInputField.setText(previousInputs
 								.get(previousInputs.size()
 										- UP_KEYPRESS_COUNTER++));
@@ -236,24 +201,82 @@ public class testUI implements ActionListener {
 		UserInputField.setFont(new Font("Courier New", Font.PLAIN, 15));
 		UserInputField.setSize(20, 1);
 		UserInputField.requestFocusInWindow();
+	}
 
-		/*
-		 * if (!TimedTaskView.getText().equals("")) {
-		 * MainViewArea.add(TimedTaskView); }
-		 * 
-		 * if (!DeadlineTaskView.getText().equals("")) {
-		 * MainViewArea.add(DeadlineTaskView); }
-		 * 
-		 * if (!FloatingTaskView.getText().equals("")) {
-		 * MainViewArea.add(FloatingTaskView); }
-		 */
+	private void initNotificationsArea() {
+		JPanel NotificationsArea = new JPanel();
+		NotificationsArea.setBackground(new Color(0, 0, 0));
+		frmTodo.getContentPane().add(NotificationsArea, BorderLayout.EAST);
+		NotificationsArea.setLayout(new BorderLayout(0, 0));
 
-		frmTodo.setTitle("ToDo");
-		frmTodo.setBounds(1100, 0, 800, 850);
-		frmTodo.setLocationRelativeTo(null);
-		// frmTodo.setLocationByPlatform(true);
-		frmTodo.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		_currentDateTimeArea.setFont(new Font("Courier New", Font.BOLD, 13));
+		_currentDateTimeArea.setForeground(Color.GREEN);
+		_currentDateTimeArea.setText("Fetching System Time...\n\n");
+		_currentDateTimeArea.setBackground(new Color(0, 0, 0));
 
+		_currentDateTimeArea.setEditable(false);
+
+		NotificationsArea.add(_currentDateTimeArea, BorderLayout.EAST);
+	}
+
+	private void initFloatingTaskView() {
+		FloatingTaskView = new JTextPane();
+		FloatingTaskView.setEditable(false);
+		FloatingTaskView.setForeground(Color.GREEN);
+		FloatingTaskView.setFont(new Font("Book Antiqua", Font.BOLD, 15));
+		FloatingTaskView.setBackground(Color.BLACK);
+	}
+
+	private void initDeadlineTaskView() {
+		DeadlineTaskView = new JTextPane();
+		DeadlineTaskView.setEditable(false);
+		DeadlineTaskView.setForeground(Color.GREEN);
+		DeadlineTaskView.setFont(new Font("Book Antiqua", Font.BOLD, 15));
+		DeadlineTaskView.setBackground(Color.BLACK);
+	}
+
+	private void initTimedTaskView() {
+		TimedTaskView = new JTextPane();
+		TimedTaskView.setEditable(false);
+		TimedTaskView.setFont(new Font("Book Antiqua", Font.BOLD, 15));
+		TimedTaskView.setForeground(Color.GREEN);
+		TimedTaskView.setBackground(new Color(0, 0, 0));
+	}
+
+	private void initFeedbackPane() {
+		FeedbackPane = new JTextPane();
+		FeedbackPane.setForeground(Color.YELLOW);
+		FeedbackPane.setBackground(new Color(0, 0, 0));
+		FeedbackPane.setFont(new Font("Times New Roman", Font.BOLD, 15));
+		FeedbackPane.setEditable(false);
+		FeedbackPane.setDisabledTextColor(Color.BLUE);
+		if (!_displayState.getFeedback().equals("")) {
+			FeedbackPane.setText(_displayState.getFeedback());
+		}
+		MainViewArea.add(FeedbackPane);
+	}
+
+	private void initMainViewArea() {
+		MainViewArea = new JPanel();
+		MainViewArea.setForeground(Color.GREEN);
+		MainViewArea.setBackground(new Color(0, 0, 0));
+		// frmTodo.getContentPane().add(MainViewArea, BorderLayout.WEST);
+		JScrollPane TaskScrollPane = new JScrollPane(MainViewArea);
+		TaskScrollPane.setBorder(null);
+		TaskScrollPane.setViewportBorder(null);
+		TaskScrollPane
+				.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+		frmTodo.getContentPane().add(TaskScrollPane, BorderLayout.CENTER);
+		MainViewArea.setLayout(new GridLayout(0, 1, 0, 0));
+	}
+
+	private void initMainWindow() {
+		frmTodo = new JFrame();
+		frmTodo.getContentPane().setForeground(new Color(0, 0, 0));
+		frmTodo.getContentPane().setBackground(new Color(0, 0, 0));
+		frmTodo.getContentPane().setLayout(new BorderLayout(0, 0));
+		frmTodo.setDefaultLookAndFeelDecorated(true);
 	}
 
 	private void updateTaskFields() {
