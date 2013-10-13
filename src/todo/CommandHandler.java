@@ -16,6 +16,7 @@ class CommandHandler {
 	
 	Parser parser;
 	LinkedList<State> stateList;
+	StorageManager store;
 	
 	/**
 	 * Constructor for CommandHandler
@@ -28,6 +29,7 @@ class CommandHandler {
 		parser = new Parser();
 		stateList = new LinkedList<State>();
 		stateList.add(initState);
+		store = new StorageManager();
 	}
 	
 	/**
@@ -114,7 +116,7 @@ class CommandHandler {
 	 */
 	private boolean updateStorage(State state) {
 		try {
-			StorageManager.writeStore(state);
+			store.writeStore(state);
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
