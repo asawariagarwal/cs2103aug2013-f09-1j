@@ -30,6 +30,7 @@ public class JSONStorage {
 		} else {
 			BufferedReader storeReader = new BufferedReader (new FileReader (storeFile));
 			String jsonStore = storeReader.readLine();
+			storeReader.close();
 			return parseStore(jsonStore);
 		}
 	}
@@ -46,49 +47,17 @@ public class JSONStorage {
 		State savedState = new State();
 		
 		for (Object floatObj : floatingArray){
-			JSONObject floatingTaskJSON = (JSONObject) floatObj;
-			String taskDescription = (String) floatingTaskJSON.get("description");
-			ArrayList<String> tags = (ArrayList<String>) floatingTaskJSON.get("tags");
-			FloatingTask floatingTask = new FloatingTask(taskDescription, tags);
+			FloatingTask floatingTask = getFloatingTask(floatObj);
 			savedState.addTask(floatingTask);
 		}
 		
 		for (Object timedObj : timedArray){
-			JSONObject timedTaskJSON = (JSONObject) timedObj;
-			String taskDescription = (String) timedTaskJSON.get("description");
-			ArrayList<String> tags = (ArrayList<String>) timedTaskJSON.get("tags");
-			
-			String startString = (String) timedTaskJSON.get("from");
-			String endString = (String) timedTaskJSON.get("to");
-			
-			String timedTaskFormat = "hh:mm aa 'on' EEEEEEEEE ',' dd MMMMMMMMM, yyyy ";
-			SimpleDateFormat curFormater = new SimpleDateFormat(timedTaskFormat);
-			Date fromDate = curFormater.parse(startString);
-			Date toDate = curFormater.parse(endString);
-			
-			Calendar fromCalendar = Calendar.getInstance();
-			Calendar toCalendar = Calendar.getInstance();
-			fromCalendar.setTime(fromDate);
-			toCalendar.setTime(toDate);
-			
-			TimedTask timedTask = new TimedTask(taskDescription, tags, fromCalendar, toCalendar);
+			TimedTask timedTask = getTimedTask(timedObj);
 			savedState.addTask(timedTask);
 		}
 		
 		for (Object deadlineObj : deadlineArray){
-			JSONObject deadlineTaskJSON = (JSONObject) deadlineObj;
-			String taskDescription = (String) deadlineTaskJSON.get("description");
-			ArrayList<String> tags = (ArrayList<String>) deadlineTaskJSON.get("tags");
-			String deadlineString = (String) deadlineTaskJSON.get("deadline");
-			
-			String deadlineFormat = " 'by' EEEEEEEEE',' dd MMMMMMMMM',' yyyy ";
-			SimpleDateFormat curFormater = new SimpleDateFormat(deadlineFormat);
-			Date deadlineDate = curFormater.parse(deadlineString);
-			
-			Calendar deadlineCalendar = Calendar.getInstance();
-			deadlineCalendar.setTime(deadlineDate);
-			
-			DeadlineTask deadlineTask = new DeadlineTask(taskDescription, tags, deadlineCalendar);
+			DeadlineTask deadlineTask = getDeadlineTask(deadlineObj);
 			savedState.addTask(deadlineTask);
 		}
 		
@@ -96,7 +65,60 @@ public class JSONStorage {
 		
 		return savedState;
 	}
+
+	@SuppressWarnings("unchecked")
+	private DeadlineTask getDeadlineTask(Object deadlineObj)
+			throws java.text.ParseException {
+		JSONObject deadlineTaskJSON = (JSONObject) deadlineObj;
+		String taskDescription = (String) deadlineTaskJSON.get("description");
+		ArrayList<String> tags = (ArrayList<String>) deadlineTaskJSON.get("tags");
+		String deadlineString = (String) deadlineTaskJSON.get("deadline");
+		
+		String deadlineFormat = " 'by' EEEEEEEEE',' dd MMMMMMMMM',' yyyy ";
+		SimpleDateFormat curFormater = new SimpleDateFormat(deadlineFormat);
+		Date deadlineDate = curFormater.parse(deadlineString);
+		
+		Calendar deadlineCalendar = Calendar.getInstance();
+		deadlineCalendar.setTime(deadlineDate);
+		
+		DeadlineTask deadlineTask = new DeadlineTask(taskDescription, tags, deadlineCalendar);
+		return deadlineTask;
+	}
+
+	@SuppressWarnings("unchecked")
+	private TimedTask getTimedTask(Object timedObj)
+			throws java.text.ParseException {
+		JSONObject timedTaskJSON = (JSONObject) timedObj;
+		String taskDescription = (String) timedTaskJSON.get("description");
+		ArrayList<String> tags = (ArrayList<String>) timedTaskJSON.get("tags");
+		
+		String startString = (String) timedTaskJSON.get("from");
+		String endString = (String) timedTaskJSON.get("to");
+		
+		String timedTaskFormat = "hh:mm aa 'on' EEEEEEEEE ',' dd MMMMMMMMM, yyyy ";
+		SimpleDateFormat curFormater = new SimpleDateFormat(timedTaskFormat);
+		Date fromDate = curFormater.parse(startString);
+		Date toDate = curFormater.parse(endString);
+		
+		Calendar fromCalendar = Calendar.getInstance();
+		Calendar toCalendar = Calendar.getInstance();
+		fromCalendar.setTime(fromDate);
+		toCalendar.setTime(toDate);
+		
+		TimedTask timedTask = new TimedTask(taskDescription, tags, fromCalendar, toCalendar);
+		return timedTask;
+	}
+
+	@SuppressWarnings("unchecked")
+	private FloatingTask getFloatingTask(Object floatObj) {
+		JSONObject floatingTaskJSON = (JSONObject) floatObj;
+		String taskDescription = (String) floatingTaskJSON.get("description");
+		ArrayList<String> tags = (ArrayList<String>) floatingTaskJSON.get("tags");
+		FloatingTask floatingTask = new FloatingTask(taskDescription, tags);
+		return floatingTask;
+	}
 	
+	@SuppressWarnings("unchecked")
 	protected void writeStore(State saveState) throws IOException{
 		
 		JSONObject jsonStore = new JSONObject();
@@ -131,6 +153,7 @@ public class JSONStorage {
 		
 	}
 	
+	@SuppressWarnings("unchecked")
 	private JSONObject getFloatingJSON(FloatingTask task){
 		JSONObject taskObject = new JSONObject();
 		taskObject.put("description",task.getTaskDescription());
@@ -139,6 +162,7 @@ public class JSONStorage {
 		return taskObject;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private JSONObject getTimedJSON(TimedTask task){
 		JSONObject taskObject = new JSONObject();
 		taskObject.put("description",task.getTaskDescription());
@@ -158,6 +182,7 @@ public class JSONStorage {
 		
 	}
 	
+	@SuppressWarnings("unchecked")
 	private JSONObject getDeadlineJSON(DeadlineTask task){
 		JSONObject taskObject = new JSONObject();
 		taskObject.put("description",task.getTaskDescription());
@@ -174,6 +199,7 @@ public class JSONStorage {
 		return taskObject;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private JSONArray getTagsJSON(ArrayList<String> tagArray){
 		JSONArray tagJSON = new JSONArray();
 		for (String tag : tagArray){
