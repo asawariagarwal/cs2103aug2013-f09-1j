@@ -1,8 +1,6 @@
 package todo;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 /**
  * This class encapsulates the Tasks of particular types and provides routines

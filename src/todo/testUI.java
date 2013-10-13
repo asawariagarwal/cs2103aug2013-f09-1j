@@ -5,9 +5,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
-import java.awt.Window.Type;
 import java.awt.Color;
-import java.awt.Dialog.ModalExclusionType;
 
 import javax.swing.JPanel;
 
@@ -21,17 +19,10 @@ import javax.swing.JTextArea;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-
-import javax.swing.BoxLayout;
-
-import java.awt.FlowLayout;
 
 import javax.swing.JTextField;
 
 import java.awt.Cursor;
-import java.awt.Component;
-import java.awt.Point;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
@@ -40,13 +31,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.JTextPane;
 import javax.swing.JScrollPane;
 
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import java.awt.CardLayout;
 import java.awt.GridLayout;
-
-import javax.swing.JLabel;
 
 public class testUI implements ActionListener {
 
@@ -65,6 +50,8 @@ public class testUI implements ActionListener {
 	private static CommandHandler _handler;
 	private static State _displayState;
 	private static int UP_KEYPRESS_COUNTER;
+	private static StorageManager _store;
+	
 
 	/**
 	 * Launch the application.
@@ -73,7 +60,7 @@ public class testUI implements ActionListener {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					testUI window = new testUI(_handler);
+					testUI window = new testUI();
 					window.frmTodo.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -85,14 +72,22 @@ public class testUI implements ActionListener {
 	/**
 	 * Create the application.
 	 */
-	public testUI(CommandHandler handler) {
-		_handler = handler;
-		_displayState = _handler.getCurrentState();
-		initialize();
-		UP_KEYPRESS_COUNTER = 1;
-		previousInputs = new ArrayList<String>();
-		timer = new Timer(1000, this);
-		timer.start();
+	public testUI() {
+		_displayState = new State();
+		_store = new StorageManager();
+		_displayState.setFeedback("Corrupted Previous State");
+		try {
+			_displayState = _store.readStore();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			_handler = new CommandHandler(_displayState);
+			initialize();
+			UP_KEYPRESS_COUNTER = 1;
+			previousInputs = new ArrayList<String>();
+			timer = new Timer(1000, this);
+			timer.start();
+		}
 	}
 
 	/**
