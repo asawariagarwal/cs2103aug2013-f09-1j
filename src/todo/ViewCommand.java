@@ -162,8 +162,8 @@ public class ViewCommand extends Command {
 			ArrayList<TimedTask> timed = state.getTimedTasks();
 			for (int i=0; i<deadline.size(); i++) {
 				DeadlineTask cur = deadline.get(i);
-				if (dd == cur.getDeadline().get(Calendar.DATE) ||
-					mm == cur.getDeadline().get(Calendar.MONTH) ||
+				if (dd == cur.getDeadline().get(Calendar.DATE) &&
+					mm == cur.getDeadline().get(Calendar.MONTH) &&
 					yy == cur.getDeadline().get(Calendar.YEAR)) {
 					s.addTask(cur);
 				}
