@@ -31,6 +31,14 @@ import java.util.Calendar;
 			super(description, tags);
 			_deadline = deadline;
 		}
+		
+		/**
+		 * Default Constructor
+		 */
+		public DeadlineTask() {
+			super();
+			_deadline = Calendar.getInstance();
+		}
 
 		/**
 		 * Routine to set Task deadline
