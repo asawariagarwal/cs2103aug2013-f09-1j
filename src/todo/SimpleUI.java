@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 
-public class SimpleUI implements IUserInterface{
+public class SimpleUI{
 	
 	private final String TASK_STRING_SEPARATOR = "\n";
 	private final String TASK_CATEGORY_SEPARATOR = "\n\n";
