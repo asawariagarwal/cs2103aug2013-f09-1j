@@ -50,7 +50,6 @@ public class testUI implements ActionListener {
 	private static CommandHandler _handler;
 	private static State _displayState;
 	private static int UP_KEYPRESS_COUNTER;
-	
 
 	/**
 	 * Launch the application.
@@ -73,12 +72,19 @@ public class testUI implements ActionListener {
 	 */
 	public testUI() {
 		_handler = new CommandHandler();
-		_displayState = _handler.getCurrentState();
-		initialize();
-		UP_KEYPRESS_COUNTER = 1;
-		previousInputs = new ArrayList<String>();
-		timer = new Timer(1000, this);
-		timer.start();
+		_displayState = new State();
+		_displayState.setFeedback("Corrupted Previous State");
+		try {
+			_displayState = _handler.getCurrentState();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			initialize();
+			UP_KEYPRESS_COUNTER = 1;
+			previousInputs = new ArrayList<String>();
+			timer = new Timer(1000, this);
+			timer.start();
+		}
 	}
 
 	/**
@@ -86,7 +92,7 @@ public class testUI implements ActionListener {
 	 */
 	private void initialize() {
 		initMainWindow();
-		
+
 		initMainViewArea();
 
 		initFeedbackPane();
@@ -148,7 +154,7 @@ public class testUI implements ActionListener {
 					if (input.equals("exit")) {
 						System.exit(0);
 					}
-					
+
 					_displayState = _handler.handleInput(input);
 					UserInputField.setText("");
 					FeedbackPane.setText(_displayState.getFeedback());
@@ -258,11 +264,11 @@ public class testUI implements ActionListener {
 	}
 
 	private void initMainWindow() {
+		JFrame.setDefaultLookAndFeelDecorated(true);
 		frmTodo = new JFrame();
 		frmTodo.getContentPane().setForeground(new Color(0, 0, 0));
 		frmTodo.getContentPane().setBackground(new Color(0, 0, 0));
 		frmTodo.getContentPane().setLayout(new BorderLayout(0, 0));
-		frmTodo.setDefaultLookAndFeelDecorated(true);
 	}
 
 	private void updateTaskFields() {
