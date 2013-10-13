@@ -109,7 +109,7 @@ public class State {
 	 * @param task
 	 *            Timed task to be added
 	 */
-	protected void addTask(TimedTask task) {
+	private void addTask(TimedTask task) {
 		_currentTimedTasks.add(task);
 	}
 
@@ -119,7 +119,7 @@ public class State {
 	 * @param task
 	 *            floating task to be added
 	 */
-	protected void addTask(FloatingTask task) {
+	private void addTask(FloatingTask task) {
 		_currentFloatingTasks.add(task);
 	}
 
@@ -129,7 +129,7 @@ public class State {
 	 * @param task
 	 *            deadline task to be added
 	 */
-	protected void addTask(DeadlineTask task) {
+	private void addTask(DeadlineTask task) {
 		_currentDeadlineTasks.add(task);
 	}
 
@@ -179,7 +179,7 @@ public class State {
 	 * @param task
 	 *            Task to be removed
 	 */
-	protected void removeTask(TimedTask task) {
+	private void removeTask(TimedTask task) {
 		_currentTimedTasks.remove(task);
 	}
 
@@ -189,7 +189,7 @@ public class State {
 	 * @param task
 	 *            Task to be removed
 	 */
-	protected void removeTask(FloatingTask task) {
+	private void removeTask(FloatingTask task) {
 		_currentFloatingTasks.remove(task);
 	}
 
@@ -199,7 +199,7 @@ public class State {
 	 * @param task
 	 *            Task to be removed
 	 */
-	protected void removeTask(DeadlineTask task) {
+	private void removeTask(DeadlineTask task) {
 		_currentDeadlineTasks.remove(task);
 	}
 
