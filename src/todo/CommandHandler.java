@@ -41,7 +41,7 @@ class CommandHandler {
 	 * 
 	 * @return a State to be displayed
 	 */
-	public State handleInput(String commandString){
+	protected State handleInput(String commandString){
 		Command command = parser.parseInput(commandString);
 		return handle(command);
 	}
