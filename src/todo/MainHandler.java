@@ -5,9 +5,10 @@ import java.io.IOException;
 public class MainHandler {
 	public static void main(String[] args){
 		State initState = new State();
+		StorageManager store = new StorageManager();
 		initState.setFeedback("Corrupted Previous State");
 		try {
-			initState = StorageManager.readStore();
+			initState = store.readStore();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
