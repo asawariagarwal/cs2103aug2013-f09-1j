@@ -18,7 +18,7 @@ public class StorageManager {
 	private static String _filename = "C:\\ToDo\\taskstore.txt";
 	private final static String TASK_SEPARATOR = "\r\n";
 	
-	protected static State readStore() throws IOException{
+	protected State readStore() throws IOException{
 		File storeFile = new File(_filename);
 		boolean isCreated = storeFile.isFile();
 		if (!isCreated){
@@ -46,7 +46,7 @@ public class StorageManager {
 		
 	}
 	
-	private static Task parseTaskString(String taskString) {
+	private Task parseTaskString(String taskString) {
 		if (taskString.contains("by")){
 			return parseDeadlineTaskString(taskString);
 		} else if (taskString.contains("from") && taskString.contains("to")){
@@ -56,7 +56,7 @@ public class StorageManager {
 		}
 	}
 
-	private static Task parseFloatingTaskString(String taskString) {
+	private Task parseFloatingTaskString(String taskString) {
 		
 		ArrayList<String> tags = new ArrayList<String>();
 		
@@ -87,7 +87,7 @@ public class StorageManager {
 		return parsedTask;
 	}
 
-	private static Task parseTimedTaskString(String taskString) {
+	private Task parseTimedTaskString(String taskString) {
 		
 		int indexOfFrom = taskString.indexOf("from");
 		int indexOfTo = taskString.indexOf("to",indexOfFrom);
@@ -148,30 +148,10 @@ public class StorageManager {
 		
 	}
 
-	private static Task parseDeadlineTaskString(String taskString) {
+	private Task parseDeadlineTaskString(String taskString) {
 		
 		int indexOfBy = taskString.indexOf("by");
 		String taskDescription = taskString.substring(0,indexOfBy-1);
-		
-		/*int indexOfWeekdayStart = taskString.indexOf(" ", indexOfBy) + 1;
-		int indexOfWeekdayEnd = taskString.indexOf(',', indexOfWeekdayStart);
-		
-		String weekday = taskString.substring(indexOfWeekdayStart,indexOfWeekdayEnd);
-		
-		int indexOfDayStart = taskString.indexOf(' ', indexOfWeekdayEnd) + 1;
-		int indexOfDayEnd = taskString.indexOf(' ', indexOfDayStart);
-		
-		String day = taskString.substring(indexOfDayStart, indexOfDayEnd)
-;
-		int indexOfMonthStart = indexOfDayEnd + 1;
-		int indexOfMonthEnd = taskString.indexOf(',', indexOfMonthStart);
-		
-		String month = taskString.substring(indexOfMonthStart, indexOfMonthEnd);
-		
-		int indexOfYearStart = taskString.indexOf(' ', indexOfMonthEnd) + 1;
-		int indexOfYearEnd = taskString.indexOf(' ', indexOfYearStart);
-		
-		String year = taskString.substring(indexOfYearStart, indexOfYearEnd);*/
 		
 		ArrayList<String> tags = new ArrayList<String>();
 		
@@ -214,7 +194,7 @@ public class StorageManager {
 	
 	
 
-	protected static void writeStore(State saveState) throws IOException{
+	protected void writeStore(State saveState) throws IOException{
 		File saveFile = new File(_filename);
 		
 		String writeOut = "";
