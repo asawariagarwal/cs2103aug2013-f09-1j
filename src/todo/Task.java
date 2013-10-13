@@ -17,6 +17,14 @@ class Task {
 	 */
 	private String _description;
 	private ArrayList<String> _tags;
+	
+	/**
+	 * Default constructor
+	 */
+	Task() {
+		_description = "";
+		_tags = new ArrayList<String>();
+	}
 
 	/**
 	 * Constructor for Tasks
