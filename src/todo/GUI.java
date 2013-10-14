@@ -156,7 +156,6 @@ public class GUI implements ActionListener {
 			
 			trayImage = Toolkit.getDefaultToolkit().getImage("src/img/thejishdude.jpg");
 			
-			System.out.println(trayImage.toString());
 			menu = new PopupMenu();
 			
 			MenuItem pullUpItem = new MenuItem("Pull Up");
