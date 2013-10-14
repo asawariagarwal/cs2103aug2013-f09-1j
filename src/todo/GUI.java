@@ -35,11 +35,14 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JTextPane;
 import javax.swing.JScrollPane;
 
 import java.awt.GridLayout;
+import java.io.File;
 
 public class GUI implements ActionListener {
 
@@ -122,7 +125,10 @@ public class GUI implements ActionListener {
 
 		initUserInputArea();
 		
+		assignFocusToInput();
+		
 		updateSystemTray();
+		
 
 		/*
 		 * if (!TimedTaskView.getText().equals("")) {
@@ -137,11 +143,18 @@ public class GUI implements ActionListener {
 
 	}
 	
+	private void assignFocusToInput() {
+		frmTodo.addWindowFocusListener(new WindowAdapter() {
+		    public void windowGainedFocus(WindowEvent e) {
+		        UserInputField.requestFocusInWindow();
+		    }
+		});
+	}
 	private void updateSystemTray() {
 		if(SystemTray.isSupported()) {
 			systemTray = SystemTray.getSystemTray();
 			
-			trayImage = Toolkit.getDefaultToolkit().getImage("./src/img/jishdude.jpg");
+			trayImage = Toolkit.getDefaultToolkit().getImage("src/img/thejishdude.jpg");
 			
 			System.out.println(trayImage.toString());
 			menu = new PopupMenu();
