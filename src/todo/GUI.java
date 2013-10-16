@@ -339,6 +339,7 @@ public class GUI implements ActionListener {
 		frmTodo.setLocationRelativeTo(null);
 		// frmTodo.setLocationByPlatform(true);
 		frmTodo.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		frmTodo.setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 
 	private void updateTaskFields() {
