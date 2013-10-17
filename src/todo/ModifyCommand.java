@@ -1,6 +1,7 @@
 package todo;
 
 import java.util.Calendar;
+import java.util.logging.*;
 
 /**
  * Subclass to encapsulate modify commands
@@ -135,7 +136,9 @@ public class ModifyCommand extends Command {
 	}
 
 	@Override
-	protected State execute(State state) {
+	protected State execute(State state) throws Exception {
+		assert(this.isValid(state));
+		
 		State s = new State(state);
 		Task t = findTask(s);
 		if (isModifyTaskName()) {
@@ -143,18 +146,20 @@ public class ModifyCommand extends Command {
 			t.setTaskDescription(newTaskString);
 			s.setFeedback("modified: \"" + old + "\" to \"" + newTaskString + "\"");
 			return s;
-		}
-		if (isModifyDeadline()) {
+		} else if (isModifyDeadline()) {
 			DeadlineTask d = (DeadlineTask) t;
 			d.setDeadline(newDeadline);
 			s.setFeedback("modified deadline of " + d.getTaskDescription());
-		}
-		if (isModifyStartAndEnd()) {
+			return s;
+		} else if (isModifyStartAndEnd()) {
 			TimedTask tt = (TimedTask) t;
 			tt.setStartDate(newStartDate);
 			tt.setEndDate(newEndDate);
 			s.setFeedback("modified start and end date of " + tt.getTaskDescription());
+			return s;
+		} else {
+			logger.log(Level.WARNING, "error executing modify");
+			throw new Exception();
 		}
-		return null;
 	}
 }

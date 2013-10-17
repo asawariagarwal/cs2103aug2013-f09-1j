@@ -1,5 +1,7 @@
 package todo;
 
+import java.util.logging.*;
+
 /**
  * Subclass to encapsulate delete commands
  * 
@@ -24,15 +26,24 @@ public class DeleteCommand extends Command {
 
 	@Override
 	protected boolean isValid(State state) {
-		return (taskString == null || state.hasTask(taskString)); 
+		return (taskString == null); 
 	}
 
 	@Override
-	protected State execute(State state) {
+	protected State execute(State state) throws Exception {
+		assert(this.isValid(state));
+		
 		State s = new State(state);
-		Task deletedTask = findTask(s);
-		s.removeTask(deletedTask);
-		return s;			
+		if (!s.hasTask(taskString)) {
+			logger.log(Level.INFO, "delete: task not found");
+			s.setFeedback("Could not find tasks matching: " + taskString);
+			return s;
+		} else {
+			Task deletedTask = findTask(s);
+			s.removeTask(deletedTask);
+			s.setFeedback("Removed: " + deletedTask.getTaskDescription());
+			return s;
+		}
 	}
 	
 	/**
