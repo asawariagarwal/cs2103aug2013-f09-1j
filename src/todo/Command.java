@@ -45,7 +45,7 @@ abstract class Command {
 	 * @return new state if execution of command is successful. null if otherwise.
 	 * 
 	 */
-	abstract protected State execute(State state);
+	abstract protected State execute(State state) throws Exception;
 	
 	/**
 	 * Returns whether command mutates state
