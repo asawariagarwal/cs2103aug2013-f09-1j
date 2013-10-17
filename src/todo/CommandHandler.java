@@ -70,14 +70,19 @@ class CommandHandler {
 	 */
 	protected State handle(Command command) {
 		if (isValidCommand(command)) {
-			State newState = command.execute(getCurrentState());
+			State newState;
+			try {
+				newState = command.execute(getCurrentState());
+			} catch (Exception e) {
+				return makeInvalidState("Error encountered executing command");
+			}
 			if (command.isMutator()) {
 				stateList.add(newState);
 				updateStorage(newState);
 			}
 			return newState;
 		} else {
-			return makeInvalidState();
+			return makeInvalidState("Invalid command");
 		}
 	}
 	
@@ -93,13 +98,16 @@ class CommandHandler {
 	
 	/**
 	 * Makes an invalid state by copying the current state
-	 * and adding a feedback expressing an invalid command
+	 * and adding a feedback
 	 * 
-	 * @return an invalid state
+	 * @param feedback
+	 * 			String that represents the feedback of the invalid state
+	 * 
+	 * @return an invalid State
 	 */
-	protected State makeInvalidState() {
+	protected State makeInvalidState(String feedback) {
 		State s = new State(getCurrentState());
-		s.setFeedback("Invalid Command");
+		s.setFeedback(feedback);
 		return s;
 	}
 	
