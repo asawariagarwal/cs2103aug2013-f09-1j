@@ -1,5 +1,7 @@
 package todo;
 
+import java.util.logging.*;
+
 /**
  * Subclass to encapsulate add commands
  * 
@@ -106,6 +108,7 @@ public class AddCommand extends Command {
 			s.setFeedback("added new floating task: " + task.getTaskDescription());
 			return s;
 		} else {
+			logger.log(Level.WARNING, "error executing add");
 			throw new Exception();
 		}
 	}
