@@ -90,23 +90,23 @@ public class AddCommand extends Command {
 	}
 	
 	@Override
-	protected State execute(State state) {
+	protected State execute(State state) throws Exception {
+		assert(this.isValid(state));
 		State s = new State(state);
 		if (task instanceof TimedTask) {
 			s.addTask((TimedTask) task);
 			s.setFeedback("added new timed task: " + task.getTaskDescription());
 			return s;
-		}
-		if (task instanceof DeadlineTask) {
+		} else if (task instanceof DeadlineTask) {
 			s.addTask((DeadlineTask) task);
 			s.setFeedback("added new deadline task: " + task.getTaskDescription());
 			return s;
-		}
-		if (task instanceof FloatingTask) {
+		} else if (task instanceof FloatingTask) {
 			s.addTask((FloatingTask) task);
 			s.setFeedback("added new floating task: " + task.getTaskDescription());
 			return s;
+		} else {
+			throw new Exception();
 		}
-		return null;
 	}
 }
