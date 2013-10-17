@@ -1,5 +1,7 @@
 package todo;
 
+import java.util.logging.*;
+
 /**
  * This class encapsulates different types of Commands
  * 
@@ -16,6 +18,7 @@ package todo;
 abstract class Command {
 	
 	private boolean mutator;
+	protected static Logger logger = Logger.getLogger("Command");
 	
 	/**
 	 * Constructor for Command
