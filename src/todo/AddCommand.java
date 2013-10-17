@@ -94,6 +94,7 @@ public class AddCommand extends Command {
 	@Override
 	protected State execute(State state) throws Exception {
 		assert(this.isValid(state));
+		
 		State s = new State(state);
 		if (task instanceof TimedTask) {
 			s.addTask((TimedTask) task);

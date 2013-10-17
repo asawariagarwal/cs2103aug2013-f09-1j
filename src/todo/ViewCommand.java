@@ -2,6 +2,7 @@ package todo;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.logging.*;
 
 /**
  * Subclass to encapsulate view commands
@@ -138,22 +139,22 @@ public class ViewCommand extends Command {
 	}
 
 	@Override
-	protected State execute(State state) {
+	protected State execute(State state) throws Exception {
+		assert(this.isValid(state));
+		
 		State s = new State(state);
 		if (isViewAll()) {
 			s.setFeedback("viewing all tasks");
 			return s;
-		}
-		if (isViewFloating()) {
+		} else if (isViewFloating()) {
 			s.getDeadlineTasks().clear();
 			s.getTimedTasks().clear();
 			s.setFeedback("viewing floating tasks");
 			return s;
-		}
-		if (isViewOrderedByTags()) {
+		} else if (isViewOrderedByTags()) {
 			// TODO How to represent a view ordered by tags??
-		}
-		if (isViewDate()) {
+			return null;
+		} else if (isViewDate()) {
 			s = new State();
 			int dd = date.get(Calendar.DATE);
 			int mm = date.get(Calendar.MONTH);
@@ -176,8 +177,7 @@ public class ViewCommand extends Command {
 			}
 			s.setFeedback("viewing tasks by date");
 			return s;
-		}
-		if (isViewTag()) {
+		} else if (isViewTag()) {
 			s = new State();
 			ArrayList<DeadlineTask> deadline = state.getDeadlineTasks();
 			ArrayList<TimedTask> timed = state.getTimedTasks();
@@ -202,7 +202,9 @@ public class ViewCommand extends Command {
 			}
 			s.setFeedback("viewing tasks by tag");
 			return s;
+		} else {
+			logger.log(Level.WARNING, "error executing view");
+			throw new Exception();
 		}
-		return null;
 	}
 }
