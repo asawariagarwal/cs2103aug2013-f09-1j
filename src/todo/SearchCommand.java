@@ -28,9 +28,7 @@ public class SearchCommand extends Command {
 	}
 
 	@Override
-	protected State execute(State state) throws Exception {
-		assert(this.isValid(state));
-		
+	protected State execute(State state) {
 		State s = new State();
 		ArrayList<Task> found = state.getTasks(keyword);
 		if (found.isEmpty()) {
