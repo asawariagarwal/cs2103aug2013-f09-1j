@@ -156,7 +156,7 @@ public class GUI implements ActionListener {
 		if(SystemTray.isSupported()) {
 			systemTray = SystemTray.getSystemTray();
 			
-			trayImage = Toolkit.getDefaultToolkit().getImage("src/img/thejishdude.jpg");
+			trayImage = Toolkit.getDefaultToolkit().getImage("src/img/Two.jpg");
 			
 			menu = new PopupMenu();
 			
