@@ -260,9 +260,7 @@ public class Parser {
 		return command;
 	}
 	
-	
-	
-	
+
 	
 	/**
 	 * This function performs the actual parsing of a view type command and
@@ -278,15 +276,14 @@ public class Parser {
 		dateStr[0] = "";
 		if (isViewCommandDisplayingAllTasks()) {
 			command = new ViewCommand(false, false);
-		} else if (isViewCommandDisplayingFloatingTasks()) {
+		}else if (isViewCommandDisplayingAllTasksOrderedByTags()) {
+			command = new ViewCommand(false,true);
+		}else if (isViewCommandDisplayingFloatingTasks()) {
 			command = new ViewCommand(true);
 		} else if (isViewCommandDisplayingTasksWithHashtag()) {
 			String hashtag = getHashtag();
 			command = new ViewCommand(hashtag);
-		} else if (isViewCommandDisplayingTasksOnADate(dateStr)) {// incorrect
-																	// find
-																	// correct
-																	// way
+		}else if(isViewCommandDisplayingTasksOnADate(dateStr)){
 
 			// The Following lines are used to create a calendar
 			// type object using a date string
@@ -296,6 +293,16 @@ public class Parser {
 			calendar.setTime(dateObj);
 
 			command = new ViewCommand(calendar);
+		}else if (isViewCommandDisplayingTasksOnADateOrderedByTags(dateStr)) {
+
+			// The Following lines are used to create a calendar
+			// type object using a date string
+			SimpleDateFormat curFormater2 = new SimpleDateFormat("dd/MM/yyyy");
+			Date dateObj2 = curFormater2.parse(dateStr[0]);
+			Calendar calendar2 = Calendar.getInstance();
+			calendar2.setTime(dateObj2);
+
+			command = new ViewCommand(calendar2);
 		} else {
 			return null;
 		}
@@ -372,13 +379,7 @@ public class Parser {
 	}
 
 
-
-
-
 	
-
-
-
 	private String extractTaskDescription() {
 		String TaskDes = extractTillKeyword("to");
 		while (_userInput.contains("to")) {
@@ -396,6 +397,15 @@ public class Parser {
 		return false;
 	}
 
+	private boolean isViewCommandDisplayingAllTasksOrderedByTags() {
+		_userInput=_userInput.trim();
+		if (_userInput.equals("all ordered by tags")) {
+			return true;
+		}
+		return false;
+	}
+	
+	
 	private boolean isViewCommandDisplayingFloatingTasks() {
 		if (_userInput.equals("floating")) {
 			return true;
@@ -410,7 +420,15 @@ public class Parser {
 		return false;
 	}
 
-	private boolean isViewCommandDisplayingTasksOnADate(String[] date) {
+	private boolean isViewCommandDisplayingTasksOnADate(String[] date){
+		date[0]=_userInput.trim();
+		if((isDateValid(date[0]))){
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean isViewCommandDisplayingTasksOnADateOrderedByTags(String[] date) {
 		date[0] = extractDate().trim();
 		_userInput=_userInput.trim();
 		if ((isDateValid(date[0])) && (_userInput.equals("by tags"))) {
@@ -419,8 +437,11 @@ public class Parser {
 		return false;
 	}
 
+
+	
 	private String getHashtag() {
-		String hashtag = _userInput.trim();
+		String hashtag ;
+		hashtag=_userInput.substring(1);
 		return hashtag;
 	}
 
