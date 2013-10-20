@@ -29,6 +29,7 @@ public class Parser {
 	private static final String DELETE = "delete";
 	private static final String CHANGE = "change";
 	private static final String RESCHEDULE = "reschedule";
+	private static final String SEARCH="search";
 
 	/**
 	 * Stores the user input
@@ -86,6 +87,11 @@ public class Parser {
 				ModifyCommand resObj;
 				resObj = parseReschedule();
 				return resObj;
+				
+			case SEARCH:
+				SearchCommand searchObj;
+				searchObj = parseSearch();
+				return searchObj;
 
 			default:
 				return null;
@@ -327,6 +333,23 @@ public class Parser {
 	}
 
 	/**
+	 * This function performs the actual parsing of a search type command and
+	 * creates a search command type object
+	 * 
+	 * @return SearchCommand type object or null
+	 * 
+	 */
+	
+	private SearchCommand parseSearch(){
+		if(!_userInput.equals("")){
+			SearchCommand command = new SearchCommand(_userInput.trim());
+			return command;
+		}else{
+			return null;
+		}
+	}
+	
+	/**
 	 * This function performs the actual parsing of a change type command and
 	 * creates a modify command type object
 	 * 
@@ -351,12 +374,13 @@ public class Parser {
 	 */
 
 	private ModifyCommand parseReschedule() throws ParseException {
-		String taskName = extractTaskDescription();
+		String taskName ;
+		taskName= extractTaskDescription().trim();
 		String startDate, endDate;
 		startDate = extractTillKeyword("till");
-		endDate = _userInput;
+		endDate = _userInput.trim();
 
-		if (isDateValid(startDate) && (isDateValid(endDate))) {
+		if ((isDateValid(startDate)) && (isDateValid(endDate))) {
 
 			// The Following lines are used to create a calendar
 			// type object using a date string
@@ -365,7 +389,8 @@ public class Parser {
 			Calendar calendar1 = Calendar.getInstance();
 			calendar1.setTime(dateObj1);
 
-			Date dateObj2 = curFormater.parse(endDate);
+			SimpleDateFormat curFormater2= new SimpleDateFormat("dd/MM/yyyy");
+			Date dateObj2 = curFormater2.parse(endDate);
 			Calendar calendar2 = Calendar.getInstance();
 			calendar2.setTime(dateObj2);
 
@@ -381,10 +406,10 @@ public class Parser {
 
 	
 	private String extractTaskDescription() {
-		String TaskDes = extractTillKeyword("to");
-		while (_userInput.contains("to")) {
-			TaskDes=TaskDes.concat("to ");
-			TaskDes=TaskDes.concat(extractTillKeyword("to"));
+		String TaskDes = extractTillKeyword(" to ");
+		while (_userInput.contains(" to ")) {
+			TaskDes=TaskDes.concat(" to ");
+			TaskDes=TaskDes.concat(extractTillKeyword(" to "));
 		}
 		return TaskDes;
 	}
