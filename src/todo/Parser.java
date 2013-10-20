@@ -175,6 +175,92 @@ public class Parser {
 		return null;
 	}
 	
+	/**
+	 * This function is used in case the Task is a timed task and it parses the
+	 * input to create a timed task type object
+	 * 
+	 * @return AddCommand type object or null
+	 * @throws ParseException
+	 */
+	
+	private AddCommand parseTimedTask() throws ParseException {
+		// return true;
+		ArrayList<String> hashtags = new ArrayList<String>();
+
+		String TaskDes = extractTillKeyword(" from ");
+		while (_userInput.contains(" from ")) {
+			TaskDes=TaskDes.concat(" from ");
+			TaskDes=TaskDes.concat(extractTillKeyword(" from "));
+		}
+
+		String date1, date2;
+
+		date1 = extractTillKeyword("to");
+
+		date2 = extractTillHashtagOrEnd();
+
+		if ((isDateValid(date1)) && (isDateValid(date2))) {
+
+			// The Following lines are used to create a calendar type objects
+			// using
+			// a date string
+			SimpleDateFormat curFormater = new SimpleDateFormat("dd/MM/yyyy");
+			Date dateObj = curFormater.parse(date1);
+			Calendar calendar1 = Calendar.getInstance();
+			calendar1.setTime(dateObj);
+
+			SimpleDateFormat curFormater2 = new SimpleDateFormat("dd/MM/yyyy");
+			Date dateObj2 = curFormater2.parse(date2);
+			Calendar calendar2 = Calendar.getInstance();
+			calendar2.setTime(dateObj2);
+
+			while (!(_userInput.equals(""))) {
+				String hashtag=extractHashtag();
+				if(hashtag.equals("")){
+					return null;
+				}
+				hashtags.add(hashtag);
+			}
+			
+			
+			TimedTask taskObj = new TimedTask(TaskDes, hashtags, calendar1,
+					calendar2);
+			AddCommand command = new AddCommand(taskObj);
+
+			return command;
+
+		}
+		return null;
+
+	}
+	
+	/**
+	 * This function is used in case the task is a floating task and it parses
+	 * the input to create a floating type object
+	 * 
+	 * @return AddCommand type object or null
+	 */
+
+	private AddCommand parseFloatingTask() {
+
+		ArrayList<String> hashtags = new ArrayList<String>();
+		String TaskDes = extractTillHashtagOrEnd();
+		
+		
+		while (!(_userInput.equals(""))) {
+			String hashtag=extractHashtag();
+			if(hashtag.equals("")){
+				return null;
+			}
+			hashtags.add(hashtag);
+		}
+		
+		FloatingTask TaskObj = new FloatingTask(TaskDes, hashtags);
+		AddCommand command = new AddCommand(TaskObj);
+		return command;
+	}
+	
+	
 	
 	
 	
@@ -289,84 +375,9 @@ public class Parser {
 
 
 
-	/**
-	 * This function is used in case the Task is a timed task and it parses the
-	 * input to create a timed task type object
-	 * 
-	 * @return AddCommand type object or null
-	 * @throws ParseException
-	 */
-	private AddCommand parseTimedTask() throws ParseException {
-		// return true;
-		ArrayList<String> hashtags = new ArrayList<String>();
+	
 
-		String TaskDes = extractTillKeyword("from");
-		while (_userInput.contains("from")) {
-			TaskDes=TaskDes.concat("from ");
-			TaskDes=TaskDes.concat(extractTillKeyword("from"));
-		}
 
-		String date1, date2;
-
-		date1 = extractTillKeyword("to").trim();
-
-		date2 = extractTillHashtagOrEnd().trim();
-
-		if ((isDateValid(date1)) && (isDateValid(date2))) {
-
-			// The Following lines are used to create a calendar type objects
-			// using
-			// a date string
-			SimpleDateFormat curFormater = new SimpleDateFormat("dd/MM/yyyy");
-			Date dateObj = curFormater.parse(date1);
-			Calendar calendar1 = Calendar.getInstance();
-			calendar1.setTime(dateObj);
-
-			SimpleDateFormat curFormater2 = new SimpleDateFormat("dd/MM/yyyy");
-			Date dateObj2 = curFormater2.parse(date2);
-			Calendar calendar2 = Calendar.getInstance();
-			calendar2.setTime(dateObj2);
-
-			/*int i = 0;
-			while (!_userInput.equals("")) {
-				hashtags.set(i++, extractHashtag());
-				if (hashtags.get(i).equals(""))
-					return null;
-			}*/
-
-			TimedTask taskObj = new TimedTask(TaskDes, hashtags, calendar1,
-					calendar2);
-			AddCommand command = new AddCommand(taskObj);
-
-			return command;
-
-		}
-		return null;
-
-	}
-
-	/**
-	 * This function is used in case the task is a floating task and it parses
-	 * the input to create a floating type object
-	 * 
-	 * @return AddCommand type object or null
-	 */
-
-	private AddCommand parseFloatingTask() {
-
-		ArrayList<String> hashtags = new ArrayList<String>();
-		String TaskDes = extractTillHashtagOrEnd();
-		int i = 0;
-		while (!_userInput.equals("")) {
-			hashtags.set(i++, extractHashtag());
-			if (hashtags.get(i).equals(""))
-				return null;
-		}
-
-		FloatingTask TaskObj = new FloatingTask(TaskDes, hashtags);
-		AddCommand command = new AddCommand(TaskObj);
-		return command;
-	}
 
 	private String extractTaskDescription() {
 		String TaskDes = extractTillKeyword("to");
