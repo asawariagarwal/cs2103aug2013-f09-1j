@@ -2,8 +2,8 @@ package todo;
 
 import java.awt.AWTException;
 import java.awt.EventQueue;
+import java.awt.Frame;
 import java.awt.Image;
-import java.awt.Menu;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
@@ -12,6 +12,7 @@ import java.awt.TrayIcon;
 
 import javax.swing.JFrame;
 import javax.swing.Timer;
+import javax.swing.WindowConstants;
 
 import java.awt.Color;
 
@@ -44,7 +45,9 @@ import javax.swing.JTextPane;
 import javax.swing.JScrollPane;
 
 import java.awt.GridLayout;
-import java.io.File;
+
+import com.dstjacques.jhotkeys.JHotKeys;
+import com.dstjacques.jhotkeys.JHotKeyListener;
 
 public class GUI implements ActionListener {
 
@@ -52,7 +55,7 @@ public class GUI implements ActionListener {
 	private static JTextArea _currentDateTimeArea = new JTextArea();
 	private Timer timer;
 	private JTextField UserInputField;
-	private JTextField Prompt; 
+	private JTextField Prompt;
 	private JPanel UserInputArea;
 	private JTextPane TimedTaskView;
 	private JTextPane DeadlineTaskView;
@@ -67,12 +70,14 @@ public class GUI implements ActionListener {
 	private static CommandHandler _handler;
 	private static State _displayState;
 	private static int UP_KEYPRESS_COUNTER;
-	//Test Comment
+	private JHotKeys shortcutKey;
+
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					GUI window = new GUI();
@@ -126,11 +131,12 @@ public class GUI implements ActionListener {
 		initNotificationsArea();
 
 		initUserInputArea();
-		
+
 		assignFocusToInput();
-		
+
 		updateSystemTray();
 		
+		setUpShortcutKey();
 
 		/*
 		 * if (!TimedTaskView.getText().equals("")) {
@@ -144,56 +150,80 @@ public class GUI implements ActionListener {
 		 */
 
 	}
-	
+
+	void setUpShortcutKey() {
+		shortcutKey = new JHotKeys("./lib");
+		shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
+		JHotKeyListener hotkeyListener = new JHotKeyListener() {
+			@Override
+			public void onHotKey(int id) {
+				if (id == 0) {
+					if(frmTodo.isShowing() == true) {
+						frmTodo.dispose();
+					} else {
+						frmTodo.setVisible(true);
+					}
+				}
+			}
+		};
+		shortcutKey.addHotKeyListener(hotkeyListener);
+	}
+
 	private void assignFocusToInput() {
 		frmTodo.addWindowFocusListener(new WindowAdapter() {
-		    public void windowGainedFocus(WindowEvent e) {
-		        UserInputField.requestFocusInWindow();
-		    }
+			@Override
+			public void windowGainedFocus(WindowEvent e) {
+				UserInputField.requestFocusInWindow();
+			}
 		});
 	}
+
 	private void updateSystemTray() {
-		if(SystemTray.isSupported()) {
+		if (SystemTray.isSupported()) {
 			systemTray = SystemTray.getSystemTray();
-			
-			trayImage = Toolkit.getDefaultToolkit().getImage("src/img/Two.jpg");
-			
+
+			trayImage = Toolkit.getDefaultToolkit().getImage(
+					"./src/img/Two.jpg");
+
 			menu = new PopupMenu();
-			
+
 			MenuItem pullUpItem = new MenuItem("Pull Up");
-			pullUpItem.addActionListener(new ActionListener(){
+			pullUpItem.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					frmTodo.setVisible(true);
 				}
 			});
 			menu.add(pullUpItem);
-			
+
 			MenuItem exitItem = new MenuItem("Exit");
 			exitItem.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					System.exit(0);
 				}
 			});
 			menu.add(exitItem);
-			
+
 			trayIcon = new TrayIcon(trayImage, "ToDo", menu);
 			trayIcon.setImageAutoSize(true);
-			
+
 			trayIcon.addMouseListener(new MouseAdapter() {
+				@Override
 				public void mouseClicked(MouseEvent arg0) {
 					frmTodo.setVisible(true);
-				}				
+				}
 			});
-			
+
 			try {
 				systemTray.add(trayIcon);
-			} catch(AWTException e) {
+			} catch (AWTException e) {
 				System.out.println(e.getMessage());
 			}
-			
+
 		}
 	}
-	
+
 	private void initUserInputArea() {
 		UserInputArea = new JPanel();
 		frmTodo.getContentPane().add(UserInputArea, BorderLayout.SOUTH);
@@ -338,8 +368,8 @@ public class GUI implements ActionListener {
 		frmTodo.setBounds(1100, 0, 800, 850);
 		frmTodo.setLocationRelativeTo(null);
 		// frmTodo.setLocationByPlatform(true);
-		frmTodo.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		frmTodo.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		frmTodo.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+		frmTodo.setExtendedState(Frame.MAXIMIZED_BOTH);
 	}
 
 	private void updateTaskFields() {

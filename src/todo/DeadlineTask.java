@@ -62,6 +62,7 @@ import java.util.Calendar;
 		/**
 		 * Routine to return the deadline task as a String
 		 */
+		@Override
 		public String toString() {
 			String taskString = "";
 

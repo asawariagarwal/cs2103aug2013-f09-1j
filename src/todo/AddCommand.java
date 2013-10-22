@@ -96,15 +96,15 @@ public class AddCommand extends Command {
 		assert(this.isValid(state));
 		State s = new State(state);
 		if (task instanceof TimedTask) {
-			s.addTask((TimedTask) task);
+			s.addTask(task);
 			s.setFeedback("added new timed task: " + task.getTaskDescription());
 			return s;
 		} else if (task instanceof DeadlineTask) {
-			s.addTask((DeadlineTask) task);
+			s.addTask(task);
 			s.setFeedback("added new deadline task: " + task.getTaskDescription());
 			return s;
 		} else if (task instanceof FloatingTask) {
-			s.addTask((FloatingTask) task);
+			s.addTask(task);
 			s.setFeedback("added new floating task: " + task.getTaskDescription());
 			return s;
 		} else {

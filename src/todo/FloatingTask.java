@@ -24,6 +24,7 @@ class FloatingTask extends Task {
 	/**
 	 * Routine to get floating task as a String
 	 */
+	@Override
 	public String toString() {
 		String taskString = "";
 

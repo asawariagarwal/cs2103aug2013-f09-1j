@@ -77,6 +77,7 @@ class TimedTask extends Task {
 	/**
 	 * Routine that returns a timed task as a String
 	 */
+	@Override
 	public String toString() {
 		String taskString = "";
 		String timedTaskFormat = "hh:mm aa 'on' EEEEEEEEE ',' dd MMMMMMMMM, yyyy ";
