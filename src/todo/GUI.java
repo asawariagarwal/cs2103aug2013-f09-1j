@@ -67,7 +67,7 @@ public class GUI implements ActionListener {
 	private static CommandHandler _handler;
 	private static State _displayState;
 	private static int UP_KEYPRESS_COUNTER;
-
+	//Test Comment
 	/**
 	 * Launch the application.
 	 */
