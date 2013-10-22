@@ -48,6 +48,7 @@ import java.awt.GridLayout;
 
 import com.dstjacques.jhotkeys.JHotKeys;
 import com.dstjacques.jhotkeys.JHotKeyListener;
+import com.melloware.jintellitype.JIntellitype;
 
 public class GUI implements ActionListener {
 
@@ -135,7 +136,7 @@ public class GUI implements ActionListener {
 		assignFocusToInput();
 
 		updateSystemTray();
-		
+
 		setUpShortcutKey();
 
 		/*
@@ -153,12 +154,21 @@ public class GUI implements ActionListener {
 
 	void setUpShortcutKey() {
 		shortcutKey = new JHotKeys("./lib");
+		if (System.getProperty("os.name").contains("Windows")) {
+			JIntellitype.setLibraryLocation("./lib/windows/JIntellitype.dll");
+		}
+		try {
+			shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
+		} catch (Exception e) {
+			System.out.println("Error: " + e.getMessage() + "\nAttempting Resolution..");
+			JIntellitype.setLibraryLocation("./lib/windows/JIntellitype64.dll");
+		}
 		shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
 		JHotKeyListener hotkeyListener = new JHotKeyListener() {
 			@Override
 			public void onHotKey(int id) {
 				if (id == 0) {
-					if(frmTodo.isShowing() == true) {
+					if (frmTodo.isShowing() == true) {
 						frmTodo.dispose();
 					} else {
 						frmTodo.setVisible(true);
