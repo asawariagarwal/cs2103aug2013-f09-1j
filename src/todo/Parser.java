@@ -29,7 +29,6 @@ public class Parser {
 	private static final String DELETE = "delete";
 	private static final String CHANGE = "change";
 	private static final String RESCHEDULE = "reschedule";
-	private static final String SEARCH="search";
 
 	/**
 	 * Stores the user input
@@ -42,7 +41,6 @@ public class Parser {
 	Parser() {
 		_userInput = null;
 	}
-	
 	Parser(String userInput) {
 		_userInput = userInput;
 	}
@@ -87,11 +85,6 @@ public class Parser {
 				ModifyCommand resObj;
 				resObj = parseReschedule();
 				return resObj;
-				
-			case SEARCH:
-				SearchCommand searchObj;
-				searchObj = parseSearch();
-				return searchObj;
 
 			default:
 				return null;
@@ -101,6 +94,113 @@ public class Parser {
 			System.err.println("Invalid input: " + e.getMessage());
 		}
 		return null;
+
+	}
+
+	/**
+	 * This function performs the actual parsing of a view type command and
+	 * creates a view command type object
+	 * 
+	 * @return ViewCommand type object or null
+	 * @throws ParseException
+	 */
+
+	private ViewCommand parseView() throws ParseException {
+		ViewCommand command;
+		String dateStr[] = new String[1];
+		dateStr[0] = "";
+		if (isViewCommandDisplayingAllTasks()) {
+			command = new ViewCommand(false, false);
+		} else if (isViewCommandDisplayingFloatingTasks()) {
+			command = new ViewCommand(true);
+		} else if (isViewCommandDisplayingTasksWithHashtag()) {
+			String hashtag = getHashtag();
+			command = new ViewCommand(hashtag);
+		} else if (isViewCommandDisplayingTasksOnADate(dateStr)) {// incorrect
+																	// find
+																	// correct
+																	// way
+
+			// The Following lines are used to create a calendar
+			// type object using a date string
+			SimpleDateFormat curFormater = new SimpleDateFormat("dd/MM/yyyy");
+			Date dateObj = curFormater.parse(dateStr[0]);
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(dateObj);
+
+			command = new ViewCommand(calendar);
+		} else {
+			return null;
+		}
+		return command;
+	}
+
+	/**
+	 * This function performs the actual parsing of a delete type command and
+	 * creates a delete command type object
+	 * 
+	 * @return DeleteCommand type object or null
+	 * 
+	 */
+
+	private DeleteCommand parseDelete() {
+		if (!_userInput.equals("")) {
+			DeleteCommand command = new DeleteCommand(_userInput);
+			return command;
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * This function performs the actual parsing of a change type command and
+	 * creates a modify command type object
+	 * 
+	 * @return ModifyCommand type object
+	 * 
+	 */
+
+	private ModifyCommand parseChange() {
+		String oldTask, newTask;
+		oldTask = extractTaskDescription().trim();
+		newTask = _userInput.trim();
+		ModifyCommand command = new ModifyCommand(oldTask, newTask);
+		return command;
+	}
+
+	/**
+	 * This function performs the actual parsing of a reschedule type command
+	 * and creates a modify command type object
+	 * 
+	 * @return ModifyCommand type object or null
+	 * @throws Parseexception
+	 */
+
+	private ModifyCommand parseReschedule() throws ParseException {
+		String taskName = extractTaskDescription();
+		String startDate, endDate;
+		startDate = extractTillKeyword("till");
+		endDate = _userInput;
+
+		if (isDateValid(startDate) && (isDateValid(endDate))) {
+
+			// The Following lines are used to create a calendar
+			// type object using a date string
+			SimpleDateFormat curFormater = new SimpleDateFormat("dd/MM/yyyy");
+			Date dateObj1 = curFormater.parse(startDate);
+			Calendar calendar1 = Calendar.getInstance();
+			calendar1.setTime(dateObj1);
+
+			Date dateObj2 = curFormater.parse(endDate);
+			Calendar calendar2 = Calendar.getInstance();
+			calendar2.setTime(dateObj2);
+
+			ModifyCommand command = new ModifyCommand(taskName, calendar1,
+					calendar2);
+			return command;
+		} else {
+			return null;
+		}
 
 	}
 
@@ -130,9 +230,7 @@ public class Parser {
 		command = parseFloatingTask();
 		return command;
 	}
-	
-	
-	
+
 	/**
 	 * This function is used in case the Task is a deadline task and it parses
 	 * the input to create a deadline type object
@@ -144,10 +242,10 @@ public class Parser {
 
 		ArrayList<String> hashtags = new ArrayList<String>();
 
-		String TaskDes = extractTillKeyword(" by ");
-		while (_userInput.contains(" by ")) {
-			TaskDes= TaskDes.concat(" by ");
-			TaskDes=TaskDes.concat(extractTillKeyword(" by "));
+		String TaskDes = extractTillKeyword("by");
+		while (_userInput.contains("by")) {
+			TaskDes= TaskDes.concat("by ");
+			TaskDes=TaskDes.concat(extractTillKeyword("by"));
 		}
 
 		String dateStr;
@@ -162,14 +260,12 @@ public class Parser {
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(dateObj);
 
-			
-			while (!(_userInput.equals(""))) {
-				String hashtag=extractHashtag();
-				if(hashtag.equals("")){
+			/*int i = 0;
+			while (!_userInput.equals("")) {
+				hashtags.set(i++, extractHashtag());
+				if (hashtags.get(i).equals(""))
 					return null;
-				}
-				hashtags.add(hashtag);
-			}
+			}*/
 
 			DeadlineTask TaskObj = new DeadlineTask(TaskDes, hashtags, calendar);
 
@@ -180,7 +276,7 @@ public class Parser {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * This function is used in case the Task is a timed task and it parses the
 	 * input to create a timed task type object
@@ -188,22 +284,21 @@ public class Parser {
 	 * @return AddCommand type object or null
 	 * @throws ParseException
 	 */
-	
 	private AddCommand parseTimedTask() throws ParseException {
 		// return true;
 		ArrayList<String> hashtags = new ArrayList<String>();
 
-		String TaskDes = extractTillKeyword(" from ");
-		while (_userInput.contains(" from ")) {
-			TaskDes=TaskDes.concat(" from ");
-			TaskDes=TaskDes.concat(extractTillKeyword(" from "));
+		String TaskDes = extractTillKeyword("from");
+		while (_userInput.contains("from")) {
+			TaskDes=TaskDes.concat("from ");
+			TaskDes=TaskDes.concat(extractTillKeyword("from"));
 		}
 
 		String date1, date2;
 
-		date1 = extractTillKeyword("to");
+		date1 = extractTillKeyword("to").trim();
 
-		date2 = extractTillHashtagOrEnd();
+		date2 = extractTillHashtagOrEnd().trim();
 
 		if ((isDateValid(date1)) && (isDateValid(date2))) {
 
@@ -220,15 +315,13 @@ public class Parser {
 			Calendar calendar2 = Calendar.getInstance();
 			calendar2.setTime(dateObj2);
 
-			while (!(_userInput.equals(""))) {
-				String hashtag=extractHashtag();
-				if(hashtag.equals("")){
+			/*int i = 0;
+			while (!_userInput.equals("")) {
+				hashtags.set(i++, extractHashtag());
+				if (hashtags.get(i).equals(""))
 					return null;
-				}
-				hashtags.add(hashtag);
-			}
-			
-			
+			}*/
+
 			TimedTask taskObj = new TimedTask(TaskDes, hashtags, calendar1,
 					calendar2);
 			AddCommand command = new AddCommand(taskObj);
@@ -239,7 +332,7 @@ public class Parser {
 		return null;
 
 	}
-	
+
 	/**
 	 * This function is used in case the task is a floating task and it parses
 	 * the input to create a floating type object
@@ -251,186 +344,35 @@ public class Parser {
 
 		ArrayList<String> hashtags = new ArrayList<String>();
 		String TaskDes = extractTillHashtagOrEnd();
-		
-		
-		while (!(_userInput.equals(""))) {
-			String hashtag=extractHashtag();
-			if(hashtag.equals("")){
+		int i = 0;
+		while (!_userInput.equals("")) {
+			hashtags.set(i++, extractHashtag());
+			if (hashtags.get(i).equals(""))
 				return null;
-			}
-			hashtags.add(hashtag);
 		}
-		
+
 		FloatingTask TaskObj = new FloatingTask(TaskDes, hashtags);
 		AddCommand command = new AddCommand(TaskObj);
 		return command;
 	}
-	
 
-	
-	/**
-	 * This function performs the actual parsing of a view type command and
-	 * creates a view command type object
-	 * 
-	 * @return ViewCommand type object or null
-	 * @throws ParseException
-	 */
-
-	private ViewCommand parseView() throws ParseException {
-		ViewCommand command;
-		String dateStr[] = new String[1];
-		dateStr[0] = "";
-		if (isViewCommandDisplayingAllTasks()) {
-			command = new ViewCommand(false, false);
-		}else if (isViewCommandDisplayingAllTasksOrderedByTags()) {
-			command = new ViewCommand(false,true);
-		}else if (isViewCommandDisplayingFloatingTasks()) {
-			command = new ViewCommand(true);
-		} else if (isViewCommandDisplayingTasksWithHashtag()) {
-			String hashtag = getHashtag();
-			command = new ViewCommand(hashtag);
-		}else if(isViewCommandDisplayingTasksOnADate(dateStr)){
-
-			// The Following lines are used to create a calendar
-			// type object using a date string
-			SimpleDateFormat curFormater = new SimpleDateFormat("dd/MM/yyyy");
-			Date dateObj = curFormater.parse(dateStr[0]);
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(dateObj);
-
-			command = new ViewCommand(calendar);
-		}else if (isViewCommandDisplayingTasksOnADateOrderedByTags(dateStr)) {
-
-			// The Following lines are used to create a calendar
-			// type object using a date string
-			SimpleDateFormat curFormater2 = new SimpleDateFormat("dd/MM/yyyy");
-			Date dateObj2 = curFormater2.parse(dateStr[0]);
-			Calendar calendar2 = Calendar.getInstance();
-			calendar2.setTime(dateObj2);
-
-			command = new ViewCommand(calendar2);
-		} else {
-			return null;
-		}
-		return command;
-	}
-
-	/**
-	 * This function performs the actual parsing of a delete type command and
-	 * creates a delete command type object
-	 * 
-	 * @return DeleteCommand type object or null
-	 * 
-	 */
-
-	private DeleteCommand parseDelete() {
-		if (!_userInput.equals("")) {
-			DeleteCommand command = new DeleteCommand(_userInput);
-			return command;
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * This function performs the actual parsing of a search type command and
-	 * creates a search command type object
-	 * 
-	 * @return SearchCommand type object or null
-	 * 
-	 */
-	
-	private SearchCommand parseSearch(){
-		if(!_userInput.equals("")){
-			SearchCommand command = new SearchCommand(_userInput.trim());
-			return command;
-		}else{
-			return null;
-		}
-	}
-	
-	/**
-	 * This function performs the actual parsing of a change type command and
-	 * creates a modify command type object
-	 * 
-	 * @return ModifyCommand type object
-	 * 
-	 */
-
-	private ModifyCommand parseChange() {
-		String oldTask, newTask;
-		oldTask = extractTaskDescription().trim();
-		newTask = _userInput.trim();
-		ModifyCommand command = new ModifyCommand(oldTask, newTask);
-		return command;
-	}
-
-	/**
-	 * This function performs the actual parsing of a reschedule type command
-	 * and creates a modify command type object
-	 * 
-	 * @return ModifyCommand type object or null
-	 * @throws Parseexception
-	 */
-
-	private ModifyCommand parseReschedule() throws ParseException {
-		String taskName ;
-		taskName= extractTaskDescription().trim();
-		String startDate, endDate;
-		startDate = extractTillKeyword("till");
-		endDate = _userInput.trim();
-
-		if ((isDateValid(startDate)) && (isDateValid(endDate))) {
-
-			// The Following lines are used to create a calendar
-			// type object using a date string
-			SimpleDateFormat curFormater = new SimpleDateFormat("dd/MM/yyyy");
-			Date dateObj1 = curFormater.parse(startDate);
-			Calendar calendar1 = Calendar.getInstance();
-			calendar1.setTime(dateObj1);
-
-			SimpleDateFormat curFormater2= new SimpleDateFormat("dd/MM/yyyy");
-			Date dateObj2 = curFormater2.parse(endDate);
-			Calendar calendar2 = Calendar.getInstance();
-			calendar2.setTime(dateObj2);
-
-			ModifyCommand command = new ModifyCommand(taskName, calendar1,
-					calendar2);
-			return command;
-		} else {
-			return null;
-		}
-
-	}
-
-
-	
 	private String extractTaskDescription() {
-		String TaskDes = extractTillKeyword(" to ");
-		while (_userInput.contains(" to ")) {
-			TaskDes=TaskDes.concat(" to ");
-			TaskDes=TaskDes.concat(extractTillKeyword(" to "));
+		String TaskDes = extractTillKeyword("to");
+		while (_userInput.contains("to")) {
+			TaskDes=TaskDes.concat("to ");
+			TaskDes=TaskDes.concat(extractTillKeyword("to"));
 		}
 		return TaskDes;
 	}
 
 	private boolean isViewCommandDisplayingAllTasks() {
 		_userInput=_userInput.trim();
-		if (_userInput.equals("all")) {
-			return true;
-		}
-		return false;
-	}
-
-	private boolean isViewCommandDisplayingAllTasksOrderedByTags() {
-		_userInput=_userInput.trim();
 		if (_userInput.equals("all ordered by tags")) {
 			return true;
 		}
 		return false;
 	}
-	
-	
+
 	private boolean isViewCommandDisplayingFloatingTasks() {
 		if (_userInput.equals("floating")) {
 			return true;
@@ -445,15 +387,7 @@ public class Parser {
 		return false;
 	}
 
-	private boolean isViewCommandDisplayingTasksOnADate(String[] date){
-		date[0]=_userInput.trim();
-		if((isDateValid(date[0]))){
-			return true;
-		}
-		return false;
-	}
-	
-	private boolean isViewCommandDisplayingTasksOnADateOrderedByTags(String[] date) {
+	private boolean isViewCommandDisplayingTasksOnADate(String[] date) {
 		date[0] = extractDate().trim();
 		_userInput=_userInput.trim();
 		if ((isDateValid(date[0])) && (_userInput.equals("by tags"))) {
@@ -462,11 +396,8 @@ public class Parser {
 		return false;
 	}
 
-
-	
 	private String getHashtag() {
-		String hashtag ;
-		hashtag=_userInput.substring(1);
+		String hashtag = _userInput.trim();
 		return hashtag;
 	}
 
@@ -504,12 +435,8 @@ public class Parser {
 	private String getCommandType() {
 		String commandType;
 		int locationOfSpace = _userInput.indexOf(" ");
-		if(locationOfSpace==-1)
-		{
-			return "";
-		}
-		commandType = (_userInput.substring(0, locationOfSpace)).trim();
-		_userInput = (_userInput.substring(locationOfSpace + 1)).trim();
+		commandType = _userInput.substring(0, locationOfSpace);
+		_userInput = _userInput.substring(locationOfSpace + 1);
 		return commandType; // add , delete, view, change, reschedule, mark ,
 							// drop , undo , search
 	}
@@ -532,7 +459,7 @@ public class Parser {
 		int posOfKeyword;
 		posOfKeyword = _userInput.indexOf(next_keyword);
 		if(posOfKeyword!=-1){
-		extractedString = (_userInput.substring(0, posOfKeyword)).trim();
+		extractedString = _userInput.substring(0, posOfKeyword);
 		_userInput = (_userInput
 				.substring(posOfKeyword + next_keyword.length())).trim();
 		return extractedString;
@@ -551,35 +478,25 @@ public class Parser {
 		String extractedString;
 		if (_userInput.contains("#")) {
 			int posOfHash = _userInput.indexOf("#");
-			extractedString = (_userInput.substring(0, posOfHash)).trim();
-			_userInput = (_userInput.substring(posOfHash)).trim();
+			extractedString = _userInput.substring(0, posOfHash);
+			_userInput = _userInput.substring(posOfHash);
 		} else {
-			extractedString = (_userInput).trim();
+			extractedString = _userInput;
 			_userInput="";
 		}
 		return extractedString;
 	}
 
-	
 	/**
-	 * This function extracts the hashtags - hashtags cannot contain spaces 
+	 * This function extracts the hashtags
 	 */
 	private String extractHashtag() {
-		String hashtag;
-		if (_userInput.startsWith("#")){
-			_userInput=_userInput.substring(1);
-			if(_userInput!=""){
-			hashtag=extractTillHashtagOrEnd();
-			if(hashtag.contains(" ")){
-				return "";
-			}
-			return hashtag;
-			}
-			else{
-				return "";
-			}
-		}
-	return "";
+
+		if (_userInput.startsWith("#"))
+			return getCommandType();
+		else
+			return "";
+
 	}
 
 }
