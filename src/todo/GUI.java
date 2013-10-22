@@ -156,14 +156,17 @@ public class GUI implements ActionListener {
 		shortcutKey = new JHotKeys("./lib");
 		if (System.getProperty("os.name").contains("Windows")) {
 			JIntellitype.setLibraryLocation("./lib/windows/JIntellitype.dll");
-		}
-		try {
+			try {
+				shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
+			} catch (Exception e) {
+				System.out.println("Error: " + e.getMessage()
+						+ "\nAttempting Resolution..");
+				JIntellitype
+						.setLibraryLocation("./lib/windows/JIntellitype64.dll");
+			}
+		} else {
 			shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
-		} catch (Exception e) {
-			System.out.println("Error: " + e.getMessage() + "\nAttempting Resolution..");
-			JIntellitype.setLibraryLocation("./lib/windows/JIntellitype64.dll");
 		}
-		shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
 		JHotKeyListener hotkeyListener = new JHotKeyListener() {
 			@Override
 			public void onHotKey(int id) {
