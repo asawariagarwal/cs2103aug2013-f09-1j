@@ -13,17 +13,18 @@ import java.util.ArrayList;
  */
 class Task {
 	/**
-	 * Stores the task descriptions and user defined tags as private members
+	 * Stores the task descriptions and user defined tags as well as expiry as private members
 	 */
 	private String _description;
 	private ArrayList<String> _tags;
-	
+	private boolean _expired;
 	/**
 	 * Default constructor
 	 */
 	Task() {
 		_description = "";
 		_tags = new ArrayList<String>();
+		_expired = false;
 	}
 
 	/**
@@ -38,6 +39,7 @@ class Task {
 	Task(String description, ArrayList<String> tags) {
 		_description = description;
 		_tags = tags;
+		_expired = false;
 	}
 
 	/**
@@ -106,5 +108,18 @@ class Task {
 	protected ArrayList<String> getTags() {
 		return _tags;
 	}
-
+	
+	/**
+	 * Routine to set a task as expired
+	 */
+	protected void expire() {
+		_expired = true;
+	}
+	
+	/**
+	 * Routine to unmark an expired task
+	 */
+	protected void renew() {
+		_expired = false;
+	}
 }
