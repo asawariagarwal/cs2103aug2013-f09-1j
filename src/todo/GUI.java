@@ -22,6 +22,8 @@ import java.awt.BorderLayout;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JTextArea;
 
@@ -72,7 +74,7 @@ public class GUI implements ActionListener {
 	private static State _displayState;
 	private static int UP_KEYPRESS_COUNTER;
 	private JHotKeys shortcutKey;
-
+	protected static Logger GUILogger = Logger.getLogger("GUILogger");
 	/**
 	 * Launch the application.
 	 */
@@ -94,12 +96,15 @@ public class GUI implements ActionListener {
 	 * Create the application.
 	 */
 	public GUI() {
+		GUILogger.log(Level.INFO, "GUI Setting Up");
+		
 		_handler = new CommandHandler();
 		_displayState = new State();
 		_displayState.setFeedback("Corrupted Previous State");
 		try {
 			_displayState = _handler.getCurrentState();
 		} catch (Exception e) {
+			GUILogger.log(Level.WARNING, "Previous State was corrupted. New State called");
 			e.printStackTrace();
 		} finally {
 			initialize();
@@ -153,12 +158,15 @@ public class GUI implements ActionListener {
 	}
 
 	void setUpShortcutKey() {
+		GUILogger.log(Level.INFO, "Shortcut Key Being Initialized");
 		shortcutKey = new JHotKeys("./lib");
 		if (System.getProperty("os.name").contains("Windows")) {
+			GUILogger.log(Level.INFO, "Windows Detected");
 			JIntellitype.setLibraryLocation("./lib/windows/JIntellitype.dll");
 			try {
 				shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
 			} catch (Exception e) {
+				GUILogger.log(Level.INFO, "Attempting to use 64 bit dll as 32 bit failed.");
 				System.out.println("Error: " + e.getMessage()
 						+ "\nAttempting Resolution..");
 				JIntellitype
@@ -192,6 +200,7 @@ public class GUI implements ActionListener {
 	}
 
 	private void updateSystemTray() {
+		GUILogger.log(Level.INFO, "Attempting to enable systray support");
 		if (SystemTray.isSupported()) {
 			systemTray = SystemTray.getSystemTray();
 
@@ -231,9 +240,11 @@ public class GUI implements ActionListener {
 			try {
 				systemTray.add(trayIcon);
 			} catch (AWTException e) {
+				GUILogger.log(Level.SEVERE, "Systray enable failed for unknown reason");
 				System.out.println(e.getMessage());
 			}
-
+		} else {
+			GUILogger.log(Level.INFO, "Systray Unsupported");
 		}
 	}
 
