@@ -116,7 +116,7 @@ public class GUI implements ActionListener {
 	private JHotKeys shortcutKey;
 
 	protected static Logger GUILogger = Logger.getLogger("GUILogger");
-
+	
 	/**
 	 * Launch the application.
 	 */
@@ -305,7 +305,7 @@ public class GUI implements ActionListener {
 		Prompt.setEditable(false);
 		Prompt.setText(">");
 		Prompt.setForeground(Color.GREEN);
-		Prompt.setFont(new Font("Courier New", Font.PLAIN, 15));
+		Prompt.setFont(new Font("Courier New", Font.PLAIN, 20));
 		Prompt.setColumns(1);
 		Prompt.setBorder(null);
 		Prompt.setBackground(Color.BLACK);
@@ -328,7 +328,7 @@ public class GUI implements ActionListener {
 		UserInputField.setForeground(Color.GREEN);
 		UserInputField.setBackground(new Color(0, 0, 0));
 		UserInputField.setText("Start Typing Here....");
-		UserInputField.setFont(new Font("Courier New", Font.PLAIN, 15));
+		UserInputField.setFont(new Font("Book Antiqua", Font.PLAIN, 20));
 		UserInputField.setSize(20, 1);
 		UserInputField.requestFocusInWindow();
 	}
@@ -339,7 +339,7 @@ public class GUI implements ActionListener {
 		frmTodo.getContentPane().add(NotificationsArea, BorderLayout.EAST);
 		NotificationsArea.setLayout(new BorderLayout(0, 0));
 
-		_currentDateTimeArea.setFont(new Font("Courier New", Font.BOLD, 13));
+		_currentDateTimeArea.setFont(new Font("Courier New", Font.BOLD, 17));
 		_currentDateTimeArea.setForeground(Color.GREEN);
 		_currentDateTimeArea.setText("Fetching System Time...\n\n");
 		_currentDateTimeArea.setBackground(new Color(0, 0, 0));
@@ -353,7 +353,7 @@ public class GUI implements ActionListener {
 		FloatingTaskView = new JTextPane();
 		FloatingTaskView.setEditable(false);
 		FloatingTaskView.setForeground(Color.GREEN);
-		FloatingTaskView.setFont(new Font("Book Antiqua", Font.BOLD, 15));
+		FloatingTaskView.setFont(new Font("Book Antiqua", Font.BOLD, 20));
 		FloatingTaskView.setBackground(Color.BLACK);
 	}
 
@@ -361,14 +361,14 @@ public class GUI implements ActionListener {
 		DeadlineTaskView = new JTextPane();
 		DeadlineTaskView.setEditable(false);
 		DeadlineTaskView.setForeground(Color.GREEN);
-		DeadlineTaskView.setFont(new Font("Book Antiqua", Font.BOLD, 15));
+		DeadlineTaskView.setFont(new Font("Book Antiqua", Font.BOLD, 20));
 		DeadlineTaskView.setBackground(Color.BLACK);
 	}
 
 	private void initTimedTaskView() {
 		TimedTaskView = new JTextPane();
 		TimedTaskView.setEditable(false);
-		TimedTaskView.setFont(new Font("Book Antiqua", Font.BOLD, 15));
+		TimedTaskView.setFont(new Font("Book Antiqua", Font.BOLD, 20));
 		TimedTaskView.setForeground(Color.GREEN);
 		TimedTaskView.setBackground(new Color(0, 0, 0));
 	}
@@ -377,7 +377,7 @@ public class GUI implements ActionListener {
 		FeedbackPane = new JTextPane();
 		FeedbackPane.setForeground(Color.YELLOW);
 		FeedbackPane.setBackground(new Color(0, 0, 0));
-		FeedbackPane.setFont(new Font("Times New Roman", Font.BOLD, 15));
+		FeedbackPane.setFont(new Font("Times New Roman", Font.BOLD, 30));
 		FeedbackPane.setEditable(false);
 		FeedbackPane.setDisabledTextColor(Color.BLUE);
 		if (!_displayState.getFeedback().equals("")) {
@@ -424,9 +424,10 @@ public class GUI implements ActionListener {
 
 	private void updateTimedTaskField() {
 		if (!_displayState.getTimedTasks().isEmpty()) {
-			String timedTaskText = "Timed Tasks :\n";
+			String timedTaskText = "Timed Tasks :\n\n";
+			int index = 0;
 			for (TimedTask task : _displayState.getTimedTasks()) {
-				timedTaskText += (task.toString() + "\n");
+				timedTaskText += ((++index) +". " + task.toString() + "\n");
 			}
 			TimedTaskView.setText(timedTaskText);
 			MainViewArea.add(TimedTaskView);
@@ -438,9 +439,10 @@ public class GUI implements ActionListener {
 
 	private void updateDeadlineTaskField() {
 		if (!_displayState.getDeadlineTasks().isEmpty()) {
-			String deadlineTaskText = "Deadline Tasks :\n";
+			String deadlineTaskText = "Deadline Tasks :\n\n";
+			int index = 0;
 			for (DeadlineTask task : _displayState.getDeadlineTasks()) {
-				deadlineTaskText += (task.toString() + "\n");
+				deadlineTaskText += ((++index) +". " + task.toString() + "\n");
 			}
 			DeadlineTaskView.setText(deadlineTaskText);
 			MainViewArea.add(DeadlineTaskView);
@@ -452,9 +454,10 @@ public class GUI implements ActionListener {
 
 	private void updateFloatingTaskField() {
 		if (!_displayState.getFloatingTasks().isEmpty()) {
-			String floatingTaskText = "Floating Tasks :\n";
+			String floatingTaskText = "Floating Tasks :\n\n";
+			int index = 0;
 			for (FloatingTask task : _displayState.getFloatingTasks()) {
-				floatingTaskText += (task.toString() + "\n");
+				floatingTaskText += ((++index) +". " + task.toString() + "\n");
 			}
 			FloatingTaskView.setText(floatingTaskText);
 			MainViewArea.add(FloatingTaskView);
