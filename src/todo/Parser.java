@@ -30,6 +30,7 @@ public class Parser {
 	private static final String CHANGE = "change";
 	private static final String RESCHEDULE = "reschedule";
 	private static final String SEARCH="search";
+	private static final String UNDO="undo";
 
 	/**
 	 * Stores the user input
@@ -50,6 +51,7 @@ public class Parser {
 	private void setInput(String inputString) {
 		_userInput = inputString;
 	}
+	
 	/**
 	 * This function does the main parsing - high level of abstraction
 	 * 
@@ -92,6 +94,11 @@ public class Parser {
 				SearchCommand searchObj;
 				searchObj = parseSearch();
 				return searchObj;
+				
+			case UNDO:
+				UndoCommand undoObj;
+				undoObj = parseUndo();
+				return undoObj;
 
 			default:
 				return null;
@@ -159,6 +166,8 @@ public class Parser {
 			// date string
 			SimpleDateFormat curFormater = new SimpleDateFormat("dd/MM/yyyy");
 			Date dateObj = curFormater.parse(dateStr);
+			
+			
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(dateObj);
 
@@ -286,7 +295,11 @@ public class Parser {
 			command = new ViewCommand(false,true);
 		}else if (isViewCommandDisplayingFloatingTasks()) {
 			command = new ViewCommand(true);
-		} else if (isViewCommandDisplayingTasksWithHashtag()) {
+		}else if (isViewCommandDisplayingTimedTasks()) {
+			command = new ViewCommand();//TODO: calls default constructor
+		}else if (isViewCommandDisplayingDeadLineTasks()) {
+			command = new ViewCommand();//TODO: calls default constructor
+		}else if (isViewCommandDisplayingTasksWithHashtag()) {
 			String hashtag = getHashtag();
 			command = new ViewCommand(hashtag);
 		}else if(isViewCommandDisplayingTasksOnADate(dateStr)){
@@ -403,7 +416,21 @@ public class Parser {
 
 	}
 
-
+	/**
+	 * This function performs the actual parsing of a undo type command
+	 * and creates a undo command type object
+	 * 
+	 * @return UndoCommand type object or null
+	 */
+	
+   private UndoCommand parseUndo(){//TODO :calls default constructor 
+	   UndoCommand command;
+	   if(!_userInput.equals("")){
+		   command = new UndoCommand();
+		   return command;
+	   }
+	   return null;  
+   }
 	
 	private String extractTaskDescription() {
 		String TaskDes = extractTillKeyword(" to ");
@@ -438,6 +465,21 @@ public class Parser {
 		return false;
 	}
 
+	private boolean isViewCommandDisplayingTimedTasks() {
+		if (_userInput.equals("timed")) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean isViewCommandDisplayingDeadLineTasks() {
+		if (_userInput.equals("deadline")) {
+			return true;
+		}
+		return false;
+	}
+	
+	
 	private boolean isViewCommandDisplayingTasksWithHashtag() {
 		if (_userInput.startsWith("#")) {
 			return true;
@@ -482,7 +524,7 @@ public class Parser {
 	 * 
 	 * Return Type is Boolean
 	 */
-	private boolean isDateValid(String Date_str)// Checks if the date format is
+	 boolean isDateValid(String Date_str)// Checks if the date format is
 												// correct or not use regex here
 												// to check
 	{
@@ -501,7 +543,7 @@ public class Parser {
 	 * 
 	 */
 
-	private String getCommandType() {
+	String getCommandType() {
 		String commandType;
 		int locationOfSpace = _userInput.indexOf(" ");
 		if(locationOfSpace==-1)
@@ -522,7 +564,7 @@ public class Parser {
 	 * 
 	 */
 
-	private String extractTillKeyword(String next_keyword)// removes the
+	String extractTillKeyword(String next_keyword)// removes the
 															// extracted string
 															// and keyword from
 															// the Input
@@ -546,7 +588,7 @@ public class Parser {
 	 * 
 	 * Return Type : String
 	 */
-	private String extractTillHashtagOrEnd() {
+	 String extractTillHashtagOrEnd() {
 
 		String extractedString;
 		if (_userInput.contains("#")) {
@@ -564,7 +606,7 @@ public class Parser {
 	/**
 	 * This function extracts the hashtags - hashtags cannot contain spaces 
 	 */
-	private String extractHashtag() {
+	String extractHashtag() {
 		String hashtag;
 		if (_userInput.startsWith("#")){
 			_userInput=_userInput.substring(1);
