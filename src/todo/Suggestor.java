@@ -11,6 +11,7 @@ public class Suggestor {
 	private static final String RESCHEDULE = "reschedule";
 	private static final String SEARCH ="search";
 	private static final String UNDO = "undo";
+	private static final String EXIT = "exit";
 	private static final String NULLSTRING = "";
 	
 	private State currentState;
@@ -40,7 +41,9 @@ public class Suggestor {
 			return UNDO;
 		} else if (CHANGE.contains(inputString)){
 			return CHANGE;
-		} else {
+		} else if (EXIT.contains(inputString)) {
+			return EXIT;
+		} else { 
 			return NULLSTRING;
 		}
 	}
