@@ -424,7 +424,7 @@ public class GUI implements ActionListener {
 
 	private void updateTimedTaskField() {
 		if (!_displayState.getTimedTasks().isEmpty()) {
-			String timedTaskText = "Timed Tasks :\n\n";
+			String timedTaskText = "Events :\n\n";
 			int index = 0;
 			for (TimedTask task : _displayState.getTimedTasks()) {
 				timedTaskText += ("\t" + (++index) +". " + task.toString() + "\n");
@@ -439,7 +439,7 @@ public class GUI implements ActionListener {
 
 	private void updateDeadlineTaskField() {
 		if (!_displayState.getDeadlineTasks().isEmpty()) {
-			String deadlineTaskText = "Deadline Tasks :\n\n";
+			String deadlineTaskText = "Deadlines :\n\n";
 			int index = 0;
 			for (DeadlineTask task : _displayState.getDeadlineTasks()) {
 				deadlineTaskText += ("\t" + (++index) +". " + task.toString() + "\n");
@@ -454,7 +454,7 @@ public class GUI implements ActionListener {
 
 	private void updateFloatingTaskField() {
 		if (!_displayState.getFloatingTasks().isEmpty()) {
-			String floatingTaskText = "Floating Tasks :\n\n";
+			String floatingTaskText = "Flexible Tasks :\n\n";
 			int index = 0;
 			for (FloatingTask task : _displayState.getFloatingTasks()) {
 				floatingTaskText += ("\t" + (++index) +". " + task.toString() + "\n");
