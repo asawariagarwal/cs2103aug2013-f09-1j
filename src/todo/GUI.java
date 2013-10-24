@@ -427,7 +427,7 @@ public class GUI implements ActionListener {
 			String timedTaskText = "Timed Tasks :\n\n";
 			int index = 0;
 			for (TimedTask task : _displayState.getTimedTasks()) {
-				timedTaskText += ((++index) +". " + task.toString() + "\n");
+				timedTaskText += ("\t" + (++index) +". " + task.toString() + "\n");
 			}
 			TimedTaskView.setText(timedTaskText);
 			MainViewArea.add(TimedTaskView);
@@ -442,7 +442,7 @@ public class GUI implements ActionListener {
 			String deadlineTaskText = "Deadline Tasks :\n\n";
 			int index = 0;
 			for (DeadlineTask task : _displayState.getDeadlineTasks()) {
-				deadlineTaskText += ((++index) +". " + task.toString() + "\n");
+				deadlineTaskText += ("\t" + (++index) +". " + task.toString() + "\n");
 			}
 			DeadlineTaskView.setText(deadlineTaskText);
 			MainViewArea.add(DeadlineTaskView);
@@ -457,7 +457,7 @@ public class GUI implements ActionListener {
 			String floatingTaskText = "Floating Tasks :\n\n";
 			int index = 0;
 			for (FloatingTask task : _displayState.getFloatingTasks()) {
-				floatingTaskText += ((++index) +". " + task.toString() + "\n");
+				floatingTaskText += ("\t" + (++index) +". " + task.toString() + "\n");
 			}
 			FloatingTaskView.setText(floatingTaskText);
 			MainViewArea.add(FloatingTaskView);
