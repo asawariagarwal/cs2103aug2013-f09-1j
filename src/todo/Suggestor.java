@@ -57,7 +57,7 @@ public class Suggestor {
 		
 		ArrayList<Task> possibleTasks = currentState.getTasks(taskSnippet);
 		
-		return command + " " + possibleTasks.get(0).toString();
+		return command + " " + possibleTasks.get(0).getTaskDescription();
 		
 	}
 	
