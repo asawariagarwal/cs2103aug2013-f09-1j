@@ -54,6 +54,37 @@ import com.melloware.jintellitype.JIntellitype;
 
 public class GUI implements ActionListener {
 
+	private final class InputProcessor extends KeyAdapter {
+		@Override
+		public void keyPressed(KeyEvent e) {
+			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+				String input = UserInputField.getText();
+				if (input.equals("exit")) {
+					System.exit(0);
+				}
+
+				_displayState = _handler.handleInput(input);
+				UserInputField.setText("");
+				FeedbackPane.setText(_displayState.getFeedback());
+				previousInputs.add(input);
+				UP_KEYPRESS_COUNTER = 1;
+				updateTaskFields();
+			}
+			if (e.getKeyCode() == KeyEvent.VK_UP) {
+				if (previousInputs.size() - UP_KEYPRESS_COUNTER >= 0) {
+					UserInputField.setText(previousInputs
+							.get(previousInputs.size()
+									- UP_KEYPRESS_COUNTER++));
+				} else {
+					UP_KEYPRESS_COUNTER = 1;
+					UserInputField.setText(previousInputs
+							.get(previousInputs.size()
+									- UP_KEYPRESS_COUNTER++));
+				}
+			}
+		}
+	}
+
 	private JFrame frmTodo;
 	private static JTextArea _currentDateTimeArea = new JTextArea();
 	private Timer timer;
@@ -270,36 +301,7 @@ public class GUI implements ActionListener {
 		Prompt.setText(">");
 
 		UserInputField = new JTextField();
-		UserInputField.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					String input = UserInputField.getText();
-					if (input.equals("exit")) {
-						System.exit(0);
-					}
-
-					_displayState = _handler.handleInput(input);
-					UserInputField.setText("");
-					FeedbackPane.setText(_displayState.getFeedback());
-					previousInputs.add(input);
-					UP_KEYPRESS_COUNTER = 1;
-					updateTaskFields();
-				}
-				if (e.getKeyCode() == KeyEvent.VK_UP) {
-					if (previousInputs.size() - UP_KEYPRESS_COUNTER >= 0) {
-						UserInputField.setText(previousInputs
-								.get(previousInputs.size()
-										- UP_KEYPRESS_COUNTER++));
-					} else {
-						UP_KEYPRESS_COUNTER = 1;
-						UserInputField.setText(previousInputs
-								.get(previousInputs.size()
-										- UP_KEYPRESS_COUNTER++));
-					}
-				}
-			}
-		});
+		UserInputField.addKeyListener(new InputProcessor());
 		UserInputField.setCaretColor(Color.GREEN);
 		UserInputField.addFocusListener(new FocusAdapter() {
 			@Override
