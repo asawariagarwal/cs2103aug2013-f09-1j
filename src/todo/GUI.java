@@ -66,11 +66,11 @@ public class GUI implements ActionListener {
 
 				_displayState = _handler.handleInput(input);
 				UserInputField.setText("");
-				FeedbackPane.setText(_displayState.getFeedback());
 				_autoComplete.updateState(_displayState);
 				previousInputs.add(input);
 				UP_KEYPRESS_COUNTER = 1;
 				updateTaskFields();
+				updateFeedbackPane();
 			}
 			if (e.getKeyCode() == KeyEvent.VK_UP) {
 				GUILogger.log(Level.INFO, "Up key pressed");
@@ -168,17 +168,16 @@ public class GUI implements ActionListener {
 
 		initMainViewArea();
 
-		initFeedbackPane();
-
 		initTimedTaskView();
 
 		initDeadlineTaskView();
-		// MainViewArea.add(DeadlineTaskView);
-
+		
 		initFloatingTaskView();
-		// MainViewArea.add(FloatingTaskView);
-
+		
 		updateTaskFields();
+		
+		initFeedbackPane();
+		
 		initNotificationsArea();
 
 		initUserInputArea();
@@ -188,18 +187,6 @@ public class GUI implements ActionListener {
 		updateSystemTray();
 
 		setUpShortcutKey();
-
-		/*
-		 * if (!TimedTaskView.getText().equals("")) {
-		 * MainViewArea.add(TimedTaskView); }
-		 * 
-		 * if (!DeadlineTaskView.getText().equals("")) {
-		 * MainViewArea.add(DeadlineTaskView); }
-		 * 
-		 * if (!FloatingTaskView.getText().equals("")) {
-		 * MainViewArea.add(FloatingTaskView); }
-		 */
-
 	}
 
 	void setUpShortcutKey() {
@@ -244,7 +231,12 @@ public class GUI implements ActionListener {
 			}
 		});
 	}
-
+	
+	private void updateFeedbackPane() {
+		FeedbackPane.setText(_displayState.getFeedback());
+		MainViewArea.add(FeedbackPane);
+	}
+	
 	private void updateSystemTray() {
 		GUILogger.log(Level.INFO, "Attempting to enable systray support");
 		if (SystemTray.isSupported()) {
