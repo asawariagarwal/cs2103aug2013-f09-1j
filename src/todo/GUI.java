@@ -74,7 +74,9 @@ public class GUI implements ActionListener {
 	private static State _displayState;
 	private static int UP_KEYPRESS_COUNTER;
 	private JHotKeys shortcutKey;
+
 	protected static Logger GUILogger = Logger.getLogger("GUILogger");
+
 	/**
 	 * Launch the application.
 	 */
@@ -97,14 +99,15 @@ public class GUI implements ActionListener {
 	 */
 	public GUI() {
 		GUILogger.log(Level.INFO, "GUI Setting Up");
-		
+
 		_handler = new CommandHandler();
 		_displayState = new State();
 		_displayState.setFeedback("Corrupted Previous State");
 		try {
 			_displayState = _handler.getCurrentState();
 		} catch (Exception e) {
-			GUILogger.log(Level.WARNING, "Previous State was corrupted. New State called");
+			GUILogger.log(Level.WARNING,
+					"Previous State was corrupted. New State called");
 			e.printStackTrace();
 		} finally {
 			initialize();
@@ -166,18 +169,19 @@ public class GUI implements ActionListener {
 			try {
 				shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
 			} catch (Exception e) {
-				GUILogger.log(Level.INFO, "Attempting to use 64 bit dll as 32 bit failed.");
+				GUILogger.log(Level.INFO,
+						"Attempting to use 64 bit dll as 32 bit failed.");
 				System.out.println("Error: " + e.getMessage()
 						+ "\nAttempting Resolution..");
 				JIntellitype
 						.setLibraryLocation("./lib/windows/JIntellitype64.dll");
 			}
-		} else {
-			shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
 		}
+		shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
 		JHotKeyListener hotkeyListener = new JHotKeyListener() {
 			@Override
 			public void onHotKey(int id) {
+				GUILogger.log(Level.INFO, "Shortcut Trigerred");
 				if (id == 0) {
 					if (frmTodo.isShowing() == true) {
 						frmTodo.dispose();
@@ -240,7 +244,8 @@ public class GUI implements ActionListener {
 			try {
 				systemTray.add(trayIcon);
 			} catch (AWTException e) {
-				GUILogger.log(Level.SEVERE, "Systray enable failed for unknown reason");
+				GUILogger.log(Level.SEVERE,
+						"Systray enable failed for unknown reason");
 				System.out.println(e.getMessage());
 			}
 		} else {
