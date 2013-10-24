@@ -157,6 +157,11 @@ public class JSONStorage {
 		JSONArray floatingArray = new JSONArray();
 		JSONArray timedArray = new JSONArray();
 		JSONArray deadlineArray = new JSONArray();
+		if (saveState == null){
+			storageLogger.log(Level.WARNING, "Null Saved State");
+			IOException e = new IOException("Don't pass me null states");
+			throw e;
+		}
 		
 		storageLogger.log(Level.FINE, "Adding Floating"); 
 		for(FloatingTask floatingTask: saveState.getFloatingTasks()){
