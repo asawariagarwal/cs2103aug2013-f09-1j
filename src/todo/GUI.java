@@ -58,6 +58,7 @@ public class GUI implements ActionListener {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+				GUILogger.log(Level.INFO, "Enter key pressed");
 				String input = UserInputField.getText();
 				if (input.equals("exit")) {
 					System.exit(0);
@@ -66,11 +67,13 @@ public class GUI implements ActionListener {
 				_displayState = _handler.handleInput(input);
 				UserInputField.setText("");
 				FeedbackPane.setText(_displayState.getFeedback());
+				_autoComplete.updateState(_displayState);
 				previousInputs.add(input);
 				UP_KEYPRESS_COUNTER = 1;
 				updateTaskFields();
 			}
 			if (e.getKeyCode() == KeyEvent.VK_UP) {
+				GUILogger.log(Level.INFO, "Up key pressed");
 				if (previousInputs.size() - UP_KEYPRESS_COUNTER >= 0) {
 					UserInputField.setText(previousInputs
 							.get(previousInputs.size()
@@ -81,6 +84,11 @@ public class GUI implements ActionListener {
 							.get(previousInputs.size()
 									- UP_KEYPRESS_COUNTER++));
 				}
+			}
+			if (e.getKeyCode() == KeyEvent.VK_TAB) {
+				GUILogger.log(Level.INFO, "Tab key pressed");
+				String current = UserInputField.getText();
+				UserInputField.setText(_autoComplete.getSuggestion(current));
 			}
 		}
 	}
@@ -103,6 +111,7 @@ public class GUI implements ActionListener {
 	private TrayIcon trayIcon;
 	private static CommandHandler _handler;
 	private static State _displayState;
+	private static Suggestor _autoComplete;
 	private static int UP_KEYPRESS_COUNTER;
 	private JHotKeys shortcutKey;
 
@@ -133,9 +142,11 @@ public class GUI implements ActionListener {
 
 		_handler = new CommandHandler();
 		_displayState = new State();
+		_autoComplete = new Suggestor();
 		_displayState.setFeedback("Corrupted Previous State");
 		try {
 			_displayState = _handler.getCurrentState();
+			_autoComplete.updateState(_displayState);
 		} catch (Exception e) {
 			GUILogger.log(Level.WARNING,
 					"Previous State was corrupted. New State called");
@@ -303,6 +314,7 @@ public class GUI implements ActionListener {
 		UserInputField = new JTextField();
 		UserInputField.addKeyListener(new InputProcessor());
 		UserInputField.setCaretColor(Color.GREEN);
+		UserInputField.setFocusTraversalKeysEnabled(false);
 		UserInputField.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -392,6 +404,7 @@ public class GUI implements ActionListener {
 	private void initMainWindow() {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		frmTodo = new JFrame();
+		frmTodo.setIconImage(trayImage);
 		frmTodo.getContentPane().setForeground(new Color(0, 0, 0));
 		frmTodo.getContentPane().setBackground(new Color(0, 0, 0));
 		frmTodo.getContentPane().setLayout(new BorderLayout(0, 0));
