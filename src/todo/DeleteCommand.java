@@ -31,8 +31,8 @@ public class DeleteCommand extends Command {
 	protected State execute(State state) {
 		State s = new State(state);
 		Task deletedTask = findTask(s);
-		s.setFeedback("deleted task : " + deletedTask.toString());
 		s.removeTask(deletedTask);
+		s.setFeedback("Deleted: " + deletedTask.getTaskDescription());
 		return s;			
 	}
 	

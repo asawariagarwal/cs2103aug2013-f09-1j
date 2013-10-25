@@ -153,7 +153,7 @@ public class ModifyCommand extends Command {
 			TimedTask tt = (TimedTask) t;
 			tt.setStartDate(newStartDate);
 			tt.setEndDate(newEndDate);
-			s.setFeedback("modified start and end date of " + tt.getTaskDescription());
+			s.setFeedback("modified dates of " + tt.getTaskDescription());
 		}
 		return null;
 	}
