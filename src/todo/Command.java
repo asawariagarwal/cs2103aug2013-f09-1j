@@ -18,14 +18,41 @@ import java.util.logging.*;
 abstract class Command {
 	
 	private boolean mutator;
+	private boolean oldState;
 	protected static Logger logger = Logger.getLogger("Command");
+	
 	
 	/**
 	 * Constructor for Command
 	 * 
+	 * @param isMutator
+	 * 			whether command changes data
+	 * 			ie. needs to write to store
+	 * 
+	 * This is for most commands.
+	 * Most commands are not an old state.
+	 * 
 	 */
 	Command(boolean isMutator) {
 		mutator = isMutator;
+		oldState = false;
+	}
+	
+	/**
+	 * Constructor for Command
+	 * 
+	 * @param isMutator
+	 * 			whether command changes data
+	 * 			ie. needs to write to store
+	 * 
+	 * @param isOldState
+	 * 			whether command gets an old state
+	 * 			ie. on execution, command returns a previous state
+	 * 
+	 */
+	Command(boolean isMutator, boolean isOldState) {
+		mutator = isMutator;
+		oldState = isOldState;
 	}
 	
 	/**
@@ -57,5 +84,14 @@ abstract class Command {
 	 */
 	protected boolean isMutator() {
 		return mutator;
+	}
+	
+	/**
+	 * Returns whether command is a previous state
+	 * 
+	 * @return true if command is a previous state, false otherwise.
+	 */
+	protected boolean isOldState() {
+		return oldState;
 	}
 }
