@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * @author Karan
  * 
  */
-class FloatingTask extends Task {
+class FloatingTask extends Task implements Comparable<FloatingTask> {
 	/**
 	 * Constructor to set up FloatingTasks object
 	 * 
@@ -34,5 +34,10 @@ class FloatingTask extends Task {
 		taskString = getTaskDescription() + taskString;
 
 		return taskString;
+	}
+
+	@Override
+	public int compareTo(FloatingTask o) {
+		return this.getTaskDescription().compareTo(o.getTaskDescription());
 	}
 }

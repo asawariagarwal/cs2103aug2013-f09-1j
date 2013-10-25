@@ -1,4 +1,4 @@
-package todo;
+ package todo;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.Calendar;
  * @author Karan
  * 
  */
-class TimedTask extends Task {
+class TimedTask extends Task implements Comparable<TimedTask> {
 	/**
 	 * Variables to store start and end times of tasks as Calendar objects
 	 */
@@ -91,5 +91,16 @@ class TimedTask extends Task {
 		}
 
 		return taskString;
+	}
+
+	@Override
+	public int compareTo(TimedTask otherTask) {
+		if (this.getStartDate().before(otherTask.getStartDate())){
+			return -1;
+		} else if (this.getStartDate().after(otherTask.getStartDate())){
+			return 1;
+		} else {
+			return 0;
+		}
 	}
 }

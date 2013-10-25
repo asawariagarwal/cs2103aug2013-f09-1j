@@ -1,7 +1,7 @@
 package todo;
 
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.TreeSet;
 
 /**
  * Subclass to encapsulate view commands
@@ -158,18 +158,16 @@ public class ViewCommand extends Command {
 			int dd = date.get(Calendar.DATE);
 			int mm = date.get(Calendar.MONTH);
 			int yy = date.get(Calendar.YEAR);
-			ArrayList<DeadlineTask> deadline = state.getDeadlineTasks();
-			ArrayList<TimedTask> timed = state.getTimedTasks();
-			for (int i=0; i<deadline.size(); i++) {
-				DeadlineTask cur = deadline.get(i);
+			TreeSet<DeadlineTask> deadline = state.getDeadlineTasks();
+			TreeSet<TimedTask> timed = state.getTimedTasks();
+			for (DeadlineTask cur: deadline) {
 				if (dd == cur.getDeadline().get(Calendar.DATE) &&
 					mm == cur.getDeadline().get(Calendar.MONTH) &&
 					yy == cur.getDeadline().get(Calendar.YEAR)) {
 					s.addTask(cur);
 				}
 			}
-			for (int i=0; i<timed.size(); i++) {
-				TimedTask cur = timed.get(i);
+			for (TimedTask cur : timed) {
 				if (date.compareTo(cur.getStartDate()) >= 0 && date.compareTo(cur.getEndDate()) <= 0) {
 					s.addTask(cur);
 				}
@@ -179,23 +177,20 @@ public class ViewCommand extends Command {
 		}
 		if (isViewTag()) {
 			s = new State();
-			ArrayList<DeadlineTask> deadline = state.getDeadlineTasks();
-			ArrayList<TimedTask> timed = state.getTimedTasks();
-			ArrayList<FloatingTask> floating = state.getFloatingTasks();
-			for (int i=0; i<deadline.size(); i++) {
-				DeadlineTask cur = deadline.get(i);
+			TreeSet<DeadlineTask> deadline = state.getDeadlineTasks();
+			TreeSet<TimedTask> timed = state.getTimedTasks();
+			TreeSet<FloatingTask> floating = state.getFloatingTasks();
+			for (DeadlineTask cur: deadline) {
 				if (cur.hasTag(tag)) {
 					s.addTask(cur);
 				}
 			}
-			for (int i=0; i<timed.size(); i++) {
-				TimedTask cur = timed.get(i);
+			for (TimedTask cur: timed) {
 				if (cur.hasTag(tag)) {
 					s.addTask(cur);
 				}
 			}
-			for (int i=0; i<floating.size(); i++) {
-				FloatingTask cur = floating.get(i);
+			for (FloatingTask cur: floating) {
 				if (cur.hasTag(tag)) {
 					s.addTask(cur);
 				}

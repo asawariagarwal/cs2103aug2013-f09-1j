@@ -3,7 +3,7 @@ package todo;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.util.TreeSet;
 
 
 public class SimpleUI{
@@ -51,9 +51,9 @@ public class SimpleUI{
 	}
 	
 	private void display(State displayState){
-		ArrayList<? extends Task> timedTasks = displayState.getTimedTasks();
-		ArrayList<? extends Task> deadlineTasks = displayState.getDeadlineTasks();
-		ArrayList<? extends Task> floatingTasks = displayState.getFloatingTasks();
+		TreeSet<? extends Task> timedTasks = displayState.getTimedTasks();
+		TreeSet<? extends Task> deadlineTasks = displayState.getDeadlineTasks();
+		TreeSet<? extends Task> floatingTasks = displayState.getFloatingTasks();
 		String userFeedback = displayState.getFeedback();
 		
 		String out = "";
@@ -74,7 +74,7 @@ public class SimpleUI{
 		return;
 	}
 	
-	private String taskstoString(ArrayList<? extends Task> taskList){
+	private String taskstoString(TreeSet<? extends Task> taskList){
 		String output = "";
 		for (Task task : taskList){
 			output += (task.toString() + TASK_STRING_SEPARATOR);

@@ -22,14 +22,15 @@ public void SetUp(){
 	@Test
 	public void DeadlineTest() throws ParseException {
 		
+		SetUp();
+		
 		//Checks whether the feedback send to the GUi is correct 
-		State displayState  =handler.handleInput("add complete V0.3 by 25/10/2013 #CS2103");
+		State displayState  = handler.handleInput("add complete V0.3 by 25/10/2013 #CS2103");
 		String feedback = displayState.getFeedback();
 		assertEquals("added new deadline task: complete V0.3", feedback);
 		
 		//Checks whether the task description stored in the state is correct
-		int len = displayState.getDeadlineTasks().size();
-		String taskDes = displayState.getDeadlineTasks().get(len-1).getTaskDescription();
+		String taskDes = displayState.getDeadlineTasks().last().getTaskDescription();
 		assertEquals("complete V0.3",taskDes);
 		
 		SimpleDateFormat curFormater = new SimpleDateFormat("dd/MM/yyyy");
@@ -38,12 +39,12 @@ public void SetUp(){
 		calendar.setTime(dateObj);
 		
 		//Checks if the calendar object stored in the state is correct
-		String deadlineActual = displayState.getDeadlineTasks().get(len-1).getDeadline().toString();
+		String deadlineActual = displayState.getDeadlineTasks().last().getDeadline().toString();
 		String deadlineExpected = calendar.toString();
 		assertEquals(deadlineExpected, deadlineActual);
 		
 		//Checks if the hashtags stored in the task object in the state are correct
-		String hashtag = displayState.getDeadlineTasks().get(len-1).getTags().get(0);
+		String hashtag = displayState.getDeadlineTasks().last().getTags().get(0);
 		assertEquals("CS2103",hashtag);
 		
 	}
@@ -59,15 +60,14 @@ public void SetUp(){
 		assertEquals("added new floating task: read a book", feedback);
 		
 		//Checks whether the task description stored in the state is correct
-		int len = displayState2.getFloatingTasks().size();
-		String taskDes = displayState2.getFloatingTasks().get(len-1).getTaskDescription();
+		String taskDes = displayState2.getFloatingTasks().last().getTaskDescription();
 		assertEquals("read a book",taskDes);
 		
 		//Checks if the hashtags stored in the task object in the state are correct
-		String hashtag = displayState2.getFloatingTasks().get(len-1).getTags().get(0);
+		String hashtag = displayState2.getFloatingTasks().last().getTags().get(0);
 		assertEquals("hobby",hashtag);
 		
-		String hashtag2 = displayState2.getFloatingTasks().get(len-1).getTags().get(1);
+		String hashtag2 = displayState2.getFloatingTasks().last().getTags().get(1);
 		assertEquals("interest",hashtag2);
 		
 		
@@ -83,8 +83,7 @@ public void SetUp(){
 		assertEquals("added new timed task: attend seminar", feedback);
 		
 		//Checks whether the task description stored in the state is correct
-		int len = displayState3.getTimedTasks().size();
-		String taskDes = displayState3.getTimedTasks().get(len-1).getTaskDescription();
+		String taskDes = displayState3.getTimedTasks().last().getTaskDescription();
 		assertEquals("attend seminar",taskDes);
 		
 		SimpleDateFormat curFormater = new SimpleDateFormat("dd/MM/yyyy");
@@ -98,16 +97,16 @@ public void SetUp(){
 		calendar2.setTime(dateObj2);
 		
 		//Checks if the calendar object stored in the state is correct
-		String startActual = displayState3.getTimedTasks().get(len-1).getStartDate().toString();
+		String startActual = displayState3.getTimedTasks().last().getStartDate().toString();
 		String startExpected = calendar.toString();
 		assertEquals(startExpected, startActual);
 		
-		String endActual = displayState3.getTimedTasks().get(len-1).getEndDate().toString();
+		String endActual = displayState3.getTimedTasks().last().getEndDate().toString();
 		String endExpected = calendar2.toString();
 		assertEquals(endExpected, endActual);
 		
 		//Checks if the hashtags stored in the task object in the state are correct
-		String hashtag = displayState3.getTimedTasks().get(len-1).getTags().get(0);
+		String hashtag = displayState3.getTimedTasks().last().getTags().get(0);
 		assertEquals("work",hashtag);
 		
 	}

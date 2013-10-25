@@ -1,6 +1,7 @@
 package todo;
 
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 /**
  * This class helps maintain a state of the application, containing all
@@ -19,18 +20,19 @@ public class State {
 	/**
 	 * ArrayLists to store the three types of tasks
 	 */
-	private ArrayList<TimedTask> _currentTimedTasks;
-	private ArrayList<FloatingTask> _currentFloatingTasks;
-	private ArrayList<DeadlineTask> _currentDeadlineTasks;
+	
+	private TreeSet<TimedTask> _currentTimedTasks;
+	private TreeSet<FloatingTask> _currentFloatingTasks;
+	private TreeSet<DeadlineTask> _currentDeadlineTasks;
 	
 	// Stores pointers to previous and next states for undo/redo
 	private State _previous;
 	private State _next;
 
 	State() {
-		_currentTimedTasks = new ArrayList<TimedTask>();
-		_currentFloatingTasks = new ArrayList<FloatingTask>();
-		_currentDeadlineTasks = new ArrayList<DeadlineTask>();
+		_currentTimedTasks = new TreeSet<TimedTask>();
+		_currentFloatingTasks = new TreeSet<FloatingTask>();
+		_currentDeadlineTasks = new TreeSet<DeadlineTask>();
 		_feedback = new String();
 		_previous = null;
 		_next = null;
@@ -43,9 +45,9 @@ public class State {
 	 */
 	State(State previous) {
 		this();
-		_currentTimedTasks = new ArrayList<TimedTask>(previous.getTimedTasks());
-		_currentDeadlineTasks = new ArrayList<DeadlineTask>(previous.getDeadlineTasks());
-		_currentFloatingTasks = new ArrayList<FloatingTask>(previous.getFloatingTasks());
+		_currentTimedTasks = new TreeSet<TimedTask>(previous.getTimedTasks());
+		_currentDeadlineTasks = new TreeSet<DeadlineTask>(previous.getDeadlineTasks());
+		_currentFloatingTasks = new TreeSet<FloatingTask>(previous.getFloatingTasks());
 		_previous = previous.getPrevious();
 		_next = previous.getNext();
 	}
@@ -55,7 +57,7 @@ public class State {
 	 * 
 	 * @return an ArrayList with all timed tasks
 	 */
-	protected ArrayList<TimedTask> getTimedTasks() {
+	protected TreeSet<TimedTask> getTimedTasks() {
 		return _currentTimedTasks;
 	}
 
@@ -64,7 +66,7 @@ public class State {
 	 * 
 	 * @return an ArrayList with all floating tasks
 	 */
-	protected ArrayList<FloatingTask> getFloatingTasks() {
+	protected TreeSet<FloatingTask> getFloatingTasks() {
 		return _currentFloatingTasks;
 	}
 
@@ -73,7 +75,7 @@ public class State {
 	 * 
 	 * @return an ArrayList with all deadline tasks
 	 */
-	protected ArrayList<DeadlineTask> getDeadlineTasks() {
+	protected TreeSet<DeadlineTask> getDeadlineTasks() {
 		return _currentDeadlineTasks;
 	}
 
@@ -88,7 +90,7 @@ public class State {
 		allTasks.addAll(getFloatingTasks());
 		allTasks.addAll(getTimedTasks());
 		allTasks.addAll(getDeadlineTasks());
-
+		
 		return allTasks;
 	}
 
@@ -169,7 +171,7 @@ public class State {
 	 * @return
 	 */
 	protected boolean hasTask(String taskSnippet,
-			ArrayList<? extends Task> taskList) {
+			TreeSet<? extends Task> taskList) {
 		for (Task task : taskList) {
 			if (task.getTaskDescription().contains(taskSnippet)) {
 				return true;
