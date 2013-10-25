@@ -22,12 +22,18 @@ public class State {
 	private ArrayList<TimedTask> _currentTimedTasks;
 	private ArrayList<FloatingTask> _currentFloatingTasks;
 	private ArrayList<DeadlineTask> _currentDeadlineTasks;
+	
+	// Stores pointers to previous and next states for undo/redo
+	private State _previous;
+	private State _next;
 
 	State() {
 		_currentTimedTasks = new ArrayList<TimedTask>();
 		_currentFloatingTasks = new ArrayList<FloatingTask>();
 		_currentDeadlineTasks = new ArrayList<DeadlineTask>();
 		_feedback = new String();
+		_previous = null;
+		_next = null;
 	}
 
 	/**
@@ -40,6 +46,8 @@ public class State {
 		_currentTimedTasks = new ArrayList<TimedTask>(previous.getTimedTasks());
 		_currentDeadlineTasks = new ArrayList<DeadlineTask>(previous.getDeadlineTasks());
 		_currentFloatingTasks = new ArrayList<FloatingTask>(previous.getFloatingTasks());
+		_previous = previous.getPrevious();
+		_next = previous.getNext();
 	}
 
 	/**
@@ -256,4 +264,60 @@ public class State {
 		return _feedback;
 	}
 	
+	/**
+	 * Gets previous state in state chain
+	 * 
+	 * @return previous state
+	 */
+	protected State getPrevious() {
+		return _previous;
+	}
+	
+	/**
+	 * Sets previous state in state chain to given state
+	 * 
+	 * @param state
+	 * 			state which previous state is to be set to
+	 * 
+	 */
+	protected void setPrevious(State state) {
+		_previous = state;
+	}
+	
+	/**
+	 * Checks if there is a previous state in state chain
+	 * 
+	 * @return true if there is a previous state, false otherwise
+	 */
+	protected boolean hasPrevious() {
+		return _previous != null;
+	}
+	
+	/**
+	 * Get next state in state chain
+	 * 
+	 * @return next state
+	 */
+	protected State getNext() {
+		return _next;
+	}
+	
+	/**
+	 * Set next state in state chain to given state
+	 * 
+	 * @param state
+	 * 			state which next state is to be set to
+	 */
+	protected void setNext(State state) {
+		_next = state;
+	}
+	
+	/**
+	 * Checks if there is next state in state chain
+	 * 
+	 * @return true if there is a next state, false otherwise
+	 */
+	protected boolean hasNext() {
+		return _next != null;
+	}
 }

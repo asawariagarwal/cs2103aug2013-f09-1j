@@ -1,7 +1,6 @@
 package todo;
 
 import java.io.IOException;
-import java.util.LinkedList;
 
 /**
  * This class is the main driver for handling user inputs.
@@ -14,9 +13,9 @@ import java.util.LinkedList;
  */
 class CommandHandler {
 	
-	Parser parser;
-	LinkedList<State> stateList;
-	JSONStorage store;
+	private Parser parser;
+	private State state;
+	private JSONStorage store;
 	
 	/**
 	 * Constructor for CommandHandler
@@ -25,10 +24,8 @@ class CommandHandler {
 	 */
 	public CommandHandler(){
 		parser = new Parser();
-		stateList = new LinkedList<State>();
 		store = new JSONStorage();
-		State initState = readStorage();
-		stateList.add(initState);
+		state = readStorage();
 	}
 	
 	
@@ -77,8 +74,7 @@ class CommandHandler {
 				return makeInvalidState("Error encountered executing command");
 			}
 			if (command.isMutator()) {
-				stateList.add(newState);
-				updateStorage(newState);
+				handleMutator(command, newState);
 			}
 			return newState;
 		} else {
@@ -87,13 +83,40 @@ class CommandHandler {
 	}
 	
 	/**
-	 * Gets the current state from stateList
-	 * Currently returns the last item in stateList
+	 * Handles the execution of a mutator command
+	 * 
+	 * @param command
+	 * 			Command created by parser
+	 * 
+	 * @param newState
+	 * 			state after execution of command
+	 * 
+	 */
+	protected void handleMutator(Command command, State newState) {
+		updateStorage(newState);
+		if (!command.isOldState()) {
+			addNewState(newState);
+		}
+		state = newState;
+	}
+	
+	/**
+	 * Gets the current state
 	 * 
 	 * @return the current State
 	 */
 	protected State getCurrentState() {
-		return stateList.getLast();
+		return state;
+	}
+	
+	/**
+	 * Adds new state to state chain
+	 * Updates current state
+	 * 
+	 */
+	private void addNewState(State newState) {
+		state.setNext(newState);
+		newState.setPrevious(state);
 	}
 	
 	/**
@@ -145,4 +168,5 @@ class CommandHandler {
 			return initState;
 		}
 	}
+	
 }
