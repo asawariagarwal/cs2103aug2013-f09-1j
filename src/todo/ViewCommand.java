@@ -174,7 +174,7 @@ public class ViewCommand extends Command {
 					s.addTask(cur);
 				}
 			}
-			s.setFeedback("viewing tasks by date");
+			s.setFeedback("viewing tasks by date: " + String.valueOf(dd) + "/" + String.valueOf(mm) + "/" + String.valueOf(yy));
 			return s;
 		}
 		if (isViewTag()) {
@@ -200,7 +200,7 @@ public class ViewCommand extends Command {
 					s.addTask(cur);
 				}
 			}
-			s.setFeedback("viewing tasks by tag");
+			s.setFeedback("viewing tasks by tag: " + tag);
 			return s;
 		}
 		return null;
