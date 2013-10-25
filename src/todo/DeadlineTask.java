@@ -10,7 +10,7 @@ import java.util.Calendar;
 	 * @author Karan
 	 * 
 	 */
-	class DeadlineTask extends Task {
+	class DeadlineTask extends Task implements Comparable<DeadlineTask> {
 		/**
 		 * Variable to store the deadline
 		 */
@@ -78,6 +78,17 @@ import java.util.Calendar;
 			}
 
 			return taskString;
+		}
+
+		@Override
+		public int compareTo(DeadlineTask otherTask) {
+			if (this.getDeadline().before(otherTask.getDeadline())){
+				return -1;
+			} else if (this.getDeadline().after(otherTask.getDeadline())){
+				return 1;
+			} else {
+				return 0;
+			}
 		}
 
 	}
