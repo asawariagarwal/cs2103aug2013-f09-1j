@@ -87,8 +87,38 @@ import java.util.Calendar;
 			} else if (this.getDeadline().after(otherTask.getDeadline())){
 				return 1;
 			} else {
-				return this.getTaskDescription().compareTo(otherTask.getTaskDescription());
+				int descCompare = this.getTaskDescription().compareTo(otherTask.getTaskDescription());
+				if (descCompare != 0){
+					return descCompare;
+				} else {
+					if (this.getTags().equals(otherTask.getTags())){
+						return 0;
+					} else {
+						return this.getTags().toString().compareTo(otherTask.getTags().toString());
+					}
+				}			
 			}
+		}
+		
+		@Override
+		public boolean equals(Object o){
+			if (!(o instanceof DeadlineTask)){
+				return false;
+			} else {
+				DeadlineTask deadlineO = (DeadlineTask) o;
+				boolean sameDeadline = this.getDeadline().equals(deadlineO.getDeadline());
+				boolean sameName = this.getTaskDescription().equals(deadlineO.getTaskDescription());
+				boolean sameTags = this.getTags().equals(deadlineO.getTags());
+				return sameDeadline && sameName && sameTags;
+			}
+		}
+		
+		@Override
+		public int hashCode(){
+			String deadlineString = this.getDeadline().toString();
+			String nameString = this.getTaskDescription();
+			String tagString = this.getTags().toString();
+			return (deadlineString + nameString + tagString).hashCode();
 		}
 
 	}

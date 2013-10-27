@@ -68,7 +68,7 @@ public class GUI implements ActionListener {
 
 				_displayState = _handler.handleInput(input);
 				UserInputField.setText("");
-				_autoComplete.updateState(_displayState);
+				_autoComplete.updateState(_handler.getCurrentState());
 				previousInputs.add(input);
 				UP_KEYPRESS_COUNTER = 1;
 				updateTaskFields();
