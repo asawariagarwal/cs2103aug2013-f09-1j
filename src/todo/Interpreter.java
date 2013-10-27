@@ -399,16 +399,19 @@ public class Interpreter {
 	 * 
 	 * @return UndoCommand type object or null
 	 */
-	
-   private UndoCommand parseUndo(){//TODO :calls default constructor 
-	   UndoCommand command;
-	   if(!_userInput.equals("")){
-		   command = new UndoCommand();
-		   return command;
-	   }
-	   return null;  
-   }
-	
+		
+	private UndoCommand parseUndo(){
+		UndoCommand command;
+		_userInput=_userInput.trim();
+		if(_userInput.equals("")){
+			command = new UndoCommand();
+		}else{
+			command = new UndoCommand(Integer.parseInt(_userInput));
+		}
+		return command;
+	}
+   
+   
 
 	private boolean isViewCommandDisplayingAllTasks() {
 		_userInput=_userInput.trim();
@@ -554,7 +557,8 @@ public class Interpreter {
 		int locationOfSpace = _userInput.indexOf(" ");
 		if(locationOfSpace==-1)
 		{
-			return "";
+			_userInput=_userInput.concat(" ");
+			locationOfSpace = _userInput.indexOf(" ");
 		}
 		commandType = (_userInput.substring(0, locationOfSpace)).trim();
 		_userInput = (_userInput.substring(locationOfSpace + 1)).trim();
