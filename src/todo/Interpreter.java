@@ -113,14 +113,16 @@ public class Interpreter {
 				return undoObj;
 
 			default:
-				return null;
+				_userInput = commandTypeKeyword.concat(" "+_userInput);
+				AddCommand addObj2;
+				addObj2 = parseAdd();
+				return addObj2;
 
 			}
 		} catch (Exception e) {
 			System.err.println("Invalid input: " + e.getMessage());
 		}
 		return null;
-
 	}
 
 	/**
@@ -500,23 +502,7 @@ public class Interpreter {
 		return dateStr;
 	}
 
-	/**
-	 * This function uses a regex to check if the format of the date entered is
-	 * correct
-	 * 
-	 * Return Type is Boolean
-	 */
-	 boolean isDateValid(String Date_str)// Checks if the date format is
-												// correct or not use regex here
-												// to check
-	{
-		String regex = "\\d{1,2}[- /]\\d{1,2}[- /]\\d{4}";
-		if (Date_str.matches(regex))
-			return true;
-		else
-			return false;
-	}
-	
+
 	 /**This functions checks the validity of the date using the Parser defined my natty
 	  * 
 	  *It returns a calendar object if date is valid else returns null
