@@ -13,7 +13,7 @@ public class ParserUnitTests {
 	//Exploratory white box testing
 	public void AddTimedTaskTest(){
 		
-	Parser parseObj=  new Parser("add timedTask from 23/12/2014 to 24/12/2015 #work");
+	Interpreter parseObj=  new Interpreter("add timedTask from 23/12/2014 to 24/12/2015 #work");
 	
 	String commandType =parseObj.getCommandType();
 	String taskDes = parseObj.extractTillKeyword("from");
