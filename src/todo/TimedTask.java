@@ -105,8 +105,40 @@ class TimedTask extends Task implements Comparable<TimedTask> {
 			} else if (this.getEndDate().after(otherTask.getEndDate())){
 				return 1;
 			} else {
-				return this.getTaskDescription().compareToIgnoreCase(otherTask.getTaskDescription());
+				int descCompare = this.getTaskDescription().compareTo(otherTask.getTaskDescription());
+				if (descCompare != 0){
+					return descCompare;
+				} else {
+					if (this.getTags().equals(otherTask.getTags())){
+						return 0;
+					} else {
+						return this.getTags().toString().compareTo(otherTask.getTags().toString());
+					}
+				}
 			}
 		}
+	}
+	
+	@Override
+	public boolean equals(Object o){
+		if (!(o instanceof TimedTask)){
+			return false;
+		} else {
+			TimedTask timedO = (TimedTask) o;
+			boolean sameStart = this.getStartDate().equals(timedO.getStartDate());
+			boolean sameEnd = this.getEndDate().equals(timedO.getEndDate());
+			boolean sameName = this.getTaskDescription().equals(timedO.getTaskDescription());
+			boolean sameTags = this.getTags().equals(timedO.getTags());
+			return sameStart && sameEnd && sameName && sameTags;
+		}
+	}
+	
+	@Override
+	public int hashCode(){
+		String startString = this.getStartDate().toString();
+		String endString = this.getEndDate().toString();
+		String nameString = this.getTaskDescription();
+		String tagString = this.getTags().toString();
+		return (startString + endString + nameString + tagString).hashCode();
 	}
 }
