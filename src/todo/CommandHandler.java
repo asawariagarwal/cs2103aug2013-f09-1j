@@ -4,7 +4,7 @@ import java.io.IOException;
 
 /**
  * This class is the main driver for handling user inputs.
- * It takes a user input string and sends it to the Parser.
+ * It takes a user input string and sends it to the Interpreter.
  * A Command would be returned and this will check whether the Command is valid.
  * If valid, Command will be executed, and a new State will be returned.
  * 
@@ -13,17 +13,17 @@ import java.io.IOException;
  */
 class CommandHandler {
 	
-	private Parser parser;
+	Interpreter interpreter;
 	private State state;
 	private JSONStorage store;
 	
 	/**
 	 * Constructor for CommandHandler
-	 * Initializes parser and stateList
+	 * Initializes interpreter and stateList
 	 * 
 	 */
 	public CommandHandler(){
-		parser = new Parser();
+		interpreter = new Interpreter();
 		store = new JSONStorage();
 		state = readStorage();
 	}
@@ -39,7 +39,7 @@ class CommandHandler {
 	 * @return a State to be displayed
 	 */
 	protected State handleInput(String commandString){
-		Command command = parser.parseInput(commandString);
+		Command command = interpreter.parseInput(commandString);
 		return handle(command);
 	}
 	
@@ -47,7 +47,7 @@ class CommandHandler {
 	 * Checks if command is valid
 	 * 
 	 * @param command
-	 * 			Command created by parser
+	 * 			Command created by interpreter
 	 * 
 	 * @return true if command is valid, false otherwise.
 	 * 
@@ -61,7 +61,7 @@ class CommandHandler {
 	 * If command is not valid, returns an invalid state.
 	 * 
 	 * @param command
-	 * 			Command created by parser
+	 * 			Command created by interpreter
 	 * 
 	 * @return State
 	 */

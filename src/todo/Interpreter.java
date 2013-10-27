@@ -3,8 +3,10 @@ package todo;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+
+import com.joestelmach.natty.*;
 
 import todo.Command;
 import todo.ViewCommand;
@@ -18,7 +20,7 @@ import todo.ModifyCommand;
  * @author:Asawari
  */
 
-public class Parser {
+public class Interpreter {
 
 	/**
 	 * Command Type Keywords
@@ -38,24 +40,34 @@ public class Parser {
 	private String _userInput;
 
 	/**
-	 * Constructor to initialize the user input
+	 * Empty Constructor to initialize the _userInput
 	 */
-	Parser() {
+	Interpreter() {
 		_userInput = null;
 	}
 	
-	Parser(String userInput) {
+	/**
+	 * Parameterized Constructor to initialize the _userInput
+	 */
+	Interpreter(String userInput) {
 		_userInput = userInput;
 	}
 	
+	/**
+	 * Setter method to initialize the _userInput 
+	 * @param inputString
+	 */
 	private void setInput(String inputString) {
 		_userInput = inputString;
 	}
 	
 	/**
 	 * This function does the main parsing - high level of abstraction
+	 * This function is called from the CommandHandler and returns a Command object
+	 * If the Command is invalid it returns a null object 
 	 * 
-	 * @return
+	 * Handles ParseException thrown by private methods through try-catch
+	 * @return Command object
 	 */
 
 	public Command parseInput(String inputString) {
@@ -101,22 +113,30 @@ public class Parser {
 				return undoObj;
 
 			default:
-				return null;
+				_userInput = commandTypeKeyword.concat(" "+_userInput);
+				AddCommand addObj2;
+				addObj2 = parseAdd();
+				return addObj2;
 
 			}
 		} catch (Exception e) {
 			System.err.println("Invalid input: " + e.getMessage());
 		}
 		return null;
-
 	}
 
 	/**
-	 * This function performs the actual parsing of a add type command and
-	 * creates a add command type object
+	 * This function performs the actual parsing of an "add" type Command and
+	 * creates a AddCommand type object
+	 * 
+	 * It calls three different methods to add the three different types of tasks
+	 * in the following order(if-else if pattern):
+	 * 1.Deadline tasks
+	 * 2.Timed tasks
+	 * 3.Floating
 	 * 
 	 * @return AddCommand type object
-	 * @throws Parseexception
+	 * @throws ParseException
 	 */
 
 	private AddCommand parseAdd() throws ParseException {
@@ -147,6 +167,7 @@ public class Parser {
 	 * @return AddCommand type object or null
 	 * @throws ParseException
 	 */
+	
 	private AddCommand parseDeadlineTask() throws ParseException {
 
 		ArrayList<String> hashtags = new ArrayList<String>();
@@ -156,22 +177,12 @@ public class Parser {
 			TaskDes= TaskDes.concat(" by ");
 			TaskDes=TaskDes.concat(extractTillKeyword(" by "));
 		}
-
+        if(!TaskDes.equals("")){
 		String dateStr;
 		dateStr = extractTillHashtagOrEnd();
-		if (isDateValid(dateStr)) {
+		Calendar deadline = isValid(dateStr);
+		if (!deadline.equals(null)) {
 
-			// The Following lines are used to create a calendar type object
-			// using a
-			// date string
-			SimpleDateFormat curFormater = new SimpleDateFormat("dd/MM/yyyy");
-			Date dateObj = curFormater.parse(dateStr);
-			
-			
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(dateObj);
-
-			
 			while (!(_userInput.equals(""))) {
 				String hashtag=extractHashtag();
 				if(hashtag.equals("")){
@@ -180,13 +191,14 @@ public class Parser {
 				hashtags.add(hashtag);
 			}
 
-			DeadlineTask TaskObj = new DeadlineTask(TaskDes, hashtags, calendar);
+			DeadlineTask TaskObj = new DeadlineTask(TaskDes, hashtags, deadline);
 
 			AddCommand command = new AddCommand(TaskObj);
 
 			return command;
 
 		}
+        }
 		return null;
 	}
 	
@@ -207,27 +219,19 @@ public class Parser {
 			TaskDes=TaskDes.concat(" from ");
 			TaskDes=TaskDes.concat(extractTillKeyword(" from "));
 		}
-
+         
+		if(!TaskDes.equals("")){
 		String date1, date2;
 
-		date1 = extractTillKeyword("to");
+		date1 = extractTillKeyword(" to ");
 
 		date2 = extractTillHashtagOrEnd();
+		
+		Calendar calendar1 = isValid(date1);
+		
+		Calendar calendar2 = isValid(date2);
 
-		if ((isDateValid(date1)) && (isDateValid(date2))) {
-
-			// The Following lines are used to create a calendar type objects
-			// using
-			// a date string
-			SimpleDateFormat curFormater = new SimpleDateFormat("dd/MM/yyyy");
-			Date dateObj = curFormater.parse(date1);
-			Calendar calendar1 = Calendar.getInstance();
-			calendar1.setTime(dateObj);
-
-			SimpleDateFormat curFormater2 = new SimpleDateFormat("dd/MM/yyyy");
-			Date dateObj2 = curFormater2.parse(date2);
-			Calendar calendar2 = Calendar.getInstance();
-			calendar2.setTime(dateObj2);
+		if ((!calendar1.equals(null)) && (!calendar2.equals(null))) {
 
 			while (!(_userInput.equals(""))) {
 				String hashtag=extractHashtag();
@@ -237,13 +241,13 @@ public class Parser {
 				hashtags.add(hashtag);
 			}
 			
-			
 			TimedTask taskObj = new TimedTask(TaskDes, hashtags, calendar1,
 					calendar2);
 			AddCommand command = new AddCommand(taskObj);
 
 			return command;
 
+		}
 		}
 		return null;
 
@@ -287,8 +291,8 @@ public class Parser {
 
 	private ViewCommand parseView() throws ParseException {
 		ViewCommand command;
-		String dateStr[] = new String[1];
-		dateStr[0] = "";
+		Calendar calendar[] = new Calendar[1];
+		calendar[0] = null;
 		if (isViewCommandDisplayingAllTasks()) {
 			command = new ViewCommand(false, false);
 		}else if (isViewCommandDisplayingAllTasksOrderedByTags()) {
@@ -302,26 +306,10 @@ public class Parser {
 		}else if (isViewCommandDisplayingTasksWithHashtag()) {
 			String hashtag = getHashtag();
 			command = new ViewCommand(hashtag);
-		}else if(isViewCommandDisplayingTasksOnADate(dateStr)){
-
-			// The Following lines are used to create a calendar
-			// type object using a date string
-			SimpleDateFormat curFormater = new SimpleDateFormat("dd/MM/yyyy");
-			Date dateObj = curFormater.parse(dateStr[0]);
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(dateObj);
-
-			command = new ViewCommand(calendar);
-		}else if (isViewCommandDisplayingTasksOnADateOrderedByTags(dateStr)) {
-
-			// The Following lines are used to create a calendar
-			// type object using a date string
-			SimpleDateFormat curFormater2 = new SimpleDateFormat("dd/MM/yyyy");
-			Date dateObj2 = curFormater2.parse(dateStr[0]);
-			Calendar calendar2 = Calendar.getInstance();
-			calendar2.setTime(dateObj2);
-
-			command = new ViewCommand(calendar2);
+		}else if(isViewCommandDisplayingTasksOnADate(calendar)){
+			command = new ViewCommand(calendar[0]);
+		}else if (isViewCommandDisplayingTasksOnADateOrderedByTags(calendar)) {
+			command = new ViewCommand(calendar[0]);
 		} else {
 			return null;
 		}
@@ -389,31 +377,22 @@ public class Parser {
 	private ModifyCommand parseReschedule() throws ParseException {
 		String taskName ;
 		taskName= extractTaskDescription().trim();
+		if(!taskName.equals("")){
 		String startDate, endDate;
-		startDate = extractTillKeyword("till");
+		startDate = extractTillKeyword(" till ");
 		endDate = _userInput.trim();
-
-		if ((isDateValid(startDate)) && (isDateValid(endDate))) {
-
-			// The Following lines are used to create a calendar
-			// type object using a date string
-			SimpleDateFormat curFormater = new SimpleDateFormat("dd/MM/yyyy");
-			Date dateObj1 = curFormater.parse(startDate);
-			Calendar calendar1 = Calendar.getInstance();
-			calendar1.setTime(dateObj1);
-
-			SimpleDateFormat curFormater2= new SimpleDateFormat("dd/MM/yyyy");
-			Date dateObj2 = curFormater2.parse(endDate);
-			Calendar calendar2 = Calendar.getInstance();
-			calendar2.setTime(dateObj2);
-
+        
+		Calendar calendar1 = isValid(startDate);
+		Calendar calendar2 = isValid(endDate);
+		if ((!calendar1.equals(null)) && (!calendar2.equals(null))) {
 			ModifyCommand command = new ModifyCommand(taskName, calendar1,
 					calendar2);
 			return command;
-		} else {
+		} 
+		}else {
 			return null;
 		}
-
+     return null;
 	}
 
 	/**
@@ -422,24 +401,19 @@ public class Parser {
 	 * 
 	 * @return UndoCommand type object or null
 	 */
-	
-   private UndoCommand parseUndo(){//TODO :calls default constructor 
-	   UndoCommand command;
-	   if(!_userInput.equals("")){
-		   command = new UndoCommand();
-		   return command;
-	   }
-	   return null;  
-   }
-	
-	private String extractTaskDescription() {
-		String TaskDes = extractTillKeyword(" to ");
-		while (_userInput.contains(" to ")) {
-			TaskDes=TaskDes.concat(" to ");
-			TaskDes=TaskDes.concat(extractTillKeyword(" to "));
+		
+	private UndoCommand parseUndo(){
+		UndoCommand command;
+		_userInput=_userInput.trim();
+		if(_userInput.equals("")){
+			command = new UndoCommand();
+		}else{
+			command = new UndoCommand(Integer.parseInt(_userInput));
 		}
-		return TaskDes;
+		return command;
 	}
+   
+   
 
 	private boolean isViewCommandDisplayingAllTasks() {
 		_userInput=_userInput.trim();
@@ -487,23 +461,33 @@ public class Parser {
 		return false;
 	}
 
-	private boolean isViewCommandDisplayingTasksOnADate(String[] date){
-		date[0]=_userInput.trim();
-		if((isDateValid(date[0]))){
+	private boolean isViewCommandDisplayingTasksOnADate(Calendar[] calendar){
+		String dateStr=_userInput.trim();
+		calendar[0] = isValid(dateStr);
+		if(!calendar[0].equals(null)){
 			return true;
 		}
 		return false;
 	}
 	
-	private boolean isViewCommandDisplayingTasksOnADateOrderedByTags(String[] date) {
-		date[0] = extractDate().trim();
+	private boolean isViewCommandDisplayingTasksOnADateOrderedByTags(Calendar[] calendar) {
+		String dateStr = extractDate().trim();
 		_userInput=_userInput.trim();
-		if ((isDateValid(date[0])) && (_userInput.equals("by tags"))) {
+		calendar[0] = isValid(dateStr);
+		if ((!calendar[0].equals(null)) && (_userInput.equals("by tags"))) {
 			return true;
 		}
 		return false;
 	}
 
+	private String extractTaskDescription() {
+		String TaskDes = extractTillKeyword(" to ");
+		while (_userInput.contains(" to ")) {
+			TaskDes=TaskDes.concat(" to ");
+			TaskDes=TaskDes.concat(extractTillKeyword(" to "));
+		}
+		return TaskDes;
+	}
 
 	
 	private String getHashtag() {
@@ -518,22 +502,33 @@ public class Parser {
 		return dateStr;
 	}
 
-	/**
-	 * This function uses a regex to check if the format of the date entered is
-	 * correct
-	 * 
-	 * Return Type is Boolean
-	 */
-	 boolean isDateValid(String Date_str)// Checks if the date format is
-												// correct or not use regex here
-												// to check
-	{
-		String regex = "\\d{1,2}[- /]\\d{1,2}[- /]\\d{4}";
-		if (Date_str.matches(regex))
-			return true;
-		else
-			return false;
-	}
+
+	 /**This functions checks the validity of the date using the Parser defined my natty
+	  * 
+	  *It returns a calendar object if date is valid else returns null
+	  * 
+	  * @param Date_str
+	  * @return Calendar object
+	  */
+	 
+	 
+	 private Calendar isValid(String Date_str)
+	 {
+		 Parser parser = new Parser();
+		 List<DateGroup> groups = parser.parse(Date_str);
+		 if(groups.isEmpty()){
+		    return null;
+		    }
+		 for(DateGroup group:groups)  {
+	     Date dates = group.getDates().get(0); 
+	     Calendar calendar = Calendar.getInstance();
+	 	 calendar.setTime(dates);
+		 return calendar;
+		 }
+		return null;
+	 }
+	 
+	 
 
 	/**
 	 * This function returns the command type part of the user input and also
@@ -548,7 +543,8 @@ public class Parser {
 		int locationOfSpace = _userInput.indexOf(" ");
 		if(locationOfSpace==-1)
 		{
-			return "";
+			_userInput=_userInput.concat(" ");
+			locationOfSpace = _userInput.indexOf(" ");
 		}
 		commandType = (_userInput.substring(0, locationOfSpace)).trim();
 		_userInput = (_userInput.substring(locationOfSpace + 1)).trim();
