@@ -307,7 +307,7 @@ public class GUI implements ActionListener {
 	private void initPromptInputField() {
 		UserInputField = new JTextField();
 		UserInputField.addKeyListener(new InputProcessor());
-		UserInputField.setCaretColor(Color.GREEN);
+		UserInputField.setCaretColor(Color.WHITE);
 		UserInputField.setFocusTraversalKeysEnabled(false);
 		UserInputField.addFocusListener(new FocusAdapter() {
 			@Override
@@ -319,7 +319,7 @@ public class GUI implements ActionListener {
 		UserInputField
 				.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 		UserInputField.setBorder(null);
-		UserInputField.setForeground(Color.GREEN);
+		UserInputField.setForeground(Color.WHITE);
 		UserInputField.setBackground(new Color(0, 0, 0));
 		UserInputField.setText("Start Typing Here....");
 		UserInputField.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
@@ -332,7 +332,7 @@ public class GUI implements ActionListener {
 		UserPromptArea.add(PromptSymbol, BorderLayout.WEST);
 		PromptSymbol.setEditable(false);
 		PromptSymbol.setText(">");
-		PromptSymbol.setForeground(Color.GREEN);
+		PromptSymbol.setForeground(Color.WHITE);
 		PromptSymbol.setFont(new Font("Courier New", Font.PLAIN, 20));
 		PromptSymbol.setColumns(1);
 		PromptSymbol.setBorder(null);
@@ -347,7 +347,7 @@ public class GUI implements ActionListener {
 		NotificationsArea.setLayout(new BorderLayout(0, 0));
 
 		_currentDateTimeArea.setFont(new Font("Courier New", Font.BOLD, 17));
-		_currentDateTimeArea.setForeground(Color.GREEN);
+		_currentDateTimeArea.setForeground(Color.WHITE);
 		_currentDateTimeArea.setText("Fetching System Time...\n\n");
 		_currentDateTimeArea.setBackground(new Color(0, 0, 0));
 
@@ -359,7 +359,7 @@ public class GUI implements ActionListener {
 	private void initFloatingTaskView() {
 		FloatingTaskView = new JTextPane();
 		FloatingTaskView.setEditable(false);
-		FloatingTaskView.setForeground(Color.GREEN);
+		FloatingTaskView.setForeground(Color.WHITE);
 		FloatingTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
 		FloatingTaskView.setBackground(Color.BLACK);
 	}
@@ -367,7 +367,7 @@ public class GUI implements ActionListener {
 	private void initDeadlineTaskView() {
 		DeadlineTaskView = new JTextPane();
 		DeadlineTaskView.setEditable(false);
-		DeadlineTaskView.setForeground(Color.GREEN);
+		DeadlineTaskView.setForeground(Color.WHITE);
 		DeadlineTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
 		DeadlineTaskView.setBackground(Color.BLACK);
 	}
@@ -376,7 +376,7 @@ public class GUI implements ActionListener {
 		TimedTaskView = new JTextPane();
 		TimedTaskView.setEditable(false);
 		TimedTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
-		TimedTaskView.setForeground(Color.GREEN);
+		TimedTaskView.setForeground(Color.WHITE);
 		TimedTaskView.setBackground(new Color(0, 0, 0));
 	}
 
