@@ -54,6 +54,8 @@ import com.melloware.jintellitype.JIntellitype;
 
 public class GUI implements ActionListener {
 
+	private static final String FONT_NAME = "Consolas";
+
 	private final class InputProcessor extends KeyAdapter {
 		@Override
 		public void keyPressed(KeyEvent e) {
@@ -320,7 +322,7 @@ public class GUI implements ActionListener {
 		UserInputField.setForeground(Color.GREEN);
 		UserInputField.setBackground(new Color(0, 0, 0));
 		UserInputField.setText("Start Typing Here....");
-		UserInputField.setFont(new Font("Book Antiqua", Font.PLAIN, 20));
+		UserInputField.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
 		UserInputField.setSize(20, 1);
 		UserInputField.requestFocusInWindow();
 	}
@@ -345,7 +347,7 @@ public class GUI implements ActionListener {
 		FloatingTaskView = new JTextPane();
 		FloatingTaskView.setEditable(false);
 		FloatingTaskView.setForeground(Color.GREEN);
-		FloatingTaskView.setFont(new Font("Book Antiqua", Font.BOLD, 20));
+		FloatingTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
 		FloatingTaskView.setBackground(Color.BLACK);
 	}
 
@@ -353,14 +355,14 @@ public class GUI implements ActionListener {
 		DeadlineTaskView = new JTextPane();
 		DeadlineTaskView.setEditable(false);
 		DeadlineTaskView.setForeground(Color.GREEN);
-		DeadlineTaskView.setFont(new Font("Book Antiqua", Font.BOLD, 20));
+		DeadlineTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
 		DeadlineTaskView.setBackground(Color.BLACK);
 	}
 
 	private void initTimedTaskView() {
 		TimedTaskView = new JTextPane();
 		TimedTaskView.setEditable(false);
-		TimedTaskView.setFont(new Font("Book Antiqua", Font.BOLD, 20));
+		TimedTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
 		TimedTaskView.setForeground(Color.GREEN);
 		TimedTaskView.setBackground(new Color(0, 0, 0));
 	}
@@ -369,7 +371,7 @@ public class GUI implements ActionListener {
 		FeedbackPane = new JTextPane();
 		FeedbackPane.setForeground(Color.YELLOW);
 		FeedbackPane.setBackground(new Color(0, 0, 0));
-		FeedbackPane.setFont(new Font("Times New Roman", Font.BOLD, 30));
+		FeedbackPane.setFont(new Font(FONT_NAME, Font.PLAIN, 30));
 		FeedbackPane.setEditable(false);
 		FeedbackPane.setDisabledTextColor(Color.BLUE);
 		if (!_displayState.getFeedback().equals("")) {
