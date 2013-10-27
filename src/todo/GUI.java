@@ -77,14 +77,12 @@ public class GUI implements ActionListener {
 			if (e.getKeyCode() == KeyEvent.VK_UP) {
 				GUILogger.log(Level.INFO, "Up key pressed");
 				if (previousInputs.size() - UP_KEYPRESS_COUNTER >= 0) {
-					UserInputField.setText(previousInputs
-							.get(previousInputs.size()
-									- UP_KEYPRESS_COUNTER++));
+					UserInputField.setText(previousInputs.get(previousInputs
+							.size() - UP_KEYPRESS_COUNTER++));
 				} else {
 					UP_KEYPRESS_COUNTER = 1;
-					UserInputField.setText(previousInputs
-							.get(previousInputs.size()
-									- UP_KEYPRESS_COUNTER++));
+					UserInputField.setText(previousInputs.get(previousInputs
+							.size() - UP_KEYPRESS_COUNTER++));
 				}
 			}
 			if (e.getKeyCode() == KeyEvent.VK_TAB) {
@@ -99,8 +97,9 @@ public class GUI implements ActionListener {
 	private static JTextArea _currentDateTimeArea = new JTextArea();
 	private Timer timer;
 	private JTextField UserInputField;
-	private JTextField Prompt;
+	private JTextField PromptSymbol;
 	private JPanel UserInputArea;
+	private JPanel UserPromptArea;
 	private JTextPane TimedTaskView;
 	private JTextPane DeadlineTaskView;
 	private JTextPane FloatingTaskView;
@@ -118,7 +117,7 @@ public class GUI implements ActionListener {
 	private JHotKeys shortcutKey;
 
 	protected static Logger GUILogger = Logger.getLogger("GUILogger");
-	
+
 	/**
 	 * Launch the application.
 	 */
@@ -173,16 +172,16 @@ public class GUI implements ActionListener {
 		initTimedTaskView();
 
 		initDeadlineTaskView();
-		
+
 		initFloatingTaskView();
-		
+
 		updateTaskFields();
-		
-		initFeedbackPane();
-		
+
 		initNotificationsArea();
 
 		initUserInputArea();
+
+		initFeedbackPane();
 
 		assignFocusToInput();
 
@@ -233,12 +232,12 @@ public class GUI implements ActionListener {
 			}
 		});
 	}
-	
+
 	private void updateFeedbackPane() {
 		FeedbackPane.setText(_displayState.getFeedback());
-		MainViewArea.add(FeedbackPane);
+		UserInputArea.add(FeedbackPane);
 	}
-	
+
 	private void updateSystemTray() {
 		GUILogger.log(Level.INFO, "Attempting to enable systray support");
 		if (SystemTray.isSupported()) {
@@ -293,18 +292,19 @@ public class GUI implements ActionListener {
 		UserInputArea = new JPanel();
 		frmTodo.getContentPane().add(UserInputArea, BorderLayout.SOUTH);
 		UserInputArea.setLayout(new BorderLayout(0, 0));
+		initUserPromptArea();
+		initPromptSymbol();
+		initPromptInputField();
+	}
 
-		Prompt = new JTextField();
-		UserInputArea.add(Prompt, BorderLayout.WEST);
-		Prompt.setEditable(false);
-		Prompt.setText(">");
-		Prompt.setForeground(Color.GREEN);
-		Prompt.setFont(new Font("Courier New", Font.PLAIN, 20));
-		Prompt.setColumns(1);
-		Prompt.setBorder(null);
-		Prompt.setBackground(Color.BLACK);
-		Prompt.setText(">");
+	private void initUserPromptArea() {
+		UserPromptArea = new JPanel();
+		UserPromptArea.setLayout(new BorderLayout(0, 0));
+		UserInputArea.add(UserPromptArea, BorderLayout.SOUTH);
 
+	}
+
+	private void initPromptInputField() {
 		UserInputField = new JTextField();
 		UserInputField.addKeyListener(new InputProcessor());
 		UserInputField.setCaretColor(Color.GREEN);
@@ -315,7 +315,7 @@ public class GUI implements ActionListener {
 				UserInputField.setText("");
 			}
 		});
-		UserInputArea.add(UserInputField, BorderLayout.CENTER);
+		UserPromptArea.add(UserInputField, BorderLayout.CENTER);
 		UserInputField
 				.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 		UserInputField.setBorder(null);
@@ -325,6 +325,19 @@ public class GUI implements ActionListener {
 		UserInputField.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
 		UserInputField.setSize(20, 1);
 		UserInputField.requestFocusInWindow();
+	}
+
+	private void initPromptSymbol() {
+		PromptSymbol = new JTextField();
+		UserPromptArea.add(PromptSymbol, BorderLayout.WEST);
+		PromptSymbol.setEditable(false);
+		PromptSymbol.setText(">");
+		PromptSymbol.setForeground(Color.GREEN);
+		PromptSymbol.setFont(new Font("Courier New", Font.PLAIN, 20));
+		PromptSymbol.setColumns(1);
+		PromptSymbol.setBorder(null);
+		PromptSymbol.setBackground(Color.BLACK);
+		PromptSymbol.setText(">");
 	}
 
 	private void initNotificationsArea() {
@@ -377,7 +390,7 @@ public class GUI implements ActionListener {
 		if (!_displayState.getFeedback().equals("")) {
 			FeedbackPane.setText(_displayState.getFeedback());
 		}
-		MainViewArea.add(FeedbackPane);
+		UserInputArea.add(FeedbackPane, BorderLayout.CENTER);
 	}
 
 	private void initMainViewArea() {
@@ -421,7 +434,7 @@ public class GUI implements ActionListener {
 			String timedTaskText = "Events :\n\n";
 			int index = 0;
 			for (TimedTask task : _displayState.getTimedTasks()) {
-				timedTaskText += ("\t" + (++index) +". " + task.toString() + "\n");
+				timedTaskText += ("\t" + (++index) + ". " + task.toString() + "\n");
 			}
 			TimedTaskView.setText(timedTaskText);
 			MainViewArea.add(TimedTaskView);
@@ -436,7 +449,7 @@ public class GUI implements ActionListener {
 			String deadlineTaskText = "Deadlines :\n\n";
 			int index = 0;
 			for (DeadlineTask task : _displayState.getDeadlineTasks()) {
-				deadlineTaskText += ("\t" + (++index) +". " + task.toString() + "\n");
+				deadlineTaskText += ("\t" + (++index) + ". " + task.toString() + "\n");
 			}
 			DeadlineTaskView.setText(deadlineTaskText);
 			MainViewArea.add(DeadlineTaskView);
@@ -451,7 +464,7 @@ public class GUI implements ActionListener {
 			String floatingTaskText = "Flexible Tasks :\n\n";
 			int index = 0;
 			for (FloatingTask task : _displayState.getFloatingTasks()) {
-				floatingTaskText += ("\t" + (++index) +". " + task.toString() + "\n");
+				floatingTaskText += ("\t" + (++index) + ". " + task.toString() + "\n");
 			}
 			FloatingTaskView.setText(floatingTaskText);
 			MainViewArea.add(FloatingTaskView);
