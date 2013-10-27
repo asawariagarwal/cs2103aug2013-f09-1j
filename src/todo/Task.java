@@ -19,6 +19,7 @@ class Task {
 	private String _description;
 	private ArrayList<String> _tags;
 	private boolean _expired;
+	private boolean _done;
 
 	/**
 	 * Default constructor
@@ -27,6 +28,7 @@ class Task {
 		_description = "";
 		_tags = new ArrayList<String>();
 		_expired = false;
+		_done = false;
 	}
 
 	/**
@@ -42,6 +44,7 @@ class Task {
 		_description = description;
 		_tags = tags;
 		_expired = false;
+		_done = false;
 	}
 
 	/**
@@ -132,5 +135,26 @@ class Task {
 	 */
 	protected void renew() {
 		_expired = false;
+	}
+
+	/**
+	 * Marks a task as done
+	 */
+	protected void markAsDone() {
+		_done = true;
+	}
+
+	/**
+	 * Marks a task as not done
+	 */
+	protected void markAsPending() {
+		_done = false;
+	}
+
+	/**
+	 * Gets the completion status of a task
+	 */
+	protected boolean isComplete() {
+		return _done;
 	}
 }
