@@ -100,7 +100,7 @@ class TimedTask extends Task implements Comparable<TimedTask> {
 		} else if (this.getStartDate().after(otherTask.getStartDate())){
 			return 1;
 		} else {
-			return 0;
+			return this.getTaskDescription().compareToIgnoreCase(otherTask.getTaskDescription());
 		}
 	}
 }

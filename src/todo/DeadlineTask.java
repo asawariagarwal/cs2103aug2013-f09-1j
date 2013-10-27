@@ -87,7 +87,7 @@ import java.util.Calendar;
 			} else if (this.getDeadline().after(otherTask.getDeadline())){
 				return 1;
 			} else {
-				return 0;
+				return this.getTaskDescription().compareTo(otherTask.getTaskDescription());
 			}
 		}
 
