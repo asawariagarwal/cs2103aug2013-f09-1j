@@ -55,6 +55,7 @@ public class UndoCommand extends Command {
 	 * @return new state after undo executed
 	 */
 	private State executeUndo(State state) {
+		assert(num_undo > 0);
 		State currentState = state;
 		int done = 0;
 		while (done < num_undo) {
@@ -64,7 +65,13 @@ public class UndoCommand extends Command {
 			currentState = currentState.getPrevious();
 			done++;
 		}
-		currentState.setFeedback("Undo last " + String.valueOf(done) + " commands");
+		if (done == 0) {
+			currentState.setFeedback("Undo cannot be performed");
+		} else if (done == 1) {
+			currentState.setFeedback("Undo last command");
+		} else {
+			currentState.setFeedback("Undo last " + String.valueOf(done) + " commands");
+		}
 		return currentState;
 	}
 	
@@ -77,16 +84,24 @@ public class UndoCommand extends Command {
 	 * @return new state after redo executed
 	 */
 	private State executeRedo(State state) {
+		assert(num_undo < 0);
 		State currentState = state;
 		int done = 0;
-		while (done > num_undo) {
+		int num_redo = Math.abs(num_undo);
+		while (done < num_redo) {
 			if (!currentState.hasNext())  {
 				break;
 			}
 			currentState = currentState.getNext();
 			done++;
 		}
-		currentState.setFeedback("Redo next " + String.valueOf(done) + " commands");
+		if (done == 0) {
+			currentState.setFeedback("Redo cannot be performed");
+		} else if (done == 1) {
+			currentState.setFeedback("Redo last command");
+		} else {
+			currentState.setFeedback("Redo last " + String.valueOf(done) + " commands");
+		}
 		return currentState;
 	}
 }
