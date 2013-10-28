@@ -13,7 +13,7 @@ import java.io.IOException;
  */
 class CommandHandler {
 	
-	Interpreter interpreter;
+	private Interpreter interpreter;
 	private State state;
 	private JSONStorage store;
 	
@@ -167,6 +167,5 @@ class CommandHandler {
 			initState.setFeedback("Corrupted Previous State");
 			return initState;
 		}
-	}
-	
+	}	
 }
