@@ -45,6 +45,11 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JTextPane;
 import javax.swing.JScrollPane;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
 
 import java.awt.GridLayout;
 
@@ -78,11 +83,13 @@ public class GUI implements ActionListener {
 				GUILogger.log(Level.INFO, "Up key pressed");
 				if (previousInputs.size() - UP_KEYPRESS_COUNTER >= 0) {
 					UserInputField.setText(previousInputs.get(previousInputs
-							.size() - UP_KEYPRESS_COUNTER++));
+							.size()
+							- UP_KEYPRESS_COUNTER++));
 				} else {
 					UP_KEYPRESS_COUNTER = 1;
 					UserInputField.setText(previousInputs.get(previousInputs
-							.size() - UP_KEYPRESS_COUNTER++));
+							.size()
+							- UP_KEYPRESS_COUNTER++));
 				}
 			}
 			if (e.getKeyCode() == KeyEvent.VK_TAB) {
@@ -429,14 +436,49 @@ public class GUI implements ActionListener {
 		updateFloatingTaskField();
 	}
 
+	private void appendToPane(JTextPane textPane, String text,
+			SimpleAttributeSet attributes) {
+		StyledDocument document = textPane.getStyledDocument();
+
+		try {
+			document.insertString(document.getLength(), text, attributes);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+
+	private SimpleAttributeSet getHeadingAttributeSet() {
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributes, Color.BLUE);
+		StyleConstants.setBackground(attributes, Color.BLACK);
+		StyleConstants.setFontFamily(attributes, FONT_NAME);
+		return attributes;
+	}
+
+	private SimpleAttributeSet getBodyAttributeSet() {
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributes, Color.WHITE);
+		StyleConstants.setBackground(attributes, Color.BLACK);
+		StyleConstants.setFontFamily(attributes, FONT_NAME);
+		return attributes;
+	}
+
 	private void updateTimedTaskField() {
 		if (!_displayState.getTimedTasks().isEmpty()) {
-			String timedTaskText = "Events :\n\n";
+			TimedTaskView.setText("");
+			SimpleAttributeSet attributes = getHeadingAttributeSet();
+
+			appendToPane(TimedTaskView, "Events :\n\n", attributes);
+			String timedTaskText = "";
+
 			int index = 0;
 			for (TimedTask task : _displayState.getTimedTasks()) {
 				timedTaskText += ("\t" + (++index) + ". " + task.toString() + "\n");
 			}
-			TimedTaskView.setText(timedTaskText);
+
+			attributes = getBodyAttributeSet();
+			appendToPane(TimedTaskView, timedTaskText, attributes);
+
 			MainViewArea.add(TimedTaskView);
 		} else if (_displayState.getTimedTasks().isEmpty()) {
 			MainViewArea.remove(TimedTaskView);
@@ -446,31 +488,47 @@ public class GUI implements ActionListener {
 
 	private void updateDeadlineTaskField() {
 		if (!_displayState.getDeadlineTasks().isEmpty()) {
-			String deadlineTaskText = "Deadlines :\n\n";
+			DeadlineTaskView.setText("");
+			SimpleAttributeSet attributes = getHeadingAttributeSet();
+
+			appendToPane(DeadlineTaskView, "Deadlines :\n\n", attributes);
+			String deadlineTaskText = "";
+
 			int index = 0;
 			for (DeadlineTask task : _displayState.getDeadlineTasks()) {
 				deadlineTaskText += ("\t" + (++index) + ". " + task.toString() + "\n");
 			}
-			DeadlineTaskView.setText(deadlineTaskText);
+
+			attributes = getBodyAttributeSet();
+			appendToPane(DeadlineTaskView, deadlineTaskText, attributes);
+
 			MainViewArea.add(DeadlineTaskView);
 		} else if (_displayState.getDeadlineTasks().isEmpty()) {
-			DeadlineTaskView.setText("");
 			MainViewArea.remove(DeadlineTaskView);
+			DeadlineTaskView.setText("");
 		}
 	}
 
 	private void updateFloatingTaskField() {
 		if (!_displayState.getFloatingTasks().isEmpty()) {
-			String floatingTaskText = "Flexible Tasks :\n\n";
+			FloatingTaskView.setText("");
+			SimpleAttributeSet attributes = getHeadingAttributeSet();
+			
+			appendToPane(FloatingTaskView, "Flexible Tasks :\n\n", attributes);
+			String floatingTaskText = "";
+			
 			int index = 0;
 			for (FloatingTask task : _displayState.getFloatingTasks()) {
 				floatingTaskText += ("\t" + (++index) + ". " + task.toString() + "\n");
 			}
-			FloatingTaskView.setText(floatingTaskText);
+			
+			attributes = getBodyAttributeSet();
+			appendToPane(FloatingTaskView, floatingTaskText, attributes);
+			
 			MainViewArea.add(FloatingTaskView);
 		} else if (_displayState.getFloatingTasks().isEmpty()) {
-			FloatingTaskView.setText("");
 			MainViewArea.remove(FloatingTaskView);
+			FloatingTaskView.setText("");
 		}
 	}
 
