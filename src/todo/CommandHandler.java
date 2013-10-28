@@ -84,6 +84,7 @@ class CommandHandler {
 	
 	/**
 	 * Handles the execution of a mutator command
+	 * Updates current state
 	 * 
 	 * @param command
 	 * 			Command created by parser
@@ -111,7 +112,6 @@ class CommandHandler {
 	
 	/**
 	 * Adds new state to state chain
-	 * Updates current state
 	 * 
 	 */
 	private void addNewState(State newState) {
@@ -143,6 +143,7 @@ class CommandHandler {
 	 * @return true if update is successful.
 	 */
 	private boolean updateStorage(State state) {
+		assert(store != null);
 		try {
 			store.writeStore(state);
 			return true;
@@ -159,6 +160,7 @@ class CommandHandler {
 	 * @return initial state if successful, empty state otherwise.
 	 */
 	private State readStorage() {
+		assert(store != null);
 		State initState = new State();
 		try {
 			initState = store.readStore();
