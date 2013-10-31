@@ -1,6 +1,7 @@
 package todo;
 
 import java.awt.AWTException;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.Image;
@@ -45,10 +46,8 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JTextPane;
 import javax.swing.JScrollPane;
-import javax.swing.text.AttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
 import java.awt.GridLayout;
@@ -122,6 +121,9 @@ public class GUI implements ActionListener {
 	private static Suggestor _autoComplete;
 	private static int UP_KEYPRESS_COUNTER;
 	private JHotKeys shortcutKey;
+	private SimpleAttributeSet headerAttributes;
+	private SimpleAttributeSet bodyAttributes;
+	private SimpleAttributeSet tagAttributes;
 
 	protected static Logger GUILogger = Logger.getLogger("GUILogger");
 
@@ -173,6 +175,8 @@ public class GUI implements ActionListener {
 	 */
 	private void initialize() {
 		initMainWindow();
+		
+		setUpAttributes();
 
 		initMainViewArea();
 
@@ -369,6 +373,7 @@ public class GUI implements ActionListener {
 		FloatingTaskView.setForeground(Color.WHITE);
 		FloatingTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
 		FloatingTaskView.setBackground(Color.BLACK);
+		FloatingTaskView.setAutoscrolls(false);
 	}
 
 	private void initDeadlineTaskView() {
@@ -377,6 +382,8 @@ public class GUI implements ActionListener {
 		DeadlineTaskView.setForeground(Color.WHITE);
 		DeadlineTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
 		DeadlineTaskView.setBackground(Color.BLACK);
+		DeadlineTaskView.setAutoscrolls(false);
+
 	}
 
 	private void initTimedTaskView() {
@@ -385,6 +392,8 @@ public class GUI implements ActionListener {
 		TimedTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
 		TimedTaskView.setForeground(Color.WHITE);
 		TimedTaskView.setBackground(new Color(0, 0, 0));
+		TimedTaskView.setAutoscrolls(false);
+
 	}
 
 	private void initFeedbackPane() {
@@ -404,12 +413,13 @@ public class GUI implements ActionListener {
 		MainViewArea = new JPanel();
 		MainViewArea.setForeground(Color.GREEN);
 		MainViewArea.setBackground(new Color(0, 0, 0));
-		// frmTodo.getContentPane().add(MainViewArea, BorderLayout.WEST);
+
 		JScrollPane TaskScrollPane = new JScrollPane(MainViewArea);
 		TaskScrollPane.setBorder(null);
 		TaskScrollPane.setViewportBorder(null);
 		TaskScrollPane
 				.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		TaskScrollPane.setViewportView(MainViewArea);
 
 		frmTodo.getContentPane().add(TaskScrollPane, BorderLayout.CENTER);
 		MainViewArea.setLayout(new GridLayout(0, 1, 0, 0));
@@ -463,21 +473,50 @@ public class GUI implements ActionListener {
 		return attributes;
 	}
 
+	private SimpleAttributeSet getTagAttributeSet() {
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributes, Color.YELLOW);
+		StyleConstants.setBackground(attributes, Color.BLACK);
+		StyleConstants.setFontFamily(attributes, FONT_NAME);
+		return attributes;
+	}
+
+	private void setUpAttributes() {
+
+		headerAttributes = getHeadingAttributeSet();
+		bodyAttributes = getBodyAttributeSet();
+		tagAttributes = getTagAttributeSet();
+
+	}
+
 	private void updateTimedTaskField() {
 		if (!_displayState.getTimedTasks().isEmpty()) {
-			TimedTaskView.setText("");
-			SimpleAttributeSet attributes = getHeadingAttributeSet();
 
-			appendToPane(TimedTaskView, "Events :\n\n", attributes);
+			TimedTaskView.setText("");
+
+			appendToPane(TimedTaskView, "Events :\n\n", headerAttributes);
 			String timedTaskText = "";
+			String taskTags = "";
 
 			int index = 0;
 			for (TimedTask task : _displayState.getTimedTasks()) {
-				timedTaskText += ("\t" + (++index) + ". " + task.toString() + "\n");
-			}
+				taskTags = "";
+				timedTaskText = "";
+				timedTaskText += ("\t" + (++index) + ". "
+						+ task.getTaskDescription() + "\t");
+				appendToPane(TimedTaskView, timedTaskText, bodyAttributes);
 
-			attributes = getBodyAttributeSet();
-			appendToPane(TimedTaskView, timedTaskText, attributes);
+				taskTags = task.getTagString() + "\n";
+				appendToPane(TimedTaskView, taskTags, tagAttributes);
+
+				appendToPane(TimedTaskView, "\t\tfrom: ", tagAttributes);
+				appendToPane(TimedTaskView, task.getStartString() + "\n",
+						bodyAttributes);
+
+				appendToPane(TimedTaskView, "\t\tto:   ", tagAttributes);
+				appendToPane(TimedTaskView, task.getEndString() + "\n",
+						bodyAttributes);
+			}
 
 			MainViewArea.add(TimedTaskView);
 		} else if (_displayState.getTimedTasks().isEmpty()) {
@@ -488,19 +527,29 @@ public class GUI implements ActionListener {
 
 	private void updateDeadlineTaskField() {
 		if (!_displayState.getDeadlineTasks().isEmpty()) {
-			DeadlineTaskView.setText("");
-			SimpleAttributeSet attributes = getHeadingAttributeSet();
 
-			appendToPane(DeadlineTaskView, "Deadlines :\n\n", attributes);
+			DeadlineTaskView.setText("");
+			
+			appendToPane(DeadlineTaskView, "Deadlines :\n\n", headerAttributes);
 			String deadlineTaskText = "";
+			String taskTags = "";
 
 			int index = 0;
 			for (DeadlineTask task : _displayState.getDeadlineTasks()) {
-				deadlineTaskText += ("\t" + (++index) + ". " + task.toString() + "\n");
-			}
+				taskTags = "";
+				deadlineTaskText = "";
 
-			attributes = getBodyAttributeSet();
-			appendToPane(DeadlineTaskView, deadlineTaskText, attributes);
+				deadlineTaskText += ("\t" + (++index) + ". "
+						+ task.getTaskDescription() + "\t");
+				appendToPane(DeadlineTaskView, deadlineTaskText, bodyAttributes);
+
+				taskTags = task.getTagString() + "\n";
+				appendToPane(DeadlineTaskView, taskTags, tagAttributes);
+
+				appendToPane(DeadlineTaskView, "\t\tby:   ", tagAttributes);
+				appendToPane(DeadlineTaskView, task.getDeadlineString() + "\n",
+						bodyAttributes);
+			}
 
 			MainViewArea.add(DeadlineTaskView);
 		} else if (_displayState.getDeadlineTasks().isEmpty()) {
@@ -512,19 +561,24 @@ public class GUI implements ActionListener {
 	private void updateFloatingTaskField() {
 		if (!_displayState.getFloatingTasks().isEmpty()) {
 			FloatingTaskView.setText("");
-			SimpleAttributeSet attributes = getHeadingAttributeSet();
 			
-			appendToPane(FloatingTaskView, "Flexible Tasks :\n\n", attributes);
+			appendToPane(FloatingTaskView, "Flexible Tasks :\n\n",
+					headerAttributes);
 			String floatingTaskText = "";
-			
+			String taskTags = "";
 			int index = 0;
 			for (FloatingTask task : _displayState.getFloatingTasks()) {
-				floatingTaskText += ("\t" + (++index) + ". " + task.toString() + "\n");
+				taskTags = "";
+				floatingTaskText = "";
+
+				floatingTaskText += ("\t" + (++index) + ". "
+						+ task.getTaskDescription() + "\t");
+				appendToPane(FloatingTaskView, floatingTaskText, bodyAttributes);
+
+				taskTags = task.getTagString() + "\n";
+				appendToPane(FloatingTaskView, taskTags, tagAttributes);
 			}
-			
-			attributes = getBodyAttributeSet();
-			appendToPane(FloatingTaskView, floatingTaskText, attributes);
-			
+
 			MainViewArea.add(FloatingTaskView);
 		} else if (_displayState.getFloatingTasks().isEmpty()) {
 			MainViewArea.remove(FloatingTaskView);

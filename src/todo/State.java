@@ -20,11 +20,11 @@ public class State {
 	/**
 	 * ArrayLists to store the three types of tasks
 	 */
-	
+
 	private TreeSet<TimedTask> _currentTimedTasks;
 	private TreeSet<FloatingTask> _currentFloatingTasks;
 	private TreeSet<DeadlineTask> _currentDeadlineTasks;
-	
+
 	// Stores pointers to previous and next states for undo/redo
 	private State _previous;
 	private State _next;
@@ -46,8 +46,10 @@ public class State {
 	State(State previous) {
 		this();
 		_currentTimedTasks = new TreeSet<TimedTask>(previous.getTimedTasks());
-		_currentDeadlineTasks = new TreeSet<DeadlineTask>(previous.getDeadlineTasks());
-		_currentFloatingTasks = new TreeSet<FloatingTask>(previous.getFloatingTasks());
+		_currentDeadlineTasks = new TreeSet<DeadlineTask>(previous
+				.getDeadlineTasks());
+		_currentFloatingTasks = new TreeSet<FloatingTask>(previous
+				.getFloatingTasks());
 		_previous = previous.getPrevious();
 		_next = previous.getNext();
 	}
@@ -90,7 +92,7 @@ public class State {
 		allTasks.addAll(getFloatingTasks());
 		allTasks.addAll(getTimedTasks());
 		allTasks.addAll(getDeadlineTasks());
-		
+
 		return allTasks;
 	}
 
@@ -265,7 +267,18 @@ public class State {
 	protected String getFeedback() {
 		return _feedback;
 	}
-	
+
+	/**
+	 * Routine to check whether a task with a date/time is present in the state
+	 * 
+	 * @return true if the current state has tasks with date/time
+	 */
+	protected boolean hasDateTasks() {
+		boolean hasDeadlineTasks = !this.getDeadlineTasks().isEmpty();
+		boolean hasTimedTasks = !this.getTimedTasks().isEmpty();
+		return hasDeadlineTasks || hasTimedTasks;
+	}
+
 	/**
 	 * Gets previous state in state chain
 	 * 
@@ -274,18 +287,18 @@ public class State {
 	protected State getPrevious() {
 		return _previous;
 	}
-	
+
 	/**
 	 * Sets previous state in state chain to given state
 	 * 
 	 * @param state
-	 * 			state which previous state is to be set to
+	 *            state which previous state is to be set to
 	 * 
 	 */
 	protected void setPrevious(State state) {
 		_previous = state;
 	}
-	
+
 	/**
 	 * Checks if there is a previous state in state chain
 	 * 
@@ -294,7 +307,7 @@ public class State {
 	protected boolean hasPrevious() {
 		return _previous != null;
 	}
-	
+
 	/**
 	 * Get next state in state chain
 	 * 
@@ -303,17 +316,17 @@ public class State {
 	protected State getNext() {
 		return _next;
 	}
-	
+
 	/**
 	 * Set next state in state chain to given state
 	 * 
 	 * @param state
-	 * 			state which next state is to be set to
+	 *            state which next state is to be set to
 	 */
 	protected void setNext(State state) {
 		_next = state;
 	}
-	
+
 	/**
 	 * Checks if there is next state in state chain
 	 * 

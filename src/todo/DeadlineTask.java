@@ -58,7 +58,21 @@ import java.util.Calendar;
 		protected Calendar getDeadline() {
 			return _deadline;
 		}
+		
+		/**
+		 * Routine to get the deadline as a String
+		 * 
+		 * @return the deadline as a String
+		 */
+		protected String getDeadlineString() {
+			String deadlineString = "";
+			String timeFormat = "EEEEEEEEE',' dd MMMMMMMMM, yyyy ";
 
+			SimpleDateFormat sdf = new SimpleDateFormat(timeFormat);
+
+			deadlineString = sdf.format(getDeadline().getTime());
+			return deadlineString;
+		}
 		/**
 		 * Routine to return the deadline task as a String
 		 */
