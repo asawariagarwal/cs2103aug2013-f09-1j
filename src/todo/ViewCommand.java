@@ -11,12 +11,12 @@ import java.util.logging.*;
  * 
  */
 public class ViewCommand extends Command {
-	public static int MODE_VIEW_ALL = 0;
-	public static int MODE_VIEW_FLOATING = 1;
-	public static int MODE_VIEW_TIMED = 2;
-	public static int MODE_VIEW_DEADLINE = 3;
-	public static int MODE_VIEW_DATE = 4;
-	public static int MODE_VIEW_TAG = 5;
+	public static final int MODE_VIEW_ALL = 0;
+	public static final int MODE_VIEW_FLOATING = 1;
+	public static final int MODE_VIEW_TIMED = 2;
+	public static final int MODE_VIEW_DEADLINE = 3;
+	public static final int MODE_VIEW_DATE = 4;
+	public static final int MODE_VIEW_TAG = 5;
 	
 	private Calendar date;
 	private String tag;
