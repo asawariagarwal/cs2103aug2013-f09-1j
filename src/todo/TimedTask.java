@@ -1,4 +1,4 @@
- package todo;
+package todo;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -75,6 +75,36 @@ class TimedTask extends Task implements Comparable<TimedTask> {
 	}
 
 	/**
+	 * Routine to get the start time as a String
+	 * 
+	 * @return the start time as a string
+	 */
+	protected String getStartString() {
+		String startString = "";
+		String timeFormat = "hh:mm aa 'on' EEEEEEEEE ',' dd MMMMMMMMM, yyyy ";
+
+		SimpleDateFormat sdf = new SimpleDateFormat(timeFormat);
+
+		startString = sdf.format(getStartDate().getTime());
+		return startString;
+	}
+
+	/**
+	 * Routine to get the end time as a String
+	 * 
+	 * @return the end time as a String
+	 */
+	protected String getEndString() {
+		String endString = "";
+		String timeFormat = "hh:mm aa 'on' EEEEEEEEE ',' dd MMMMMMMMM, yyyy ";
+
+		SimpleDateFormat sdf = new SimpleDateFormat(timeFormat);
+
+		endString = sdf.format(getEndDate().getTime());
+		return endString;
+	}
+
+	/**
 	 * Routine that returns a timed task as a String
 	 */
 	@Override
@@ -95,46 +125,50 @@ class TimedTask extends Task implements Comparable<TimedTask> {
 
 	@Override
 	public int compareTo(TimedTask otherTask) {
-		if (this.getStartDate().before(otherTask.getStartDate())){
+		if (this.getStartDate().before(otherTask.getStartDate())) {
 			return -1;
-		} else if (this.getStartDate().after(otherTask.getStartDate())){
+		} else if (this.getStartDate().after(otherTask.getStartDate())) {
 			return 1;
 		} else {
-			if (this.getEndDate().before(otherTask.getEndDate())){
+			if (this.getEndDate().before(otherTask.getEndDate())) {
 				return -1;
-			} else if (this.getEndDate().after(otherTask.getEndDate())){
+			} else if (this.getEndDate().after(otherTask.getEndDate())) {
 				return 1;
 			} else {
-				int descCompare = this.getTaskDescription().compareTo(otherTask.getTaskDescription());
-				if (descCompare != 0){
+				int descCompare = this.getTaskDescription().compareTo(
+						otherTask.getTaskDescription());
+				if (descCompare != 0) {
 					return descCompare;
 				} else {
-					if (this.getTags().equals(otherTask.getTags())){
+					if (this.getTags().equals(otherTask.getTags())) {
 						return 0;
 					} else {
-						return this.getTags().toString().compareTo(otherTask.getTags().toString());
+						return this.getTags().toString().compareTo(
+								otherTask.getTags().toString());
 					}
 				}
 			}
 		}
 	}
-	
+
 	@Override
-	public boolean equals(Object o){
-		if (!(o instanceof TimedTask)){
+	public boolean equals(Object o) {
+		if (!(o instanceof TimedTask)) {
 			return false;
 		} else {
 			TimedTask timedO = (TimedTask) o;
-			boolean sameStart = this.getStartDate().equals(timedO.getStartDate());
+			boolean sameStart = this.getStartDate().equals(
+					timedO.getStartDate());
 			boolean sameEnd = this.getEndDate().equals(timedO.getEndDate());
-			boolean sameName = this.getTaskDescription().equals(timedO.getTaskDescription());
+			boolean sameName = this.getTaskDescription().equals(
+					timedO.getTaskDescription());
 			boolean sameTags = this.getTags().equals(timedO.getTags());
 			return sameStart && sameEnd && sameName && sameTags;
 		}
 	}
-	
+
 	@Override
-	public int hashCode(){
+	public int hashCode() {
 		String startString = this.getStartDate().toString();
 		String endString = this.getEndDate().toString();
 		String nameString = this.getTaskDescription();

@@ -115,6 +115,19 @@ class Task {
 	}
 
 	/**
+	 * Routine to get the tag list as a String
+	 * 
+	 * @return the tag list as a String
+	 */
+	protected String getTagString() {
+		String tagString = "";
+		for (String tag : getTags()) {
+			tagString += "#" + tag + " ";
+		}
+		return tagString;
+	}
+
+	/**
 	 * Routine to check expiry status
 	 * 
 	 * @return expiry status
