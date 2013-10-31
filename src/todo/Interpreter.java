@@ -433,21 +433,21 @@ public class Interpreter {
 	
 	
 	private boolean isViewCommandDisplayingFloatingTasks() {
-		if (_userInput.equals("floating")) {
+		if (_userInput.equals("flexible")) {
 			return true;
 		}
 		return false;
 	}
 
 	private boolean isViewCommandDisplayingTimedTasks() {
-		if (_userInput.equals("timed")) {
+		if (_userInput.equals("events")) {
 			return true;
 		}
 		return false;
 	}
 	
 	private boolean isViewCommandDisplayingDeadLineTasks() {
-		if (_userInput.equals("deadline")) {
+		if (_userInput.equals("deadlines")) {
 			return true;
 		}
 		return false;
