@@ -294,22 +294,22 @@ public class Interpreter {
 		Calendar calendar[] = new Calendar[1];
 		calendar[0] = null;
 		if (isViewCommandDisplayingAllTasks()) {
-			command = new ViewCommand(false, false);
+			command = new ViewCommand(ViewCommand.MODE_VIEW_ALL);
 		}else if (isViewCommandDisplayingAllTasksOrderedByTags()) {
-			command = new ViewCommand(false,true);
+			command = new ViewCommand(); //TODO: Ordered by tags?
 		}else if (isViewCommandDisplayingFloatingTasks()) {
-			command = new ViewCommand(true);
+			command = new ViewCommand(ViewCommand.MODE_VIEW_FLOATING);
 		}else if (isViewCommandDisplayingTimedTasks()) {
-			command = new ViewCommand();//TODO: calls default constructor
+			command = new ViewCommand(ViewCommand.MODE_VIEW_TIMED);
 		}else if (isViewCommandDisplayingDeadLineTasks()) {
-			command = new ViewCommand();//TODO: calls default constructor
+			command = new ViewCommand(ViewCommand.MODE_VIEW_DEADLINE);
 		}else if (isViewCommandDisplayingTasksWithHashtag()) {
 			String hashtag = getHashtag();
 			command = new ViewCommand(hashtag);
 		}else if(isViewCommandDisplayingTasksOnADate(calendar)){
 			command = new ViewCommand(calendar[0]);
 		}else if (isViewCommandDisplayingTasksOnADateOrderedByTags(calendar)) {
-			command = new ViewCommand(calendar[0]);
+			command = new ViewCommand(calendar[0]); //TODO: Ordered by tags?
 		} else {
 			return null;
 		}
