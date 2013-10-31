@@ -68,15 +68,17 @@ public class GUI implements ActionListener {
 				String input = UserInputField.getText();
 				if (input.equals("exit")) {
 					System.exit(0);
+				} else if (input.trim().equals("help")) {
+					
+				} else {
+					_displayState = _handler.handleInput(input);
+					UserInputField.setText("");
+					_autoComplete.updateState(_handler.getCurrentState());
+					previousInputs.add(input);
+					UP_KEYPRESS_COUNTER = 1;
+					updateTaskFields();
+					updateFeedbackPane();
 				}
-
-				_displayState = _handler.handleInput(input);
-				UserInputField.setText("");
-				_autoComplete.updateState(_handler.getCurrentState());
-				previousInputs.add(input);
-				UP_KEYPRESS_COUNTER = 1;
-				updateTaskFields();
-				updateFeedbackPane();
 			}
 			if (e.getKeyCode() == KeyEvent.VK_UP) {
 				GUILogger.log(Level.INFO, "Up key pressed");
@@ -100,7 +102,9 @@ public class GUI implements ActionListener {
 	}
 
 	private JFrame frmTodo;
-	private static JTextArea _currentDateTimeArea = new JTextArea();
+	private static JTextPane _currentDateTimeArea;
+	private static JTextPane _helpPane;
+	private static JPanel NotificationsArea;
 	private Timer timer;
 	private JTextField UserInputField;
 	private JTextField PromptSymbol;
@@ -124,6 +128,8 @@ public class GUI implements ActionListener {
 	private SimpleAttributeSet headerAttributes;
 	private SimpleAttributeSet bodyAttributes;
 	private SimpleAttributeSet tagAttributes;
+
+	private String HELP_PROMPT = "\nFeeling Lost?\nTry keying in 'help'";
 
 	protected static Logger GUILogger = Logger.getLogger("GUILogger");
 
@@ -175,7 +181,7 @@ public class GUI implements ActionListener {
 	 */
 	private void initialize() {
 		initMainWindow();
-		
+
 		setUpAttributes();
 
 		initMainViewArea();
@@ -190,6 +196,8 @@ public class GUI implements ActionListener {
 
 		initNotificationsArea();
 
+		initDateTimeArea();
+
 		initUserInputArea();
 
 		initFeedbackPane();
@@ -199,9 +207,19 @@ public class GUI implements ActionListener {
 		updateSystemTray();
 
 		setUpShortcutKey();
+
+		initHelpPane();
 	}
 
-	void setUpShortcutKey() {
+	private void initHelpPane() {
+		_helpPane = new JTextPane();
+		_helpPane.setBackground(Color.BLACK);
+		_helpPane.setFont(new Font("Consolas", Font.PLAIN, 17));
+		appendToPane(_helpPane, HELP_PROMPT, headerAttributes);
+		NotificationsArea.add(_helpPane, BorderLayout.CENTER);
+	}
+
+	private void setUpShortcutKey() {
 		GUILogger.log(Level.INFO, "Shortcut Key Being Initialized");
 		shortcutKey = new JHotKeys("./lib");
 		if (System.getProperty("os.name").contains("Windows")) {
@@ -352,11 +370,15 @@ public class GUI implements ActionListener {
 	}
 
 	private void initNotificationsArea() {
-		JPanel NotificationsArea = new JPanel();
+		NotificationsArea = new JPanel();
 		NotificationsArea.setBackground(new Color(0, 0, 0));
 		frmTodo.getContentPane().add(NotificationsArea, BorderLayout.EAST);
 		NotificationsArea.setLayout(new BorderLayout(0, 0));
 
+	}
+
+	private void initDateTimeArea() {
+		_currentDateTimeArea = new JTextPane();
 		_currentDateTimeArea.setFont(new Font("Courier New", Font.BOLD, 17));
 		_currentDateTimeArea.setForeground(Color.WHITE);
 		_currentDateTimeArea.setText("Fetching System Time...\n\n");
@@ -364,7 +386,7 @@ public class GUI implements ActionListener {
 
 		_currentDateTimeArea.setEditable(false);
 
-		NotificationsArea.add(_currentDateTimeArea, BorderLayout.EAST);
+		NotificationsArea.add(_currentDateTimeArea, BorderLayout.NORTH);
 	}
 
 	private void initFloatingTaskView() {
@@ -529,7 +551,7 @@ public class GUI implements ActionListener {
 		if (!_displayState.getDeadlineTasks().isEmpty()) {
 
 			DeadlineTaskView.setText("");
-			
+
 			appendToPane(DeadlineTaskView, "Deadlines :\n\n", headerAttributes);
 			String deadlineTaskText = "";
 			String taskTags = "";
@@ -561,7 +583,7 @@ public class GUI implements ActionListener {
 	private void updateFloatingTaskField() {
 		if (!_displayState.getFloatingTasks().isEmpty()) {
 			FloatingTaskView.setText("");
-			
+
 			appendToPane(FloatingTaskView, "Flexible Tasks :\n\n",
 					headerAttributes);
 			String floatingTaskText = "";
