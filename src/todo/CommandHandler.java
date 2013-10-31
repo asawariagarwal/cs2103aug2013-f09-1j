@@ -129,6 +129,7 @@ class CommandHandler {
 	private void addNewState(State newState) {
 		state.setNext(newState);
 		newState.setPrevious(state);
+		newState.setNext(null);
 	}
 	
 	/**

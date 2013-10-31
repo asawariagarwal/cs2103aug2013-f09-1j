@@ -79,6 +79,7 @@ abstract class Command {
 	
 	/**
 	 * Executes Command by modifying state
+	 * Default behaviour: Ignores displayState and executes based on state.
 	 * 
 	 * @param state
 	 * 			the current state of the program
