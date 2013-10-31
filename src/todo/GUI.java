@@ -59,7 +59,16 @@ import com.melloware.jintellitype.JIntellitype;
 public class GUI implements ActionListener {
 
 	private static final String FONT_NAME = "Consolas";
-
+	private static final String HELP_TEXT_1 = "Command List:\n\n";
+	private static final String HELP_TEXT_2 = "add\ndelete\nview\nundo\nredo\nchange\nexit";
+	private static final String HELP_TEXT_3 = "\n\nPress ";
+	private static final String HELP_TEXT_4 = "tab ";
+	private static final String HELP_TEXT_5 = "to auto-complete\n\nPress ";
+	private static final String HELP_TEXT_6 = "arrow-up ";
+	private static final String HELP_TEXT_7 = "to cycle\nthrough previous commands\n\nPress ";
+	private static final String HELP_TEXT_8 = "F3 ";
+	private static final String HELP_TEXT_9 = "to minimize\nto/maximize from the\nSystem Tray";
+	
 	private final class InputProcessor extends KeyAdapter {
 		@Override
 		public void keyPressed(KeyEvent e) {
@@ -69,8 +78,13 @@ public class GUI implements ActionListener {
 				if (input.equals("exit")) {
 					System.exit(0);
 				} else if (input.trim().equals("help")) {
-					
+					_helpPane.setText("");
+					updateHelpPane();
+					UserInputField.setText("");
 				} else {
+					_helpPane.setText("");
+					appendToPane(_helpPane, HELP_PROMPT, headerAttributes);
+	
 					_displayState = _handler.handleInput(input);
 					UserInputField.setText("");
 					_autoComplete.updateState(_handler.getCurrentState());
@@ -128,6 +142,7 @@ public class GUI implements ActionListener {
 	private SimpleAttributeSet headerAttributes;
 	private SimpleAttributeSet bodyAttributes;
 	private SimpleAttributeSet tagAttributes;
+	private SimpleAttributeSet feedbackTextAttributes;
 
 	private String HELP_PROMPT = "\nFeeling Lost?\nTry keying in 'help'";
 
@@ -266,7 +281,19 @@ public class GUI implements ActionListener {
 		FeedbackPane.setText(_displayState.getFeedback());
 		UserInputArea.add(FeedbackPane);
 	}
-
+	
+	private void updateHelpPane() {
+		appendToPane(_helpPane, HELP_TEXT_1, headerAttributes);
+		appendToPane(_helpPane, HELP_TEXT_2, feedbackTextAttributes);
+		appendToPane(_helpPane, HELP_TEXT_3, headerAttributes);
+		appendToPane(_helpPane, HELP_TEXT_4, feedbackTextAttributes);
+		appendToPane(_helpPane, HELP_TEXT_5, headerAttributes);
+		appendToPane(_helpPane, HELP_TEXT_6, feedbackTextAttributes);
+		appendToPane(_helpPane, HELP_TEXT_7, headerAttributes);
+		appendToPane(_helpPane, HELP_TEXT_8, feedbackTextAttributes);
+		appendToPane(_helpPane, HELP_TEXT_9, headerAttributes);
+	}
+	
 	private void updateSystemTray() {
 		GUILogger.log(Level.INFO, "Attempting to enable systray support");
 		if (SystemTray.isSupported()) {
@@ -502,13 +529,21 @@ public class GUI implements ActionListener {
 		StyleConstants.setFontFamily(attributes, FONT_NAME);
 		return attributes;
 	}
-
+	
+	private SimpleAttributeSet getFeedbackAttributeSet() {
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributes, Color.YELLOW);
+		StyleConstants.setBackground(attributes, Color.BLACK);
+		StyleConstants.setFontFamily(attributes, FONT_NAME);
+		return attributes;
+	}
+	
 	private void setUpAttributes() {
 
 		headerAttributes = getHeadingAttributeSet();
 		bodyAttributes = getBodyAttributeSet();
 		tagAttributes = getTagAttributeSet();
-
+		feedbackTextAttributes = getFeedbackAttributeSet();
 	}
 
 	private void updateTimedTaskField() {
