@@ -15,6 +15,7 @@ class CommandHandler {
 	
 	private Interpreter interpreter;
 	private State state;
+	private State displayState;
 	private JSONStorage store;
 	
 	/**
@@ -26,6 +27,7 @@ class CommandHandler {
 		interpreter = new Interpreter();
 		store = new JSONStorage();
 		state = readStorage();
+		displayState = state;
 	}
 	
 	
@@ -40,7 +42,8 @@ class CommandHandler {
 	 */
 	protected State handleInput(String commandString){
 		Command command = interpreter.parseInput(commandString);
-		return handle(command);
+		displayState = handle(command);
+		return displayState;
 	}
 	
 	/**
@@ -108,6 +111,15 @@ class CommandHandler {
 	 */
 	protected State getCurrentState() {
 		return state;
+	}
+	
+	/**
+	 * Gets the current display state
+	 * 
+	 * @return the current State
+	 */
+	protected State getDisplayState() {
+		return displayState;
 	}
 	
 	/**

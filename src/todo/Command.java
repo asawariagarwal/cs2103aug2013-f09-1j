@@ -78,6 +78,22 @@ abstract class Command {
 	abstract protected State execute(State state) throws Exception;
 	
 	/**
+	 * Executes Command by modifying state
+	 * 
+	 * @param state
+	 * 			the current state of the program
+	 * 
+	 * @param displayState
+	 * 			the current state being displayed
+	 * 
+	 * @return new state if execution of command is successful. null if otherwise.
+	 * 
+	 */
+	protected State execute(State state, State displayState) throws Exception {
+		return execute(state);
+	}
+	
+	/**
 	 * Returns whether command mutates state
 	 * 
 	 * @return true if command mutates state, false otherwise.
