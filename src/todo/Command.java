@@ -58,13 +58,10 @@ abstract class Command {
 	/**
 	 * Checks whether Command is valid
 	 * 
-	 * @param state
-	 * 			the current state of the program
-	 * 
 	 * @return true if command is valid. false if otherwise.
 	 * 
 	 */
-	abstract protected boolean isValid(State state);
+	abstract protected boolean isValid();
 	
 	/**
 	 * Executes Command by modifying state
@@ -104,11 +101,31 @@ abstract class Command {
 	}
 	
 	/**
+	 * Sets whether command mutates state
+	 * 
+	 * @param value
+	 * 			true if command mutates state, false otherwise.
+	 */
+	protected void setMutator(boolean value) {
+		mutator = value;
+	}
+	
+	/**
 	 * Returns whether command is a previous state
 	 * 
 	 * @return true if command is a previous state, false otherwise.
 	 */
 	protected boolean isOldState() {
 		return oldState;
+	}
+	
+	/**
+	 * Sets whether command is a previous state
+	 * 
+	 * @param value
+	 * 			true if command is a previous state, false otherwise.
+	 */
+	protected void setOldState(boolean value) {
+		oldState = value;
 	}
 }

@@ -93,7 +93,7 @@ public class ViewCommand extends Command {
 	}
 
 	@Override
-	protected boolean isValid(State state) {
+	protected boolean isValid() {
 		return (isViewAll() || isViewFloating() || isViewDeadline()
 				|| isViewTimed() || isViewDate() || isViewTag());
 	}
@@ -148,7 +148,7 @@ public class ViewCommand extends Command {
 
 	@Override
 	protected State execute(State state) throws Exception {
-		assert (this.isValid(state));
+		assert (this.isValid());
 		if (isViewAll()) {
 			logger.log(Level.INFO, LOG_VIEW_ALL);
 			return executeViewAll(state);

@@ -7,14 +7,15 @@ package todo;
  * 
  */
 public class UndoCommand extends Command {
-	private static final String FEEDBACK_UNDO_NONE = "Undo cannot be performed";
-	private static final String FEEDBACK_UNDO_SINGLE = "Undo last command";
-	private static final String FEEDBACK_UNDO_MULTIPLE = "Undo last %1$s commands";
-	private static final String FEEDBACK_REDO_NONE = "Redo cannot be performed";
-	private static final String FEEDBACK_REDO_SINGLE = "Redo last command";
-	private static final String FEEDBACK_REDO_MULTIPLE = "Redo last %1$s commands";
+	private static final String FEEDBACK_UNDO_NONE = "undo cannot be performed";
+	private static final String FEEDBACK_UNDO_SINGLE = "undo last command";
+	private static final String FEEDBACK_UNDO_MULTIPLE = "undo last %1$s commands";
+	private static final String FEEDBACK_REDO_NONE = "redo cannot be performed";
+	private static final String FEEDBACK_REDO_SINGLE = "redo last command";
+	private static final String FEEDBACK_REDO_MULTIPLE = "redo last %1$s commands";
 	
-	private int num_undo;
+	private int n;
+	private boolean redo;
 	
 	/**
 	 * Constructor for UndoCommand
@@ -22,7 +23,8 @@ public class UndoCommand extends Command {
 	 */
 	UndoCommand() {
 		super(true, true);
-		num_undo = 1;
+		n = 1;
+		redo = false;
 	}
 	
 	/**
@@ -33,18 +35,32 @@ public class UndoCommand extends Command {
 	 */
 	UndoCommand(int number) {
 		this();
-		num_undo = number;
+		n = number;
+	}
+	
+	/**
+	 * Constructor for UndoCommand
+	 * 
+	 * @param number
+	 * 			number of undos/redo to be performed
+	 * 
+	 * @param redo
+	 * 			true if command is redo, false if undo
+	 */
+	UndoCommand(int number, boolean redo) {
+		this(number);
+		this.redo = redo;
 	}
 
 	@Override
-	protected boolean isValid(State state) {
-		return num_undo != 0;
+	protected boolean isValid() {
+		return n > 0;
 	}
 
 	@Override
 	protected State execute(State state) {
-		assert(this.isValid(state));
-		if (num_undo > 0) {
+		assert(this.isValid());
+		if (!this.redo) {
 			return executeUndo(state);
 		} else {
 			return executeRedo(state);
@@ -61,10 +77,9 @@ public class UndoCommand extends Command {
 	 * @return new state after undo executed
 	 */
 	private State executeUndo(State state) {
-		assert(num_undo > 0);
 		State currentState = state;
 		int done = 0;
-		while (done < num_undo) {
+		while (done < n) {
 			if (!currentState.hasPrevious())  {
 				break;
 			}
@@ -90,11 +105,9 @@ public class UndoCommand extends Command {
 	 * @return new state after redo executed
 	 */
 	private State executeRedo(State state) {
-		assert(num_undo < 0);
 		State currentState = state;
 		int done = 0;
-		int num_redo = Math.abs(num_undo);
-		while (done < num_redo) {
+		while (done < n) {
 			if (!currentState.hasNext())  {
 				break;
 			}

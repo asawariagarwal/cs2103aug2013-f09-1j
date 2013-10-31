@@ -56,7 +56,7 @@ class CommandHandler {
 	 * 
 	 */
 	protected boolean isValidCommand(Command command) {
-		return command != null && command.isValid(getCurrentState());
+		return command != null && command.isValid();
 	}
 	
 	/**
@@ -72,7 +72,7 @@ class CommandHandler {
 		if (isValidCommand(command)) {
 			State newState;
 			try {
-				newState = command.execute(getCurrentState());
+				newState = command.execute(getCurrentState(), getDisplayState());
 			} catch (Exception e) {
 				return makeInvalidState("Error encountered executing command");
 			}

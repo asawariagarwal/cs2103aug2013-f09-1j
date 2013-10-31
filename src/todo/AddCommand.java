@@ -31,7 +31,7 @@ public class AddCommand extends Command {
 	}
 	
 	@Override
-	protected boolean isValid(State state) {
+	protected boolean isValid() {
 		if (task == null) {
 			return false;
 		}
@@ -100,7 +100,7 @@ public class AddCommand extends Command {
 	
 	@Override
 	protected State execute(State state) throws Exception {
-		assert(this.isValid(state));
+		assert(this.isValid());
 		State s = new State(state);
 		s.addTask(task);
 		String desc = task.getTaskDescription();
