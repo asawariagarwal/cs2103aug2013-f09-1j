@@ -18,6 +18,14 @@ public class ViewCommand extends Command {
 	public static final int MODE_VIEW_DATE = 4;
 	public static final int MODE_VIEW_TAG = 5;
 	
+	private static final String FEEDBACK_VIEW_ALL = "viewing all tasks";
+	private static final String FEEDBACK_VIEW_FLOATING ="viewing flexible tasks";
+	private static final String FEEDBACK_VIEW_TIMED ="viewing events";
+	private static final String FEEDBACK_VIEW_DEADLINE ="viewing deadlines";
+	private static final String FEEDBACK_VIEW_DATE ="viewing date: %1$s";
+	private static final String FEEDBACK_VIEW_TAG ="viewing tag: #%1$s";
+	
+	
 	private Calendar date;
 	private String tag;
 	private int mode;
@@ -171,7 +179,7 @@ public class ViewCommand extends Command {
 	 */
 	private State executeViewAll(State state) {
 		State s = new State(state);
-		s.setFeedback("viewing all tasks");
+		s.setFeedback(FEEDBACK_VIEW_ALL);
 		return s;
 	}
 	
@@ -185,7 +193,7 @@ public class ViewCommand extends Command {
 		State s = new State(state);
 		s.getDeadlineTasks().clear();
 		s.getTimedTasks().clear();
-		s.setFeedback("viewing floating tasks");
+		s.setFeedback(FEEDBACK_VIEW_FLOATING);
 		return s;
 	}
 	
@@ -200,7 +208,7 @@ public class ViewCommand extends Command {
 		State s = new State(state);
 		s.getFloatingTasks().clear();
 		s.getTimedTasks().clear();
-		s.setFeedback("viewing deadline tasks");
+		s.setFeedback(FEEDBACK_VIEW_DEADLINE);
 		return s;
 	}
 	
@@ -215,7 +223,7 @@ public class ViewCommand extends Command {
 		State s = new State(state);
 		s.getDeadlineTasks().clear();
 		s.getFloatingTasks().clear();
-		s.setFeedback("viewing timed tasks");
+		s.setFeedback(FEEDBACK_VIEW_TIMED);
 		return s;
 	}
 	
@@ -244,7 +252,8 @@ public class ViewCommand extends Command {
 				s.addTask(cur);
 			}
 		}
-		s.setFeedback("viewing date: " + String.valueOf(dd) + "/" + String.valueOf(mm+1) + "/" + String.valueOf(yy));
+		String dateStr = String.valueOf(dd) + "/" + String.valueOf(mm+1) + "/" + String.valueOf(yy);
+		s.setFeedback(String.format(FEEDBACK_VIEW_DATE, dateStr));
 		return s;
 	}
 	
@@ -274,7 +283,7 @@ public class ViewCommand extends Command {
 				s.addTask(cur);
 			}
 		}
-		s.setFeedback("viewing tasks by tag: " + tag);
+		s.setFeedback(String.format(FEEDBACK_VIEW_TAG, tag));
 		return s;
 	}
 }
