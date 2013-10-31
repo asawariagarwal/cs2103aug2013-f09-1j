@@ -227,11 +227,19 @@ public class Interpreter {
 		}
          
 		if(!TaskDes.equals("")){
-		String date1, date2;
+		String date1, date2, day;
 
 		date1 = extractTillKeyword(" to ");
-
+		
+		if(_userInput.contains(" on ")){
+			
+			date2 = extractTillKeyword(" on ");
+			day= extractTillHashtagOrEnd();
+			date1=date1.concat(" "+day+" ");
+			date2=date2.concat(" "+day+" ");
+		}else{
 		date2 = extractTillHashtagOrEnd();
+		}
 		
 		Calendar calendar1 = isValid(date1);
 		
