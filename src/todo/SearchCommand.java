@@ -31,13 +31,13 @@ public class SearchCommand extends Command {
 	}
 
 	@Override
-	protected boolean isValid(State state) {
+	protected boolean isValid() {
 		return (keyword != null && !keyword.isEmpty());
 	}
 
 	@Override
 	protected State execute(State state) throws Exception {
-		assert(this.isValid(state));
+		assert(this.isValid());
 		logger.log(Level.INFO, LOG_MESSAGE);
 		
 		State s = new State();

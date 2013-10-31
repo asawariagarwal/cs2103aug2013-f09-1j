@@ -439,9 +439,9 @@ public class Interpreter {
 		UndoCommand command;
 		_userInput=_userInput.trim();
 		if(_userInput.equals("")){
-			command = new UndoCommand(-1);
+			command = new UndoCommand(1, true);
 		}else{
-			command = new UndoCommand((Integer.parseInt(_userInput)*-1));
+			command = new UndoCommand((Integer.parseInt(_userInput)), true);
 		}
 		return command;
 	}
