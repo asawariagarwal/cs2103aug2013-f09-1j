@@ -25,6 +25,16 @@ public class ViewCommand extends Command {
 	private static final String FEEDBACK_VIEW_DATE ="viewing date: %1$s";
 	private static final String FEEDBACK_VIEW_TAG ="viewing tag: #%1$s";
 	
+	private static final String LOG_ERROR = "error executing view";
+	private static final String LOG_VIEW_ALL = "executing view all";
+	private static final String LOG_VIEW_FLOATING = "executing view floating";
+	private static final String LOG_VIEW_TIMED = "executing view timed";
+	private static final String LOG_VIEW_DEADLINE = "executing view deadline";
+	private static final String LOG_VIEW_DATE = "executing view date";
+	private static final String LOG_VIEW_TAG = "executing view tag";
+	
+	private static final String DATE_FORMAT = "%1$s/%2$s/%3$s";
+	private static final int MONTH_OFFSET = 1;
 	
 	private Calendar date;
 	private String tag;
@@ -44,11 +54,10 @@ public class ViewCommand extends Command {
 	/**
 	 * Constructor for ViewCommand
 	 * 
-	 * @param floating
-	 * 			true if ViewCommand is a view floating command
-	 * 
-	 * Represents a view floating command, if floating is true
-	 * If not, it is a view all command
+	 * @param mode
+	 * 			defines what the viewCommand does
+	 * 			possible modes:
+	 * 			MODE_VIEW_ALL, MODE_VIEW_FLOATING, MODE_VIEW_DEADLINE, MODE_VIEW_TIMED
 	 * 
 	 */
 	ViewCommand(int mode) {
@@ -62,8 +71,6 @@ public class ViewCommand extends Command {
 	 * @param date
 	 * 			date to view tasks by
 	 * 
-	 * If date is null, ViewCommand will be a view all command
-	 * 
 	 */
 	ViewCommand(Calendar date) {
 		this();
@@ -76,8 +83,6 @@ public class ViewCommand extends Command {
 	 * 
 	 * @param tag
 	 * 			tag to view tasks by
-	 * 
-	 * If tag is null, ViewCommand will be a view all command
 	 * 
 	 */
 	ViewCommand(String tag) {
@@ -148,25 +153,25 @@ public class ViewCommand extends Command {
 	protected State execute(State state) throws Exception {
 		assert(this.isValid(state));
 		if (isViewAll()) {
-			logger.log(Level.INFO, "executing view all");
+			logger.log(Level.INFO, LOG_VIEW_ALL);
 			return executeViewAll(state);
 		} else if (isViewFloating()) {
-			logger.log(Level.INFO, "executing view floating");
+			logger.log(Level.INFO, LOG_VIEW_FLOATING);
 			return executeViewFloating(state);
 		} else if (isViewDeadline()) {
-			logger.log(Level.INFO, "executing view deadline");
+			logger.log(Level.INFO, LOG_VIEW_DEADLINE);
 			return executeViewDeadline(state);
 		} else if (isViewTimed()) {
-			logger.log(Level.INFO, "executing view timed");
+			logger.log(Level.INFO, LOG_VIEW_TIMED);
 			return executeViewTimed(state);
 		} else if (isViewDate()) {
-			logger.log(Level.INFO, "executing view date");
+			logger.log(Level.INFO, LOG_VIEW_DATE);
 			return executeViewDate(state);
 		} else if (isViewTag()) {
-			logger.log(Level.INFO, "executing view tag");
+			logger.log(Level.INFO, LOG_VIEW_TAG);
 			return executeViewTag(state);
 		} else {
-			logger.log(Level.WARNING, "error executing view");
+			logger.log(Level.WARNING, LOG_ERROR);
 			throw new Exception();
 		}
 	}
@@ -252,7 +257,9 @@ public class ViewCommand extends Command {
 				s.addTask(cur);
 			}
 		}
-		String dateStr = String.valueOf(dd) + "/" + String.valueOf(mm+1) + "/" + String.valueOf(yy);
+		String dateStr = String.format(DATE_FORMAT, String.valueOf(dd), 
+													String.valueOf(mm + MONTH_OFFSET),
+													String.valueOf(yy));
 		s.setFeedback(String.format(FEEDBACK_VIEW_DATE, dateStr));
 		return s;
 	}

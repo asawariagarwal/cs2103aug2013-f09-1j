@@ -9,6 +9,13 @@ import java.util.logging.*;
  * 
  */	
 public class AddCommand extends Command {
+	private static final String FEEDBACK_TIMED = "added new timed task: %1$s";
+	private static final String FEEDBACK_DEADLINE = "added new deadline task: %1$s";
+	private static final String FEEDBACK_FLOATING = "added new floating task: %1$s";
+	
+	private static final String LOG_ERROR = "error executing add";
+	private static final String LOG_MESSAGE = "executing add";
+	
 	private Task task;
 	
 	/**
@@ -95,20 +102,20 @@ public class AddCommand extends Command {
 	protected State execute(State state) throws Exception {
 		assert(this.isValid(state));
 		State s = new State(state);
+		s.addTask(task);
+		String desc = task.getTaskDescription();
+		logger.log(Level.INFO, LOG_MESSAGE);
 		if (task instanceof TimedTask) {
-			s.addTask(task);
-			s.setFeedback("added new timed task: " + task.getTaskDescription());
+			s.setFeedback(String.format(FEEDBACK_TIMED, desc));
 			return s;
 		} else if (task instanceof DeadlineTask) {
-			s.addTask(task);
-			s.setFeedback("added new deadline task: " + task.getTaskDescription());
+			s.setFeedback(String.format(FEEDBACK_DEADLINE, desc));
 			return s;
 		} else if (task instanceof FloatingTask) {
-			s.addTask(task);
-			s.setFeedback("added new floating task: " + task.getTaskDescription());
+			s.setFeedback(String.format(FEEDBACK_FLOATING, desc));
 			return s;
 		} else {
-			logger.log(Level.WARNING, "error executing add");
+			logger.log(Level.WARNING, LOG_ERROR);
 			throw new Exception();
 		}
 	}
