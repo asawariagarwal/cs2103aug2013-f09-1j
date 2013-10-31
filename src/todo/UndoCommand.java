@@ -1,12 +1,18 @@
 package todo;
 
 /**
- * Subclass to encapsulate undo commands
+ * Subclass to encapsulate undo/redo commands
  * 
  * @author Eugene
  * 
  */
 public class UndoCommand extends Command {
+	private static final String FEEDBACK_UNDO_NONE = "Undo cannot be performed";
+	private static final String FEEDBACK_UNDO_SINGLE = "Undo last command";
+	private static final String FEEDBACK_UNDO_MULTIPLE = "Undo last %1$s commands";
+	private static final String FEEDBACK_REDO_NONE = "Redo cannot be performed";
+	private static final String FEEDBACK_REDO_SINGLE = "Redo last command";
+	private static final String FEEDBACK_REDO_MULTIPLE = "Redo last %1$s commands";
 	
 	private int num_undo;
 	
@@ -66,11 +72,11 @@ public class UndoCommand extends Command {
 			done++;
 		}
 		if (done == 0) {
-			currentState.setFeedback("Undo cannot be performed");
+			currentState.setFeedback(FEEDBACK_UNDO_NONE);
 		} else if (done == 1) {
-			currentState.setFeedback("Undo last command");
+			currentState.setFeedback(FEEDBACK_UNDO_SINGLE);
 		} else {
-			currentState.setFeedback("Undo last " + String.valueOf(done) + " commands");
+			currentState.setFeedback(String.format(FEEDBACK_UNDO_MULTIPLE, String.valueOf(done)));
 		}
 		return currentState;
 	}
@@ -96,11 +102,11 @@ public class UndoCommand extends Command {
 			done++;
 		}
 		if (done == 0) {
-			currentState.setFeedback("Redo cannot be performed");
+			currentState.setFeedback(FEEDBACK_REDO_NONE);
 		} else if (done == 1) {
-			currentState.setFeedback("Redo last command");
+			currentState.setFeedback(FEEDBACK_REDO_SINGLE);
 		} else {
-			currentState.setFeedback("Redo last " + String.valueOf(done) + " commands");
+			currentState.setFeedback(String.format(FEEDBACK_REDO_MULTIPLE, String.valueOf(done)));
 		}
 		return currentState;
 	}
