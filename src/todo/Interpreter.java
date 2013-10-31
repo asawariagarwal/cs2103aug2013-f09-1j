@@ -33,6 +33,7 @@ public class Interpreter {
 	private static final String RESCHEDULE = "reschedule";
 	private static final String SEARCH="search";
 	private static final String UNDO="undo";
+	private static final String REDO="redo";
 
 	/**
 	 * Stores the user input
@@ -111,6 +112,11 @@ public class Interpreter {
 				UndoCommand undoObj;
 				undoObj = parseUndo();
 				return undoObj;
+				
+			case REDO:
+				UndoCommand redoObj;
+				redoObj=parseRedo();
+				return redoObj;
 
 			default:
 				_userInput = commandTypeKeyword.concat(" "+_userInput);
@@ -412,9 +418,27 @@ public class Interpreter {
 		}
 		return command;
 	}
+	
+	
+	/**
+	 * This function performs the actual parsing of a redo type command
+	 * and creates a redo command type object
+	 * 
+	 * @return UndoCommand type object or null
+	 */
+		
+	private UndoCommand parseRedo(){
+		UndoCommand command;
+		_userInput=_userInput.trim();
+		if(_userInput.equals("")){
+			command = new UndoCommand(-1);
+		}else{
+			command = new UndoCommand((Integer.parseInt(_userInput)*-1));
+		}
+		return command;
+	}
    
-   
-
+	
 	private boolean isViewCommandDisplayingAllTasks() {
 		_userInput=_userInput.trim();
 		if (_userInput.equals("all")) {
