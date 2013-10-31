@@ -1,6 +1,7 @@
 package todo;
 
 import java.util.ArrayList;
+import java.util.logging.*;
 
 /**
  * Subclass to encapsulate search commands
@@ -9,6 +10,13 @@ import java.util.ArrayList;
  * 
  */
 public class SearchCommand extends Command {
+	private static final String FEEDBACK_NONE = "no tasks found for keyword: %1$s";
+	private static final String FEEDBACK_FOUND = "tasks found for keyword: %1$s";
+	
+	private static final String LOG_MESSAGE = "executing search";
+	private static final String LOG_NONE = "no tasks found";
+	private static final String LOG_FOUND = "tasks found";
+	
 	private String keyword;
 	
 	/**
@@ -24,21 +32,26 @@ public class SearchCommand extends Command {
 
 	@Override
 	protected boolean isValid(State state) {
-		return (keyword != null && !keyword.equals(""));
+		return (keyword != null && !keyword.isEmpty());
 	}
 
 	@Override
-	protected State execute(State state) {
+	protected State execute(State state) throws Exception {
+		assert(this.isValid(state));
+		logger.log(Level.INFO, LOG_MESSAGE);
+		
 		State s = new State();
 		ArrayList<Task> found = state.getTasks(keyword);
 		if (found.isEmpty()) {
-			s.setFeedback("No tasks found for keyword: " + keyword);
+			logger.log(Level.INFO, LOG_NONE);
+			s.setFeedback(String.format(FEEDBACK_NONE, keyword));
 			return s;
 		} else {
+			logger.log(Level.INFO, LOG_FOUND);
 			for (Task t: found) {
 				s.addTask(t);
 			}
-			s.setFeedback("Tasks found for keyword: " + keyword);
+			s.setFeedback(String.format(FEEDBACK_FOUND, keyword));
 			return s;
 		}
 	}
