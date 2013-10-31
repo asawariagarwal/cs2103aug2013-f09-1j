@@ -81,7 +81,7 @@ class TimedTask extends Task implements Comparable<TimedTask> {
 	 */
 	protected String getStartString() {
 		String startString = "";
-		String timeFormat = "hh:mm aa 'on' EEEEEEEEE ',' dd MMMMMMMMM, yyyy ";
+		String timeFormat = "hh:mm aa 'on' EEEEEEEEE',' dd MMMMMMMMM, yyyy ";
 
 		SimpleDateFormat sdf = new SimpleDateFormat(timeFormat);
 
@@ -96,7 +96,7 @@ class TimedTask extends Task implements Comparable<TimedTask> {
 	 */
 	protected String getEndString() {
 		String endString = "";
-		String timeFormat = "hh:mm aa 'on' EEEEEEEEE ',' dd MMMMMMMMM, yyyy ";
+		String timeFormat = "hh:mm aa 'on' EEEEEEEEE',' dd MMMMMMMMM, yyyy ";
 
 		SimpleDateFormat sdf = new SimpleDateFormat(timeFormat);
 
