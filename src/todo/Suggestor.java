@@ -11,10 +11,25 @@ public class Suggestor {
 	private static final String RESCHEDULE = "reschedule";
 	private static final String SEARCH ="search";
 	private static final String UNDO = "undo";
+	private static final String REDO = "redo";
 	private static final String EXIT = "exit";
 	private static final String NULLSTRING = "";
 	
+	private static ArrayList<String> commandList = new ArrayList<String>();	
+	
 	private State currentState;
+	
+	public Suggestor(){
+		commandList.add(ADD);
+		commandList.add(DELETE);
+		commandList.add(VIEW);
+		commandList.add(CHANGE);
+		commandList.add(RESCHEDULE);
+		commandList.add(SEARCH);
+		commandList.add(UNDO);
+		commandList.add(REDO);
+		commandList.add(EXIT);
+	}
 	
 	protected String getSuggestion(String inputString){
 		if (inputString.contains(" ")){
@@ -26,25 +41,17 @@ public class Suggestor {
 	
 	private String getCommand(String inputString){
 		//Refactor to Switch + enum later
+		int inputLength = inputString.length();	
 		
-	    if (ADD.contains(inputString)){
+		if (inputString.isEmpty()){
 			return ADD;
-		} else if (VIEW.contains(inputString)){
-			return VIEW;
-		} else if (DELETE.contains(inputString)){
-			return DELETE;
-		} else if (RESCHEDULE.contains(inputString)){
-			return RESCHEDULE;
-		} else if (SEARCH.contains(inputString)){
-			return SEARCH;
-		} else if (UNDO.contains(inputString)){
-			return UNDO;
-		} else if (CHANGE.contains(inputString)){
-			return CHANGE;
-		} else if (EXIT.contains(inputString)) {
-			return EXIT;
-		} else { 
-			return NULLSTRING;
+		} else {
+			for (String command : commandList){
+				if (command.substring(0, inputLength).equals(inputString)){
+					return command;
+				}
+			}
+			return inputString;
 		}
 	}
 	
