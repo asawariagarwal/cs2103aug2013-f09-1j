@@ -13,7 +13,6 @@ public class Suggestor {
 	private static final String UNDO = "undo";
 	private static final String REDO = "redo";
 	private static final String EXIT = "exit";
-	private static final String NULLSTRING = "";
 	private static final String HELP = "help";
 	
 	private static ArrayList<String> commandList = new ArrayList<String>();	
@@ -49,8 +48,10 @@ public class Suggestor {
 			return ADD;
 		} else {
 			for (String command : commandList){
-				if (command.substring(0, inputLength).equals(inputString)){
-					return command;
+				if (!(inputString.length()>command.length())){
+					if (command.substring(0, inputLength).equals(inputString)){
+						return command;
+					}
 				}
 			}
 			return inputString;
