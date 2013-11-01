@@ -29,9 +29,14 @@ public class Interpreter {
 	private static final String ADD = "add";
 	private static final String VIEW = "view";
 	private static final String DELETE = "delete";
+	private static final String CLEAR ="clear";
 	private static final String CHANGE = "change";
 	private static final String RESCHEDULE = "reschedule";
 	private static final String SEARCH="search";
+	private static final String MARK="mark";
+	private static final String UNMARK ="unmark";
+	private static final String TAG="tag";
+	private static final String UNTAG="untag";
 	private static final String UNDO="undo";
 	private static final String REDO="redo";
 
@@ -92,6 +97,12 @@ public class Interpreter {
 				DeleteCommand delObj;
 				delObj = parseDelete();
 				return delObj;
+				
+			case CLEAR:
+				 ClearCommand clrObj;
+				 clrObj = parseClear();
+				return clrObj;
+				
 
 			case CHANGE:
 				ModifyCommand modObj;
@@ -107,6 +118,27 @@ public class Interpreter {
 				SearchCommand searchObj;
 				searchObj = parseSearch();
 				return searchObj;
+			
+			case MARK:
+				ModifyCommand markObj;
+				markObj = parseMark();
+			    return markObj;
+				
+			case UNMARK:
+				ModifyCommand unmarkObj;
+				unmarkObj = parseUnmark();
+			    return unmarkObj;
+	
+			case TAG:
+				//TODO:TagCommand tagObj;
+				//tagObj = parseTag();
+			    //return tagObjj;
+				
+			case UNTAG:
+				//TODO:TagCommand untagObj;
+				//untagObj = parseUntag();
+			    //return untagObj;		
+				
 				
 			case UNDO:
 				UndoCommand undoObj;
@@ -186,7 +218,9 @@ public class Interpreter {
         if(!TaskDes.equals("")){
 		String dateStr;
 		dateStr = extractTillHashtagOrEnd();
+		try{
 		Calendar deadline = isValid(dateStr);
+	
 		if (!deadline.equals(null)) {
 
 			while (!(_userInput.equals(""))) {
@@ -204,9 +238,14 @@ public class Interpreter {
 			return command;
 
 		}
+		}
+		catch (Exception e) {
+			System.err.println("Invalid input: " + e.getMessage());
+		}
         }
 		return null;
 	}
+	
 	
 	/**
 	 * This function is used in case the Task is a timed task and it parses the
@@ -240,7 +279,7 @@ public class Interpreter {
 		}else{
 		date2 = extractTillHashtagOrEnd();
 		}
-		
+		try{
 		Calendar calendar1 = isValid(date1);
 		
 		Calendar calendar2 = isValid(date2);
@@ -263,8 +302,11 @@ public class Interpreter {
 
 		}
 		}
+		catch(Exception e){
+			System.err.println("Invalid input: " + e.getMessage());
+		}
+		}
 		return null;
-
 	}
 	
 	/**
@@ -348,6 +390,39 @@ public class Interpreter {
 	}
 
 	/**
+	 * This function performs the actual parsing of a clear type command and
+	 * creates a clear command type object
+	 * 
+	 * @return ClearCommand type object or null
+	 * 
+	 */
+
+	private ClearCommand parseClear() {
+		ClearCommand command;
+		_userInput=_userInput.trim();
+		if(_userInput.equals("")){
+			command = new ClearCommand();
+		}else if(isClearCommandDone()){
+			command = new ClearCommand(ClearCommand.MODE_CLEAR_DONE);
+		}else if(isClearCommandExpired()){
+			command = new ClearCommand(ClearCommand.MODE_CLEAR_EXPIRED);
+		}else if(isClearCommandDeadline()){
+			command = new ClearCommand(ClearCommand.MODE_CLEAR_DEADLINE);
+		}else if(isClearCommandTimed()){
+			command = new ClearCommand(ClearCommand.MODE_CLEAR_TIMED);
+		}else if(isClearCommandFloating()){
+			command = new ClearCommand(ClearCommand.MODE_CLEAR_FLOATING);
+		}
+		else{
+			return null;
+		}
+		return command;
+	}
+	
+	
+	
+	
+	/**
 	 * This function performs the actual parsing of a search type command and
 	 * creates a search command type object
 	 * 
@@ -363,6 +438,93 @@ public class Interpreter {
 			return null;
 		}
 	}
+	
+	/**
+	 * This function performs the actual parsing of a mark type command and
+	 * creates a mark command type object
+	 * 
+	 * @return MarkCommand type object or null
+	 * 
+	 */
+	
+	private ModifyCommand parseMark(){
+		if(!_userInput.equals("")){
+		    ModifyCommand command = new ModifyCommand(_userInput.trim(),true);
+			return command;
+		}else{
+			return null;
+		}
+	}
+	
+	/**
+	 * This function performs the actual parsing of a unmark type command and
+	 * creates a mark command type object
+	 * 
+	 * @return MarkCommand type object or null
+	 * 
+	 */
+	
+	private ModifyCommand parseUnmark(){
+		if(!_userInput.equals("")){
+			ModifyCommand command = new ModifyCommand(_userInput.trim(),false);
+			return command;
+		}else{
+			return null;
+		}
+	}
+	
+	/**
+	 * This function performs the actual parsing of a tag type command and
+	 * creates a tag command type object
+	 * 
+	 * @return TagCommand type object or null
+	 * 
+	 */
+	
+	//TODO: private TagCommand parseTag(){
+		//ArrayList<String> hashtags = new ArrayList<String>();
+		//String taskDes=extractTillHashtagOrEnd();
+	   //if(!taskDes.equals("")){
+		//while (!(_userInput.equals(""))) {
+		//String hashtag=extractHashtag();
+		//if(hashtag.equals("")){
+		//return null;
+		//}
+		//hashtags.add(hashtag);
+			//TagCommand command = new TagCommand(taskDes,hashtags, 1);
+			//return command;
+		//}else{
+			//return null;
+		//}
+	//}
+	
+	/**
+	 * This function performs the actual parsing of a untag type command and
+	 * creates a tag command type object
+	 * 
+	 * @return TagCommand type object or null
+	 * 
+	 */
+	
+	//TODO: private TagCommand parseUntag(){
+		//ArrayList<String> hashtags = new ArrayList<String>();
+		//String taskDes=extractTillHashtagOrEnd();
+	   //if(!taskDes.equals("")){
+		//while (!(_userInput.equals(""))) {
+		//String hashtag=extractHashtag();
+		//if(hashtag.equals("")){
+		//return null;
+		//}
+		//hashtags.add(hashtag);
+			//TagCommand command = new TagCommand(taskDes,hashtags, -1);
+			//return command;
+		//}else{
+			//return null;
+		//}
+	//}
+	
+	
+	
 	
 	/**
 	 * This function performs the actual parsing of a change type command and
@@ -395,14 +557,18 @@ public class Interpreter {
 		String startDate, endDate;
 		startDate = extractTillKeyword(" till ");
 		endDate = _userInput.trim();
-        
+        try{
 		Calendar calendar1 = isValid(startDate);
 		Calendar calendar2 = isValid(endDate);
 		if ((!calendar1.equals(null)) && (!calendar2.equals(null))) {
 			ModifyCommand command = new ModifyCommand(taskName, calendar1,
 					calendar2);
 			return command;
-		} 
+		}
+        }
+        catch(Exception e){
+         System.err.println("Invalid input: " + e.getMessage());
+        }
 		}else {
 			return null;
 		}
@@ -495,9 +661,14 @@ public class Interpreter {
 
 	private boolean isViewCommandDisplayingTasksOnADate(Calendar[] calendar){
 		String dateStr=_userInput.trim();
+		try{
 		calendar[0] = isValid(dateStr);
 		if(!calendar[0].equals(null)){
 			return true;
+		}
+		}
+		catch(Exception e){
+		System.err.println("Invalid input: " + e.getMessage());
 		}
 		return false;
 	}
@@ -505,13 +676,59 @@ public class Interpreter {
 	private boolean isViewCommandDisplayingTasksOnADateOrderedByTags(Calendar[] calendar) {
 		String dateStr = extractDate().trim();
 		_userInput=_userInput.trim();
+		try{
 		calendar[0] = isValid(dateStr);
 		if ((!calendar[0].equals(null)) && (_userInput.equals("by tags"))) {
 			return true;
 		}
+		}
+		catch(Exception e){
+		System.err.println("Invalid input: " + e.getMessage());
+		}
 		return false;
 	}
 
+	private boolean isClearCommandDeadline() {
+		_userInput=_userInput.trim();
+		if (_userInput.equals("deadlines")) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean isClearCommandTimed() {
+		_userInput=_userInput.trim();
+		if (_userInput.equals("events")) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean isClearCommandFloating() {
+		_userInput=_userInput.trim();
+		if (_userInput.equals("flexible")) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean isClearCommandDone() {
+		_userInput=_userInput.trim();
+		if (_userInput.equals("done")) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean isClearCommandExpired() {
+		_userInput=_userInput.trim();
+		if (_userInput.equals("expired")) {
+			return true;
+		}
+		return false;
+	}
+	
+	
 	private String extractTaskDescription() {
 		String TaskDes = extractTillKeyword(" to ");
 		while (_userInput.contains(" to ")) {
@@ -544,8 +761,7 @@ public class Interpreter {
 	  */
 	 
 	 
-	 private Calendar isValid(String Date_str)
-	 {
+	 private Calendar isValid(String Date_str) throws NoClassDefFoundError{
 		 Parser parser = new Parser();
 		 List<DateGroup> groups = parser.parse(Date_str);
 		 if(groups.isEmpty()){
