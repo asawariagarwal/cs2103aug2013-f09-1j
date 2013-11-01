@@ -138,8 +138,7 @@ public class Interpreter {
 				//TODO:TagCommand untagObj;
 				//untagObj = parseUntag();
 			    //return untagObj;		
-				
-				
+					
 			case UNDO:
 				UndoCommand undoObj;
 				undoObj = parseUndo();
@@ -542,6 +541,26 @@ public class Interpreter {
 		return command;
 	}
 
+	private ModifyCommand parseReschedule()throws ParseException{
+		
+		ModifyCommand command;
+		String copyInput; 
+		copyInput=_userInput;
+	    
+		command = parseRescheduleTimed();
+		if (command != null) {
+			return command;
+		}
+		_userInput=copyInput;
+		command = parseRescheduleDeadline();
+		if (command != null) {
+			return command;
+		}
+        return null;
+	}
+	
+	
+	
 	/**
 	 * This function performs the actual parsing of a reschedule type command
 	 * and creates a modify command type object
@@ -550,7 +569,7 @@ public class Interpreter {
 	 * @throws Parseexception
 	 */
 
-	private ModifyCommand parseReschedule() throws ParseException {
+	private ModifyCommand parseRescheduleTimed() throws ParseException {
 		String taskName ;
 		taskName= extractTaskDescription().trim();
 		if(!taskName.equals("")){
@@ -575,6 +594,23 @@ public class Interpreter {
      return null;
 	}
 
+	private ModifyCommand parseRescheduleDeadline()throws ParseException{
+		String taskName ;
+		taskName= extractTaskDescription().trim();
+		if(!taskName.equals("")){
+		String deadline;
+		deadline= _userInput.trim();
+		Calendar calendar = isValid(deadline);
+		if(!calendar.equals(null)){
+			ModifyCommand command = new ModifyCommand(taskName , calendar);
+			return command;
+		}
+		}
+		return null;
+	}
+	
+	
+	
 	/**
 	 * This function performs the actual parsing of a undo type command
 	 * and creates a undo command type object
