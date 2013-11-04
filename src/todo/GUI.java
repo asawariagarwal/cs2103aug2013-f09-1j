@@ -190,13 +190,15 @@ public class GUI implements ActionListener {
 		}
 
 		protected void playSuccess() {
+			_successClip.setFramePosition(_successClip.getFrameLength());
 			_successClip.loop(1);
 			GUILogger.log(Level.INFO, "Success Audio Played");
 		}
 
 		protected void playFailure() {
+			_failureClip.setFramePosition(_failureClip.getFrameLength());
 			_failureClip.loop(1);
-			_failureClip.close();
+			GUILogger.log(Level.INFO, "Failure Audio Played");
 		}
 
 	}
