@@ -39,7 +39,7 @@ public class Interpreter {
 	private static final String UNTAG="untag";
 	private static final String UNDO="undo";
 	private static final String REDO="redo";
-
+	
 	/**
 	 * Stores the user input
 	 */
