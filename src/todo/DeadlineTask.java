@@ -73,6 +73,19 @@ import java.util.Calendar;
 			deadlineString = sdf.format(getDeadline().getTime());
 			return deadlineString;
 		}
+		
+		/* (non-Javadoc)
+		 * @see todo.Task#isExpired()
+		 */
+		protected boolean isExpired() {
+			Calendar currentTime  = Calendar.getInstance();
+			
+			if(currentTime.getTimeInMillis() > this.getDeadline().getTimeInMillis()) {
+				return true;
+			}
+			
+			return false;
+		}
 		/**
 		 * Routine to return the deadline task as a String
 		 */

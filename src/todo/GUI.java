@@ -539,7 +539,7 @@ public class GUI implements ActionListener {
 		StyleConstants.setFontFamily(attributes, FONT_NAME);
 		return attributes;
 	}
-	
+
 	private SimpleAttributeSet getExpiredAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, Color.RED);
@@ -547,6 +547,7 @@ public class GUI implements ActionListener {
 		StyleConstants.setFontFamily(attributes, FONT_NAME);
 		return attributes;
 	}
+
 	private SimpleAttributeSet getCompletedAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, Color.GREEN);
@@ -554,7 +555,6 @@ public class GUI implements ActionListener {
 		StyleConstants.setFontFamily(attributes, FONT_NAME);
 		return attributes;
 	}
-
 
 	private void setUpAttributes() {
 
@@ -587,9 +587,9 @@ public class GUI implements ActionListener {
 				taskTags = task.getTagString() + "\n";
 				taskStart = task.getStartString();
 				taskEnd = task.getEndString();
-				
+
 				appendToPane(TimedTaskView, taskNum, bodyAttributes);
-				
+
 				if (task.isComplete()) {
 					appendToPane(TimedTaskView, timedTaskText,
 							completedAttributes);
@@ -624,21 +624,32 @@ public class GUI implements ActionListener {
 			appendToPane(DeadlineTaskView, "Deadlines :\n\n", headerAttributes);
 			String deadlineTaskText = "";
 			String taskTags = "";
+			String taskDeadline = "";
+			String taskNum = "";
 
 			int index = 0;
 			for (DeadlineTask task : _displayState.getDeadlineTasks()) {
 				taskTags = "";
 				deadlineTaskText = "";
-
-				deadlineTaskText += ("\t" + (++index) + ". "
-						+ task.getTaskDescription() + "\t");
-				appendToPane(DeadlineTaskView, deadlineTaskText, bodyAttributes);
-
+				taskNum = "\t" + (++index) + ". ";
 				taskTags = task.getTagString() + "\n";
+				taskDeadline = task.getDeadlineString();
+
+				deadlineTaskText += task.getTaskDescription() + "\t";
+				appendToPane(DeadlineTaskView, taskNum, bodyAttributes);
+
+				if (task.isExpired()) {
+					appendToPane(DeadlineTaskView, deadlineTaskText,
+							expiredAttributes);
+				} else {
+					appendToPane(DeadlineTaskView, deadlineTaskText,
+							bodyAttributes);
+				}
+
 				appendToPane(DeadlineTaskView, taskTags, tagAttributes);
 
 				appendToPane(DeadlineTaskView, "\t\tby:   ", tagAttributes);
-				appendToPane(DeadlineTaskView, task.getDeadlineString() + "\n",
+				appendToPane(DeadlineTaskView, taskDeadline + "\n",
 						bodyAttributes);
 			}
 
