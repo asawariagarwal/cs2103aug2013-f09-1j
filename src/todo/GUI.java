@@ -4,13 +4,18 @@ import java.awt.AWTException;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
+import java.awt.Rectangle;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
 
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
@@ -43,9 +48,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JTextPane;
 import javax.swing.JScrollPane;
+import javax.swing.plaf.metal.MetalScrollBarUI;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
@@ -68,6 +75,60 @@ public class GUI implements ActionListener {
 	private static final String HELP_TEXT_7 = "to \ncycle through\nprevious commands\n\nPress ";
 	private static final String HELP_TEXT_8 = "F3 ";
 	private static final String HELP_TEXT_9 = "to minimize\nto/maximize from the\nSystem Tray";
+	
+	private static class MyScrollbarUI extends MetalScrollBarUI {
+
+        private Image imageThumb, imageTrack;
+        private JButton b = new JButton() {
+
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(0, 0);
+            }
+
+        };
+
+        MyScrollbarUI() {
+            imageThumb = FauxImage.create(32, 32, Color.blue.darker());
+            imageTrack = FauxImage.create(32, 32, Color.lightGray);
+        }
+
+        @Override
+        protected void paintThumb(Graphics g, JComponent c, Rectangle r) {
+            g.setColor(Color.blue);
+            ((Graphics2D) g).drawImage(imageThumb,
+                r.x, r.y, r.width, r.height, null);
+        }
+
+        @Override
+        protected void paintTrack(Graphics g, JComponent c, Rectangle r) {
+            ((Graphics2D) g).drawImage(imageTrack,
+                r.x, r.y, r.width, r.height, null);
+        }
+
+        @Override
+        protected JButton createDecreaseButton(int orientation) {
+            return b;
+        }
+
+        @Override
+        protected JButton createIncreaseButton(int orientation) {
+            return b;
+        }
+    }
+
+    private static class FauxImage {
+
+        static public Image create(int w, int h, Color c) {
+            BufferedImage bi = new BufferedImage(
+                w, h, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2d = bi.createGraphics();
+            g2d.setPaint(c);
+            g2d.fillRect(0, 0, w, h);
+            g2d.dispose();
+            return bi;
+        }
+    }
 
 	private final class InputProcessor extends KeyAdapter {
 		@Override
@@ -471,6 +532,7 @@ public class GUI implements ActionListener {
 		TaskScrollPane
 				.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		TaskScrollPane.setViewportView(MainViewArea);
+		TaskScrollPane.getVerticalScrollBar().setUI(new MyScrollbarUI());
 
 		frmTodo.getContentPane().add(TaskScrollPane, BorderLayout.CENTER);
 		MainViewArea.setLayout(new GridLayout(0, 1, 0, 0));
