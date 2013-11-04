@@ -112,7 +112,40 @@ public class GUI implements ActionListener {
 				String current = UserInputField.getText();
 				UserInputField.setText(_autoComplete.getSuggestion(current));
 			}
+			if (e.getKeyCode() == KeyEvent.VK_ALT) {
+				GUILogger.log(Level.INFO, "Alt key pressed");
+				if (min){
+					deactivateMinMode();
+					min = false;
+				} else {
+					activateMinMode();
+					min = true;
+				}
+			}
 		}
+	}
+	
+	private void activateMinMode(){
+		GUILogger.log(Level.INFO, "Activating MinMode");
+		//NotificationsArea.setSize(0, 0);
+		frmTodo.getContentPane().remove(NotificationsArea);
+		//TaskScrollPane.setSize(0,0);
+		frmTodo.getContentPane().remove(TaskScrollPane);
+		//frmTodo.setBounds(670, 630, 700, 100);
+		frmTodo.setPreferredSize(new Dimension(700,100));
+		frmTodo.pack();
+		frmTodo.setVisible(true);
+		//frmTodo.setLocationRelativeTo(null);
+		//frmTodo.setLocationByPlatform(true);
+	}
+	
+	private void deactivateMinMode(){
+		GUILogger.log(Level.INFO, "Deactivating MinMode");
+		frmTodo.getContentPane().add(NotificationsArea, BorderLayout.EAST);
+		frmTodo.getContentPane().add(TaskScrollPane, BorderLayout.CENTER);
+		frmTodo.setBounds(1100, 0, 800, 850);
+		frmTodo.setExtendedState(Frame.MAXIMIZED_BOTH);
+		frmTodo.setVisible(true);
 	}
 
 	private JFrame frmTodo;
@@ -129,6 +162,7 @@ public class GUI implements ActionListener {
 	private JTextPane FloatingTaskView;
 	private JTextPane FeedbackPane;
 	private JPanel MainViewArea;
+	private JScrollPane TaskScrollPane;
 	private ArrayList<String> previousInputs;
 	private SystemTray systemTray;
 	private Image trayImage;
@@ -143,6 +177,7 @@ public class GUI implements ActionListener {
 	private SimpleAttributeSet bodyAttributes;
 	private SimpleAttributeSet tagAttributes;
 	private SimpleAttributeSet feedbackTextAttributes;
+	private static boolean min = true;
 
 	private String HELP_PROMPT = "\nFeeling Lost?\nTry keying in 'help'";
 
@@ -224,6 +259,12 @@ public class GUI implements ActionListener {
 		setUpShortcutKey();
 
 		initHelpPane();
+		
+		//I know. But hey, whatever works.
+		
+		deactivateMinMode();
+		
+		activateMinMode();
 	}
 
 	private void initHelpPane() {
@@ -401,7 +442,6 @@ public class GUI implements ActionListener {
 		NotificationsArea.setBackground(new Color(0, 0, 0));
 		frmTodo.getContentPane().add(NotificationsArea, BorderLayout.EAST);
 		NotificationsArea.setLayout(new BorderLayout(0, 0));
-
 	}
 
 	private void initDateTimeArea() {
@@ -442,14 +482,13 @@ public class GUI implements ActionListener {
 		TimedTaskView.setForeground(Color.WHITE);
 		TimedTaskView.setBackground(new Color(0, 0, 0));
 		TimedTaskView.setAutoscrolls(false);
-
 	}
 
 	private void initFeedbackPane() {
 		FeedbackPane = new JTextPane();
 		FeedbackPane.setForeground(Color.YELLOW);
 		FeedbackPane.setBackground(new Color(0, 0, 0));
-		FeedbackPane.setFont(new Font(FONT_NAME, Font.PLAIN, 30));
+		FeedbackPane.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
 		FeedbackPane.setEditable(false);
 		FeedbackPane.setDisabledTextColor(Color.BLUE);
 		if (!_displayState.getFeedback().equals("")) {
@@ -463,7 +502,7 @@ public class GUI implements ActionListener {
 		MainViewArea.setForeground(Color.GREEN);
 		MainViewArea.setBackground(new Color(0, 0, 0));
 
-		JScrollPane TaskScrollPane = new JScrollPane(MainViewArea);
+		TaskScrollPane = new JScrollPane(MainViewArea);
 		TaskScrollPane.setBorder(null);
 		TaskScrollPane.setViewportBorder(null);
 		TaskScrollPane
