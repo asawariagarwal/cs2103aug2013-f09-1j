@@ -63,12 +63,12 @@ public class GUI implements ActionListener {
 	private static final String HELP_TEXT_2 = "add\ndelete\nview\nundo\nredo\nchange\nexit";
 	private static final String HELP_TEXT_3 = "\n\nPress ";
 	private static final String HELP_TEXT_4 = "tab ";
-	private static final String HELP_TEXT_5 = "to auto-complete\n\nPress ";
+	private static final String HELP_TEXT_5 = "to \nauto-complete\n\nPress ";
 	private static final String HELP_TEXT_6 = "arrow-up ";
-	private static final String HELP_TEXT_7 = "to cycle\nthrough previous commands\n\nPress ";
+	private static final String HELP_TEXT_7 = "to \ncycle through\nprevious commands\n\nPress ";
 	private static final String HELP_TEXT_8 = "F3 ";
 	private static final String HELP_TEXT_9 = "to minimize\nto/maximize from the\nSystem Tray";
-	
+
 	private final class InputProcessor extends KeyAdapter {
 		@Override
 		public void keyPressed(KeyEvent e) {
@@ -84,7 +84,7 @@ public class GUI implements ActionListener {
 				} else {
 					_helpPane.setText("");
 					appendToPane(_helpPane, HELP_PROMPT, headerAttributes);
-	
+
 					_displayState = _handler.handleInput(input);
 					UserInputField.setText("");
 					_autoComplete.updateState(_handler.getCurrentState());
@@ -145,6 +145,8 @@ public class GUI implements ActionListener {
 	private SimpleAttributeSet feedbackTextAttributes;
 
 	private String HELP_PROMPT = "\nFeeling Lost?\nTry keying in 'help'";
+	private SimpleAttributeSet completedAttributes;
+	private SimpleAttributeSet expiredAttributes;
 
 	protected static Logger GUILogger = Logger.getLogger("GUILogger");
 
@@ -281,7 +283,7 @@ public class GUI implements ActionListener {
 		FeedbackPane.setText(_displayState.getFeedback());
 		UserInputArea.add(FeedbackPane);
 	}
-	
+
 	private void updateHelpPane() {
 		appendToPane(_helpPane, HELP_TEXT_1, headerAttributes);
 		appendToPane(_helpPane, HELP_TEXT_2, feedbackTextAttributes);
@@ -293,7 +295,7 @@ public class GUI implements ActionListener {
 		appendToPane(_helpPane, HELP_TEXT_8, feedbackTextAttributes);
 		appendToPane(_helpPane, HELP_TEXT_9, headerAttributes);
 	}
-	
+
 	private void updateSystemTray() {
 		GUILogger.log(Level.INFO, "Attempting to enable systray support");
 		if (SystemTray.isSupported()) {
@@ -529,7 +531,7 @@ public class GUI implements ActionListener {
 		StyleConstants.setFontFamily(attributes, FONT_NAME);
 		return attributes;
 	}
-	
+
 	private SimpleAttributeSet getFeedbackAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, Color.YELLOW);
@@ -538,12 +540,30 @@ public class GUI implements ActionListener {
 		return attributes;
 	}
 	
+	private SimpleAttributeSet getExpiredAttributeSet() {
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributes, Color.RED);
+		StyleConstants.setBackground(attributes, Color.BLACK);
+		StyleConstants.setFontFamily(attributes, FONT_NAME);
+		return attributes;
+	}
+	private SimpleAttributeSet getCompletedAttributeSet() {
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributes, Color.GREEN);
+		StyleConstants.setBackground(attributes, Color.BLACK);
+		StyleConstants.setFontFamily(attributes, FONT_NAME);
+		return attributes;
+	}
+
+
 	private void setUpAttributes() {
 
 		headerAttributes = getHeadingAttributeSet();
 		bodyAttributes = getBodyAttributeSet();
 		tagAttributes = getTagAttributeSet();
 		feedbackTextAttributes = getFeedbackAttributeSet();
+		completedAttributes = getCompletedAttributeSet();
+		expiredAttributes = getExpiredAttributeSet();
 	}
 
 	private void updateTimedTaskField() {
@@ -554,6 +574,8 @@ public class GUI implements ActionListener {
 			appendToPane(TimedTaskView, "Events :\n\n", headerAttributes);
 			String timedTaskText = "";
 			String taskTags = "";
+			String taskStart = "";
+			String taskEnd = "";
 
 			int index = 0;
 			for (TimedTask task : _displayState.getTimedTasks()) {
@@ -561,18 +583,28 @@ public class GUI implements ActionListener {
 				timedTaskText = "";
 				timedTaskText += ("\t" + (++index) + ". "
 						+ task.getTaskDescription() + "\t");
-				appendToPane(TimedTaskView, timedTaskText, bodyAttributes);
 
 				taskTags = task.getTagString() + "\n";
+				taskStart = task.getStartString();
+				taskEnd = task.getEndString();
+
+				if (task.isComplete()) {
+					appendToPane(TimedTaskView, timedTaskText,
+							completedAttributes);
+				} else if (task.isExpired()) {
+					appendToPane(TimedTaskView, timedTaskText,
+							expiredAttributes);
+				} else {
+					appendToPane(TimedTaskView, timedTaskText, bodyAttributes);
+				}
+
 				appendToPane(TimedTaskView, taskTags, tagAttributes);
 
 				appendToPane(TimedTaskView, "\t\tfrom: ", tagAttributes);
-				appendToPane(TimedTaskView, task.getStartString() + "\n",
-						bodyAttributes);
+				appendToPane(TimedTaskView, taskStart + "\n", bodyAttributes);
 
 				appendToPane(TimedTaskView, "\t\tto:   ", tagAttributes);
-				appendToPane(TimedTaskView, task.getEndString() + "\n",
-						bodyAttributes);
+				appendToPane(TimedTaskView, taskEnd + "\n", bodyAttributes);
 			}
 
 			MainViewArea.add(TimedTaskView);
