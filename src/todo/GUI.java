@@ -576,18 +576,20 @@ public class GUI implements ActionListener {
 			String taskTags = "";
 			String taskStart = "";
 			String taskEnd = "";
-
+			String taskNum = "";
 			int index = 0;
 			for (TimedTask task : _displayState.getTimedTasks()) {
 				taskTags = "";
 				timedTaskText = "";
-				timedTaskText += ("\t" + (++index) + ". "
-						+ task.getTaskDescription() + "\t");
+				taskNum = "\t" + ++index + ". ";
+				timedTaskText += task.getTaskDescription() + "\t";
 
 				taskTags = task.getTagString() + "\n";
 				taskStart = task.getStartString();
 				taskEnd = task.getEndString();
-
+				
+				appendToPane(TimedTaskView, taskNum, bodyAttributes);
+				
 				if (task.isComplete()) {
 					appendToPane(TimedTaskView, timedTaskText,
 							completedAttributes);
