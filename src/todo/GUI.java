@@ -14,6 +14,11 @@ import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -25,6 +30,9 @@ import java.awt.Color;
 import javax.swing.JPanel;
 
 import java.awt.BorderLayout;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -75,60 +83,123 @@ public class GUI implements ActionListener {
 	private static final String HELP_TEXT_7 = "to \ncycle through\nprevious commands\n\nPress ";
 	private static final String HELP_TEXT_8 = "F3 ";
 	private static final String HELP_TEXT_9 = "to minimize\nto/maximize from the\nSystem Tray";
-	
-	private static class MyScrollbarUI extends MetalScrollBarUI {
 
-        private Image imageThumb, imageTrack;
-        private JButton b = new JButton() {
+	private static AudioFeedBack audio;
 
-            @Override
-            public Dimension getPreferredSize() {
-                return new Dimension(0, 0);
-            }
+	private static class CustomScrollBar extends MetalScrollBarUI {
 
-        };
+		private Image imageThumb, imageTrack;
+		private JButton b = new JButton() {
 
-        MyScrollbarUI() {
-            imageThumb = FauxImage.create(32, 32, Color.blue.darker());
-            imageTrack = FauxImage.create(32, 32, Color.lightGray);
-        }
+			@Override
+			public Dimension getPreferredSize() {
+				return new Dimension(0, 0);
+			}
 
-        @Override
-        protected void paintThumb(Graphics g, JComponent c, Rectangle r) {
-            g.setColor(Color.blue);
-            ((Graphics2D) g).drawImage(imageThumb,
-                r.x, r.y, r.width, r.height, null);
-        }
+		};
 
-        @Override
-        protected void paintTrack(Graphics g, JComponent c, Rectangle r) {
-            ((Graphics2D) g).drawImage(imageTrack,
-                r.x, r.y, r.width, r.height, null);
-        }
+		CustomScrollBar() {
+			imageThumb = ScrollImage.create(32, 32, Color.blue.darker());
+			imageTrack = ScrollImage.create(32, 32, Color.white);
+		}
 
-        @Override
-        protected JButton createDecreaseButton(int orientation) {
-            return b;
-        }
+		@Override
+		protected void paintThumb(Graphics g, JComponent c, Rectangle r) {
+			g.setColor(Color.blue);
+			((Graphics2D) g).drawImage(imageThumb, r.x, r.y, r.width, r.height,
+					null);
+		}
 
-        @Override
-        protected JButton createIncreaseButton(int orientation) {
-            return b;
-        }
-    }
+		@Override
+		protected void paintTrack(Graphics g, JComponent c, Rectangle r) {
+			((Graphics2D) g).drawImage(imageTrack, r.x, r.y, r.width, r.height,
+					null);
+		}
 
-    private static class FauxImage {
+		@Override
+		protected JButton createDecreaseButton(int orientation) {
+			return b;
+		}
 
-        static public Image create(int w, int h, Color c) {
-            BufferedImage bi = new BufferedImage(
-                w, h, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g2d = bi.createGraphics();
-            g2d.setPaint(c);
-            g2d.fillRect(0, 0, w, h);
-            g2d.dispose();
-            return bi;
-        }
-    }
+		@Override
+		protected JButton createIncreaseButton(int orientation) {
+			return b;
+		}
+	}
+
+	private static class ScrollImage {
+
+		static public Image create(int w, int h, Color c) {
+			BufferedImage bi = new BufferedImage(w, h,
+					BufferedImage.TYPE_INT_ARGB);
+			Graphics2D g2d = bi.createGraphics();
+			g2d.setPaint(c);
+			g2d.fillRect(0, 0, w, h);
+			g2d.dispose();
+			return bi;
+		}
+	}
+
+	private final static class AudioFeedBack {
+		private static Clip _successClip;
+		private static Clip _failureClip;
+		private static URL _urlSuccess;
+		private static URL _urlFailure;
+
+		AudioFeedBack() {
+			try {
+				_urlSuccess = new URL("file:./src/sound/beep1.wav");
+				_successClip = AudioSystem.getClip();
+				_urlFailure = new URL("file:./src/sound/beep2.wav");
+				_failureClip = AudioSystem.getClip();
+				GUILogger.log(Level.INFO, "Audio Set Up is successful");
+			} catch (MalformedURLException | LineUnavailableException e) {
+				GUILogger.log(Level.WARNING, "Audio Set Up has failed");
+				e.printStackTrace();
+			}
+			AudioInputStream ais = null;
+			try {
+				ais = AudioSystem.getAudioInputStream(_urlSuccess);
+			} catch (UnsupportedAudioFileException | IOException e) {
+				GUILogger.log(Level.WARNING, "Audio failed to stream");
+				e.printStackTrace();
+			}
+			try {
+				_successClip.open(ais);
+			} catch (LineUnavailableException e) {
+				GUILogger.log(Level.WARNING, "Audio file failed to open");
+				e.printStackTrace();
+			} catch (IOException e) {
+				GUILogger.log(Level.WARNING, "Audio file failed to open");
+				e.printStackTrace();
+			}
+			
+			ais = null;
+			try {
+				ais = AudioSystem.getAudioInputStream(_urlFailure);
+			} catch (UnsupportedAudioFileException | IOException e) {
+				e.printStackTrace();
+			}
+			try {
+				_failureClip.open(ais);
+			} catch (LineUnavailableException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		protected void playSuccess() {
+			_successClip.loop(1);
+			GUILogger.log(Level.INFO, "Success Audio Played");
+		}
+
+		protected void playFailure() {
+			_failureClip.loop(1);
+			_failureClip.close();
+		}
+
+	}
 
 	private final class InputProcessor extends KeyAdapter {
 		@Override
@@ -153,6 +224,7 @@ public class GUI implements ActionListener {
 					UP_KEYPRESS_COUNTER = 1;
 					updateTaskFields();
 					updateFeedbackPane();
+					playAudioFeedback();
 				}
 			}
 			if (e.getKeyCode() == KeyEvent.VK_UP) {
@@ -287,6 +359,25 @@ public class GUI implements ActionListener {
 		setUpShortcutKey();
 
 		initHelpPane();
+
+		initAudioFeedBack();
+	}
+
+	private void initAudioFeedBack() {
+		audio = new AudioFeedBack();
+	}
+
+	private void playAudioFeedback() {
+		if (audio == null) {
+			return;
+		}
+
+		if (_displayState.getFeedback().trim().substring(0, 15).equalsIgnoreCase(
+				"Invalid Command")) {
+			audio.playFailure();
+		} else {
+			audio.playSuccess();
+		}
 	}
 
 	private void initHelpPane() {
@@ -532,7 +623,7 @@ public class GUI implements ActionListener {
 		TaskScrollPane
 				.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		TaskScrollPane.setViewportView(MainViewArea);
-		TaskScrollPane.getVerticalScrollBar().setUI(new MyScrollbarUI());
+		TaskScrollPane.getVerticalScrollBar().setUI(new CustomScrollBar());
 
 		frmTodo.getContentPane().add(TaskScrollPane, BorderLayout.CENTER);
 		MainViewArea.setLayout(new GridLayout(0, 1, 0, 0));
