@@ -141,6 +141,21 @@ public class GUI implements ActionListener {
 	}
 
 	private final static class AudioFeedBack {
+		/**
+		 * Log messages
+		 */
+		private static final String LOG_FAILURE_AUDIO_PLAYED = "Failure Audio Played";
+		private static final String LOG_SUCCESS_AUDIO_PLAYED = "Success Audio Played";
+		private static final String LOG_AUDIO_FILE_FAILED_TO_OPEN = "Audio file failed to open";
+		private static final String LOG_AUDIO_FAILED_TO_STREAM = "Audio failed to stream";
+		private static final String LOG_AUDIO_SET_UP_HAS_FAILED = "Audio Set Up has failed";
+		private static final String LOG_AUDIO_SET_UP_IS_SUCCESSFUL = "Audio Set Up is successful";
+		private static final String FILE_SRC_SOUND_FAILURE_WAV = "file:./src/sound/beep2.wav";
+		private static final String FILE_SRC_SOUND_SUCCESS_WAV = "file:./src/sound/beep1.wav";
+		
+		/**
+		 * To store clips and URL's to them
+		 */
 		private static Clip _successClip;
 		private static Clip _failureClip;
 		private static URL _urlSuccess;
@@ -148,29 +163,29 @@ public class GUI implements ActionListener {
 
 		AudioFeedBack() {
 			try {
-				_urlSuccess = new URL("file:./src/sound/beep1.wav");
+				_urlSuccess = new URL(FILE_SRC_SOUND_SUCCESS_WAV);
 				_successClip = AudioSystem.getClip();
-				_urlFailure = new URL("file:./src/sound/beep2.wav");
+				_urlFailure = new URL(FILE_SRC_SOUND_FAILURE_WAV);
 				_failureClip = AudioSystem.getClip();
-				GUILogger.log(Level.INFO, "Audio Set Up is successful");
+				GUILogger.log(Level.INFO, LOG_AUDIO_SET_UP_IS_SUCCESSFUL);
 			} catch (MalformedURLException | LineUnavailableException e) {
-				GUILogger.log(Level.WARNING, "Audio Set Up has failed");
+				GUILogger.log(Level.WARNING, LOG_AUDIO_SET_UP_HAS_FAILED);
 				e.printStackTrace();
 			}
 			AudioInputStream ais = null;
 			try {
 				ais = AudioSystem.getAudioInputStream(_urlSuccess);
 			} catch (UnsupportedAudioFileException | IOException e) {
-				GUILogger.log(Level.WARNING, "Audio failed to stream");
+				GUILogger.log(Level.WARNING, LOG_AUDIO_FAILED_TO_STREAM);
 				e.printStackTrace();
 			}
 			try {
 				_successClip.open(ais);
 			} catch (LineUnavailableException e) {
-				GUILogger.log(Level.WARNING, "Audio file failed to open");
+				GUILogger.log(Level.WARNING, LOG_AUDIO_FILE_FAILED_TO_OPEN);
 				e.printStackTrace();
 			} catch (IOException e) {
-				GUILogger.log(Level.WARNING, "Audio file failed to open");
+				GUILogger.log(Level.WARNING, LOG_AUDIO_FILE_FAILED_TO_OPEN);
 				e.printStackTrace();
 			}
 
@@ -192,13 +207,13 @@ public class GUI implements ActionListener {
 		protected void playSuccess() {
 			_successClip.setFramePosition(_successClip.getFrameLength());
 			_successClip.loop(1);
-			GUILogger.log(Level.INFO, "Success Audio Played");
+			GUILogger.log(Level.INFO, LOG_SUCCESS_AUDIO_PLAYED);
 		}
 
 		protected void playFailure() {
 			_failureClip.setFramePosition(_failureClip.getFrameLength());
 			_failureClip.loop(1);
-			GUILogger.log(Level.INFO, "Failure Audio Played");
+			GUILogger.log(Level.INFO, LOG_FAILURE_AUDIO_PLAYED);
 		}
 
 	}
