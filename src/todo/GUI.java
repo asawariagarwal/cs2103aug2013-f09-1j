@@ -70,28 +70,41 @@ public class GUI implements ActionListener {
 	private static final String HELP_TEXT_9 = "to minimize\nto/maximize from the\nSystem Tray";
 	
 	private final class InputProcessor extends KeyAdapter {
+		
+		boolean altPressed = false;
+		
 		@Override
 		public void keyPressed(KeyEvent e) {
 			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 				GUILogger.log(Level.INFO, "Enter key pressed");
-				String input = UserInputField.getText();
-				if (input.equals("exit")) {
-					System.exit(0);
-				} else if (input.trim().equals("help")) {
-					_helpPane.setText("");
-					updateHelpPane();
-					UserInputField.setText("");
+				if (altPressed){
+					if (min){
+						deactivateMinMode();
+						min = false;
+					} else {
+						activateMinMode();
+						min = true;
+					}
 				} else {
-					_helpPane.setText("");
-					appendToPane(_helpPane, HELP_PROMPT, headerAttributes);
-	
-					_displayState = _handler.handleInput(input);
-					UserInputField.setText("");
-					_autoComplete.updateState(_handler.getCurrentState());
-					previousInputs.add(input);
-					UP_KEYPRESS_COUNTER = 1;
-					updateTaskFields();
-					updateFeedbackPane();
+					String input = UserInputField.getText();
+					if (input.equals("exit")) {
+						System.exit(0);
+					} else if (input.trim().equals("help")) {
+						_helpPane.setText("");
+						updateHelpPane();
+						UserInputField.setText("");
+					} else {
+						_helpPane.setText("");
+						appendToPane(_helpPane, HELP_PROMPT, headerAttributes);
+		
+						_displayState = _handler.handleInput(input);
+						UserInputField.setText("");
+						_autoComplete.updateState(_handler.getCurrentState());
+						previousInputs.add(input);
+						UP_KEYPRESS_COUNTER = 1;
+						updateTaskFields();
+						updateFeedbackPane();
+					}
 				}
 			}
 			if (e.getKeyCode() == KeyEvent.VK_UP) {
@@ -114,13 +127,15 @@ public class GUI implements ActionListener {
 			}
 			if (e.getKeyCode() == KeyEvent.VK_ALT) {
 				GUILogger.log(Level.INFO, "Alt key pressed");
-				if (min){
-					deactivateMinMode();
-					min = false;
-				} else {
-					activateMinMode();
-					min = true;
-				}
+				altPressed = true;
+			}
+		}
+		
+		@Override
+		public void keyReleased(KeyEvent e){
+			if (e.getKeyCode() == KeyEvent.VK_ALT) {
+				GUILogger.log(Level.INFO, "Alt key released");
+				altPressed = false;
 			}
 		}
 	}
@@ -135,6 +150,7 @@ public class GUI implements ActionListener {
 		frmTodo.setPreferredSize(new Dimension(700,100));
 		frmTodo.pack();
 		frmTodo.setVisible(true);
+		frmTodo.setExtendedState(Frame.NORMAL);
 		//frmTodo.setLocationRelativeTo(null);
 		//frmTodo.setLocationByPlatform(true);
 	}
