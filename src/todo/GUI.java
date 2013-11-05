@@ -173,7 +173,7 @@ public class GUI implements ActionListener {
 				GUILogger.log(Level.WARNING, "Audio file failed to open");
 				e.printStackTrace();
 			}
-			
+
 			ais = null;
 			try {
 				ais = AudioSystem.getAudioInputStream(_urlFailure);
@@ -374,8 +374,8 @@ public class GUI implements ActionListener {
 			return;
 		}
 
-		if (_displayState.getFeedback().trim().substring(0, 15).equalsIgnoreCase(
-				"Invalid Command")) {
+		if (_displayState.getFeedback().trim().substring(0, 15)
+				.equalsIgnoreCase("Invalid Command")) {
 			audio.playFailure();
 		} else {
 			audio.playSuccess();
@@ -793,7 +793,10 @@ public class GUI implements ActionListener {
 				deadlineTaskText += task.getTaskDescription() + "\t";
 				appendToPane(DeadlineTaskView, taskNum, bodyAttributes);
 
-				if (task.isExpired()) {
+				if (task.isComplete()) {
+					appendToPane(DeadlineTaskView, deadlineTaskText,
+							completedAttributes);
+				} else if (task.isExpired()) {
 					appendToPane(DeadlineTaskView, deadlineTaskText,
 							expiredAttributes);
 				} else {
@@ -823,15 +826,21 @@ public class GUI implements ActionListener {
 					headerAttributes);
 			String floatingTaskText = "";
 			String taskTags = "";
+			String taskNum = "";
 			int index = 0;
 			for (FloatingTask task : _displayState.getFloatingTasks()) {
 				taskTags = "";
 				floatingTaskText = "";
-
-				floatingTaskText += ("\t" + (++index) + ". "
-						+ task.getTaskDescription() + "\t");
-				appendToPane(FloatingTaskView, floatingTaskText, bodyAttributes);
-
+				taskNum = "\t" + (++index) + ". ";
+				floatingTaskText += task.getTaskDescription() + "\t";
+				appendToPane(FloatingTaskView, taskNum, bodyAttributes);
+				if (task.isComplete()) {
+					appendToPane(FloatingTaskView, floatingTaskText,
+							completedAttributes);
+				} else {
+					appendToPane(FloatingTaskView, floatingTaskText,
+							bodyAttributes);
+				}
 				taskTags = task.getTagString() + "\n";
 				appendToPane(FloatingTaskView, taskTags, tagAttributes);
 			}
