@@ -386,6 +386,7 @@ public class GUI implements ActionListener {
 		_helpPane = new JTextPane();
 		_helpPane.setBackground(Color.BLACK);
 		_helpPane.setFont(new Font("Consolas", Font.PLAIN, 17));
+		_helpPane.setEditable(false);
 		appendToPane(_helpPane, HELP_PROMPT, headerAttributes);
 		NotificationsArea.add(_helpPane, BorderLayout.CENTER);
 	}
