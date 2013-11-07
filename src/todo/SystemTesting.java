@@ -114,7 +114,7 @@ public class SystemTesting {
 				.getTaskDescription();
 		assertEquals("complete V0.3", taskDes);
 
-		SimpleDateFormat curFormater = new SimpleDateFormat("MM/dd/yyyy");
+		SimpleDateFormat curFormater = new SimpleDateFormat("dd/MM/yyyy");
 		Date dateObj = curFormater.parse("05/10/2013");
 		Calendar deadlineExpected = Calendar.getInstance();
 		deadlineExpected.setTime(dateObj);
@@ -175,7 +175,7 @@ public class SystemTesting {
 				.getTaskDescription();
 		assertEquals("attend seminar", taskDes);
 
-		SimpleDateFormat curFormater = new SimpleDateFormat("MM/dd/yyyy");
+		SimpleDateFormat curFormater = new SimpleDateFormat("dd/MM/yyyy");
 		Date dateObj = curFormater.parse("2/12/2013");
 		Calendar startExpected = Calendar.getInstance();
 		startExpected.setTime(dateObj);
