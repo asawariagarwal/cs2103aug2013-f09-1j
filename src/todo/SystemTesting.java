@@ -37,7 +37,7 @@ public class SystemTesting {
 		State displayState = handler.handleInput("do assignment");
 
 		// Check Feedback
-		String feedbackAdd = displayState.getFeedback();
+		String feedbackAdd = displayState.getFeedback().getDisplay();
 		assertEquals("added new floating task: do assignment", feedbackAdd);
 
 		// Check task fields
@@ -54,7 +54,7 @@ public class SystemTesting {
 		displayState = handler.handleInput("do assignment by tomorrow");
 
 		// Check Feedback
-		feedbackAdd = displayState.getFeedback();
+		feedbackAdd = displayState.getFeedback().getDisplay();
 		assertEquals("added new deadline task: do assignment", feedbackAdd);
 
 		// Check task fields
@@ -71,7 +71,7 @@ public class SystemTesting {
 		displayState = handler.handleInput("clear");
 
 		// Check Feedback
-		String feedback = displayState.getFeedback();
+		String feedback = displayState.getFeedback().getDisplay();
 		assertEquals("all tasks cleared", feedback);
 
 		// Check task fields
@@ -86,7 +86,7 @@ public class SystemTesting {
 
 		State currentState = handler.getCurrentState();
 		// Check Feedback in Current State
-		feedback = currentState.getFeedback();
+		feedback = currentState.getFeedback().getDisplay();
 		assertEquals("all tasks cleared", feedback);
 
 		// Check task fields
@@ -107,7 +107,7 @@ public class SystemTesting {
 		// Checks whether the feedback send to the GUI is correct
 		State displayState = handler
 				.handleInput("add complete V0.3 by 05/10/2013 #CS2103");
-		assertEquals("added new deadline task: complete V0.3", feedback);
+		assertEquals("added new deadline task: complete V0.3", displayState.getFeedback().getDisplay());
 
 		// Checks whether the task description stored in the state is correct
 		String taskDes = displayState.getDeadlineTasks().last()
@@ -140,7 +140,7 @@ public class SystemTesting {
 		// Checks whether the feedback send to the GUi is correct
 		State displayState2 = handler
 				.handleInput("add read a book #hobby #interest ");
-		assertEquals("added new floating task: read a book", feedback);
+		assertEquals("added new floating task: read a book", displayState2.getFeedback().getDisplay());
 
 		// Checks whether the task description stored in the state is correct
 		String taskDes = displayState2.getFloatingTasks().last()
@@ -168,7 +168,7 @@ public class SystemTesting {
 		// Checks whether the feedback send to the GUi is correct
 		State displayState3 = handler
 				.handleInput("add attend seminar from 2/12/2013 to 5/12/2013 #work");
-		assertEquals("added new timed task: attend seminar", feedback);
+		assertEquals("added new timed task: attend seminar", displayState3.getFeedback().getDisplay());
 
 		// Checks whether the task description stored in the state is correct
 		String taskDes = displayState3.getTimedTasks().last()
