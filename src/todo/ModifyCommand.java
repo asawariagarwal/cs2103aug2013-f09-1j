@@ -458,6 +458,7 @@ public class ModifyCommand extends Command {
 				t = task;
 				break;
 			}
+			i++;
 		}
 		if (!isFound) {
 			return makeErrorState(displayState, new Feedback(FEEDBACK_BAD_INDEX, false));
