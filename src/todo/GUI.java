@@ -72,7 +72,7 @@ public class GUI implements ActionListener {
 
 	private static final String FONT_NAME = "Consolas";
 	private static final String HELP_TEXT_1 = "Command List:\n\n";
-	private static final String HELP_TEXT_2 = "add\ndelete\nview\nundo\nredo\nchange\nreschedule\nmark\nmute/unmute\nexit";
+	private static final String HELP_TEXT_2 = "add\ndelete\nview\nundo/redo\n\nchange\nreschedule\nmark/unmark\ntag/untag\nmute/unmute\nexit";
 	private static final String HELP_TEXT_3 = "\n\nPress ";
 	private static final String HELP_TEXT_4 = "tab ";
 	private static final String HELP_TEXT_5 = "to \nauto-complete\n\nPress ";

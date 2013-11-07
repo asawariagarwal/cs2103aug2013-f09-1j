@@ -18,6 +18,8 @@ public class Suggestor {
 	private static final String CLEAR = "clear";
 	private static final String MARK = "mark";
 	private static final String UNMARK = "unmark";
+	private static final String TAG = "tag";
+	private static final String UNTAG = "untag";
 	
 	private static ArrayList<String> commandList = new ArrayList<String>();	
 	
@@ -135,6 +137,8 @@ public class Suggestor {
 		commandSuggestionMap.put(DELETE, descriptionList);
 		commandSuggestionMap.put(CHANGE, descriptionList);
 		commandSuggestionMap.put(RESCHEDULE, descriptionList);
+		commandSuggestionMap.put(TAG, descriptionList);
+		commandSuggestionMap.put(UNTAG, descriptionList);
 		
 		commandSuggestionMap.put(MARK,pendingList);
 		commandSuggestionMap.put(UNMARK,completedList);
