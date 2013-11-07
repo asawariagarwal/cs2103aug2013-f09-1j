@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="lib" path="src/todo/json-simple-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/JHotKeys.jar"/>
+	<classpathentry kind="lib" path="lib/windows/jintellitype.jar"/>
+	<classpathentry kind="lib" path="lib/unix/lib/JXGrabKey.jar"/>
+	<classpathentry kind="lib" path="lib/antlr-2.7.7.jar"/>
+	<classpathentry kind="lib" path="lib/antlr-runtime-3.2.jar" sourcepath="lib/antlr-runtime-3.2-sources.jar"/>
+	<classpathentry kind="lib" path="lib/gunit-3.2.jar"/>
+	<classpathentry kind="lib" path="lib/ical4j-1.0.2.jar" sourcepath="lib/ical4j-1.0.2-sources.jar"/>
+	<classpathentry kind="lib" path="lib/junit-4.1.jar"/>
+	<classpathentry kind="lib" path="lib/natty-0.8.jar" sourcepath="lib/natty-master"/>
+	<classpathentry kind="lib" path="lib/ical4j-1.0.4.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jintellitype">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="ToDo/lib/windows"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
