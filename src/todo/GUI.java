@@ -837,8 +837,9 @@ public class GUI implements ActionListener {
 
 			_mainViewArea.add(_timedTaskView);
 		} else if (_displayState.getTimedTasks().isEmpty()) {
-			_mainViewArea.remove(_timedTaskView);
+			GUILogger.log(Level.INFO, "Timed Tasks are empty");
 			_timedTaskView.setText("");
+			_mainViewArea.remove(_timedTaskView);
 		}
 	}
 
@@ -884,8 +885,9 @@ public class GUI implements ActionListener {
 
 			_mainViewArea.add(_deadlineTaskView);
 		} else if (_displayState.getDeadlineTasks().isEmpty()) {
-			_mainViewArea.remove(_deadlineTaskView);
+			GUILogger.log(Level.INFO, "Deadline Tasks are empty");
 			_deadlineTaskView.setText("");
+			_mainViewArea.remove(_deadlineTaskView);
 		}
 	}
 
@@ -918,8 +920,9 @@ public class GUI implements ActionListener {
 
 			_mainViewArea.add(_floatingTaskView);
 		} else if (_displayState.getFloatingTasks().isEmpty()) {
-			_mainViewArea.remove(_floatingTaskView);
+			GUILogger.log(Level.INFO, "Floating Tasks are empty");
 			_floatingTaskView.setText("");
+			_mainViewArea.remove(_floatingTaskView);
 		}
 	}
 
