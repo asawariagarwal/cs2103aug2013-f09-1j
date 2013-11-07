@@ -39,6 +39,8 @@ import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.JTextArea;
+
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -279,7 +281,6 @@ public class GUI implements ActionListener {
 				GUILogger.log(Level.INFO, "Alt key pressed");
 				altPressed = true;
 			}
-			scrollToTop();
 		}
 		
 		@Override
@@ -431,8 +432,6 @@ public class GUI implements ActionListener {
 		activateMinMode();
 
 		initAudioFeedBack();
-		
-		scrollToTop();
 	}
 
 	private void initAudioFeedBack() {
@@ -699,7 +698,6 @@ public class GUI implements ActionListener {
 		TaskScrollPane
 				.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		TaskScrollPane.setViewportView(_mainViewArea);
-		
 		TaskScrollPane.getVerticalScrollBar().setUI(new CustomScrollBar());
 
 		_frmTodo.getContentPane().add(TaskScrollPane, BorderLayout.CENTER);
@@ -936,10 +934,6 @@ public class GUI implements ActionListener {
 		Calendar currTime = Calendar.getInstance();
 		return dateTimeFormat.format(currTime.getTime());
 
-	}
-	
-	private void scrollToTop() {
-		TaskScrollPane.getVerticalScrollBar().setValue(0);
 	}
 
 	@Override
