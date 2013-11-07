@@ -1,5 +1,6 @@
 package todo;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 /**
@@ -9,10 +10,15 @@ import java.util.Calendar;
  * 
  */
 public class ModifyCommand extends Command {
+	public static final int INDEX_FLOATING = 0;
+	public static final int INDEX_TIMED = 1;
+	public static final int INDEX_DEADLINE = 2;
+	
 	private static final int MODE_CHANGE = 0;
 	private static final int MODE_RESCHEDULE_DEADLINE = 1;
 	private static final int MODE_RESCHEDULE_TIMED = 2;
 	private static final int MODE_MARK = 3;
+	private static final int MODE_TAG = 4;
 	
 	private static final String FEEDBACK_NOT_FOUND = "no tasks containing %1$s can be found";
 	private static final String FEEDBACK_MULTIPLE_FOUND = "multiple tasks containing %1$s found - refine your keywords";
@@ -25,6 +31,10 @@ public class ModifyCommand extends Command {
 	private static final String FEEDBACK_ALREADY_UNMARKED = "%1$s is already unmarked";
 	private static final String FEEDBACK_MARK_SUCCESS = "marked: %1$s";
 	private static final String FEEDBACK_UNMARK_SUCCESS = "unmarked: %1$s";
+	private static final String FEEDBACK_TAG_SUCCESS = "added tag(s): %1$s to %2$s";
+	private static final String FEEDBACK_TAG_FAILURE = "%1$s already has tag(s): %2$s";
+	private static final String FEEDBACK_UNTAG_SUCCESS = "removed tags: %1$s from %2$s";
+	private static final String FEEDBACK_UNTAG_FAILURE = "%1$s does not have tag(s): %2$s";
 	
 	private String taskString;
 	private String newTaskString;
@@ -32,7 +42,12 @@ public class ModifyCommand extends Command {
 	private Calendar newStartDate;
 	private Calendar newEndDate;
 	private boolean mark;
+	private boolean tag;
+	private ArrayList<String> tags;
 	private int mode;
+	private boolean isByIndex;
+	private int indexPos;
+	private int indexType;
 	
 	/**
 	 * Constructor for ModifyCommand
@@ -49,6 +64,30 @@ public class ModifyCommand extends Command {
 		this.taskString = taskString;
 		this.newTaskString = newTaskString;
 		this.mode = MODE_CHANGE;
+		isByIndex = false;
+	}
+	
+	/**
+	 * Constructor for ModifyCommand
+	 * 
+	 * @param indexPos
+	 * 			task index position
+	 * 
+	 * @param indexType
+	 * 			type of task,
+	 * 			can be the following: INDEX_FLOATING, INDEX_DEADLINE, INDEX_TIMED
+	 * 
+	 * @param newTaskString
+	 * 			modified task name/description
+	 * 
+	 */
+	ModifyCommand(int indexPos, int indexType, String newTaskString) {
+		super(true);
+		this.indexPos = indexPos;
+		this.indexType = indexType;
+		this.newTaskString = newTaskString;
+		this.mode = MODE_CHANGE;
+		isByIndex = true;
 	}
 	
 	/**
@@ -66,6 +105,30 @@ public class ModifyCommand extends Command {
 		this.taskString = taskString;
 		this.newDeadline = newDeadline;
 		this.mode = MODE_RESCHEDULE_DEADLINE;
+		isByIndex = false;
+	}
+	
+	/**
+	 * Constructor for ModifyCommand
+	 * 
+	 * @param indexPos
+	 * 			task index position
+	 * 
+	 * @param indexType
+	 * 			type of task,
+	 * 			can be the following: INDEX_FLOATING, INDEX_DEADLINE, INDEX_TIMED
+	 * 
+	 * @param newDeadline
+	 * 			modified deadline
+	 * 
+	 */
+	ModifyCommand(int indexPos, int indexType, Calendar newDeadline) {
+		super(true);
+		this.indexPos = indexPos;
+		this.indexType = indexType;
+		this.newDeadline = newDeadline;
+		this.mode = MODE_RESCHEDULE_DEADLINE;
+		isByIndex = true;
 	}
 	
 	/**
@@ -83,6 +146,30 @@ public class ModifyCommand extends Command {
 		this.taskString = taskString;
 		this.mark = mark;
 		this.mode = MODE_MARK;
+		isByIndex = false;
+	}
+	
+	/**
+	 * Constructor for ModifyCommand
+	 * 
+	 * @param indexPos
+	 * 			task index position
+	 * 
+	 * @param indexType
+	 * 			type of task,
+	 * 			can be the following: INDEX_FLOATING, INDEX_DEADLINE, INDEX_TIMED
+	 * 
+	 * @param mark
+	 * 			true to mark, false to unmark
+	 * 
+	 */
+	ModifyCommand(int indexPos, int indexType, boolean mark) {
+		super(true);
+		this.indexPos = indexPos;
+		this.indexType = indexType;
+		this.mark = mark;
+		this.mode = MODE_MARK;
+		isByIndex = true;
 	}
 	
 	/**
@@ -104,15 +191,91 @@ public class ModifyCommand extends Command {
 		this.newStartDate = newStartDate;
 		this.newEndDate = newEndDate;
 		this.mode = MODE_RESCHEDULE_TIMED;
+		isByIndex = false;
+	}
+	
+	/**
+	 * Constructor for ModifyCommand
+	 * 
+	 * @param indexPos
+	 * 			task index position
+	 * 
+	 * @param indexType
+	 * 			type of task,
+	 * 			can be the following: INDEX_FLOATING, INDEX_DEADLINE, INDEX_TIMED
+	 * 
+	 * @param newStartDate
+	 * 			modified start date
+	 * 
+	 * @param newEndDate
+	 * 			modified end date
+	 * 
+	 */
+	ModifyCommand(int indexPos, int indexType, Calendar newStartDate, Calendar newEndDate) {
+		super(true);
+		this.indexPos = indexPos;
+		this.indexType = indexType;
+		this.newStartDate = newStartDate;
+		this.newEndDate = newEndDate;
+		this.mode = MODE_RESCHEDULE_TIMED;
+		isByIndex = true;
+	}
+	
+	/**
+	 * Constructor for ModifyCommand
+	 * 
+	 * @param taskString
+	 * 			task name/description
+	 * 
+	 * @param tags
+	 * 			tags to be tagged/untagged
+	 * 
+	 * @param tag
+	 * 			true to tag, false to untag
+	 * 
+	 */
+	ModifyCommand(String taskString, ArrayList<String> tags, boolean tag) {
+		super(true);
+		this.taskString = taskString;
+		this.tags = tags;
+		this.tag = tag;
+		this.mode = MODE_TAG;
+		isByIndex = false;
+	}
+	
+	/**
+	 * Constructor for ModifyCommand
+	 * 
+	 * @param indexPos
+	 * 			task index position
+	 * 
+	 * @param indexType
+	 * 			type of task,
+	 * 			can be the following: INDEX_FLOATING, INDEX_DEADLINE, INDEX_TIMED
+	 * 
+	 * @param tags
+	 * 			tags to be tagged/untagged
+	 * 
+	 * @param tag
+	 * 			true to tag, false to untag
+	 * 
+	 */
+	ModifyCommand(int indexPos, int indexType, ArrayList<String> tags, boolean tag) {
+		super(true);
+		this.indexPos = indexPos;
+		this.indexType = indexType;
+		this.tags = tags;
+		this.tag = tag;
+		this.mode = MODE_TAG;
+		isByIndex = true;
 	}
 
 	@Override
 	protected boolean isValid() {
-		return isValidTaskString() && 
-				(isChange() ||
-				 isRescheduleDeadline() ||
-				 isRescheduleTimed() ||
-				 isMark());
+		return (isValidTaskString() || isValidByIndex()) && 
+				(isChange() || isRescheduleDeadline() ||
+				 isRescheduleTimed() || isMark() ||
+				 isTag());
 	}
 	
 	/**
@@ -121,7 +284,27 @@ public class ModifyCommand extends Command {
 	 * @return true if taskString is valid, false otherwise
 	 */
 	private boolean isValidTaskString() {
-		return taskString != null && !taskString.isEmpty();
+		return !isByIndex && taskString != null && !taskString.isEmpty();
+	}
+	
+	/**
+	 * Checks validity of index type and position
+	 * 
+	 * @return true if index type and position is valid
+	 */
+	private boolean isValidByIndex() {
+		return isByIndex && isValidIndexType() && indexPos > 0;
+	}
+	
+	/**
+	 * Checks validity of index type
+	 * 
+	 * @return true if index type is valid
+	 */
+	private boolean isValidIndexType() {
+		return (indexType == INDEX_FLOATING || 
+				indexType == INDEX_TIMED || 
+				indexType == INDEX_DEADLINE);
 	}
 	
 	/**
@@ -163,6 +346,14 @@ public class ModifyCommand extends Command {
 		return mode == MODE_MARK;
 	}
 	
+	/**
+	 * Checks if ModifyCommand is a tag command
+	 * 
+	 * @return true if command is a tag command, false otherwise.
+	 */
+	private boolean isTag() {
+		return mode == MODE_TAG && tags != null && !tags.isEmpty();
+	}
 	/**
 	 * Checks if state has only a single task that contains taskString
 	 * 
@@ -275,6 +466,10 @@ public class ModifyCommand extends Command {
 			newState.removeTask(t);
 			newState.addTask(cloned);
 			return executeMark(newState, cloned);
+		} else if (isTag()) {
+			newState.removeTask(t);
+			newState.addTask(cloned);
+			return executeTag(newState, cloned);
 		} else {
 			throw new Exception();
 		}
@@ -329,7 +524,7 @@ public class ModifyCommand extends Command {
 	private State executeRescheduleTimed(State state, TimedTask task) {
 		task.setStartDate(newStartDate);
 		task.setEndDate(newEndDate);
-		state.setFeedback(new Feedback (String.format(FEEDBACK_RESCHEDULE_TIMED, task.getTaskDescription()), true));
+		state.setFeedback(new Feedback(String.format(FEEDBACK_RESCHEDULE_TIMED, task.getTaskDescription()), true));
 		return state;
 	}
 	
@@ -361,5 +556,102 @@ public class ModifyCommand extends Command {
 			}
 		}
 		return state;
+	}
+	
+	/**
+	 * Executes tag command
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @param task
+	 * 			task being tag/untagged
+	 * 
+	 * @return state after executing command
+	 */
+	private State executeTag(State state, Task task) {
+		String feedback = "";
+		ArrayList<String> success = new ArrayList<String>();
+		ArrayList<String> failure = new ArrayList<String>();
+		for (String t : tags) {
+			if (task.hasTag(t)) {
+				if (tag) {
+					addTagToList(failure, t);
+				} else {
+					task.removeTag(t);
+					addTagToList(success, t);
+				}
+			} else {
+				if (tag) {
+					task.addTag(t);
+					addTagToList(success, t);
+				} else {
+					addTagToList(failure, t);
+				}
+			}
+		}
+		if (!success.isEmpty()) {
+			String msg;
+			if (tag) {
+				msg = FEEDBACK_TAG_SUCCESS;
+			} else {
+				msg = FEEDBACK_UNTAG_SUCCESS;
+			}
+			feedback += String.format(msg,
+					getTagString(success),
+					task.getTaskDescription());
+		}
+		if (!failure.isEmpty()) {
+			if (!feedback.isEmpty()) {
+				feedback += System.lineSeparator();
+			}
+			String msg;
+			if (tag) {
+				msg = FEEDBACK_TAG_FAILURE;
+			} else {
+				msg = FEEDBACK_UNTAG_FAILURE;
+			}
+			feedback += String.format(msg,
+					task.getTaskDescription(),
+					getTagString(failure));
+		}
+		state.setFeedback(new Feedback(feedback, false));
+		return state;
+	}
+	
+	/**
+	 * Adds a tag to a tags list, appending "#" in front
+	 * 
+	 * @param tagList
+	 * 			list of tags
+	 * 
+	 * @param tagStr
+	 * 			tag to be added to list
+	 * 
+	 * @return string of tags
+	 */
+	private void addTagToList(ArrayList<String> tagList, String tagStr) {
+		if (tagList == null) {
+			return;
+		} else {
+			tagList.add("#" + tagStr);
+		}
+	}
+	
+	/**
+	 * Gets string representation of tags list, without square brackets
+	 * 
+	 * @param tagList
+	 * 			list of tags
+	 * 
+	 * @return string of tags
+	 */
+	private String getTagString(ArrayList<String> tagList) {
+		if (tagList == null || tagList.isEmpty()) {
+			return "";
+		} else {
+			String tagStr = tagList.toString();
+			return tagStr.substring(1, tagStr.length()-1);
+		}
 	}
 }
