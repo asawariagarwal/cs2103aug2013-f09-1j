@@ -209,14 +209,15 @@ public class Interpreter {
 				}return unmarkObj;
 
 			case TAG:
-				//TODO:TagCommand tagObj;
-				//tagObj = parseTag();
-				//return tagObjj;
+				ModifyCommand tagObj;
+				tagObj = parseTag();
+				return tagObj;
 
 			case UNTAG:
-				//TODO:TagCommand untagObj;
-				//untagObj = parseUntag();
-				//return untagObj;		
+				ModifyCommand untagObj;
+				untagObj = parseUntag();
+				return untagObj;
+	
 
 			case UNDO:
 				UndoCommand undoObj;
@@ -632,9 +633,9 @@ public class Interpreter {
 
 	/**
 	 * This function performs the actual parsing of a mark type command and
-	 * creates a MarkCommand type object
+	 * creates a ModifyCommand type object
 	 * 
-	 * @return MarkCommand type object or null
+	 * @return ModifyCommand type object or null
 	 * @throws Exception
 	 */
 
@@ -649,9 +650,9 @@ public class Interpreter {
 
 	/**
 	 * This function performs the actual parsing of a unmark type command and
-	 * creates a MarkCommand type object
+	 * creates a ModifyCommand type object
 	 * 
-	 * @return MarkCommand type object or null
+	 * @return ModifyCommand type object or null
 	 * 
 	 */
 
@@ -669,51 +670,52 @@ public class Interpreter {
 	 * This function performs the actual parsing of a tag type command and
 	 * creates a tag command type object
 	 * 
-	 * @return TagCommand type object or null
+	 * @return ModifyCommand type object or null
 	 * 
 	 */
 
-	//TODO: private TagCommand parseTag(){
-	//ArrayList<String> hashtags = new ArrayList<String>();
-	//String taskDes=extractTillHashtagOrEnd();
-	//if(!taskDes.equals("")){
-	//while (!(_userInput.equals(""))) {
-	//String hashtag=extractHashtag();
-	//if(hashtag.equals("")){
-	//return null;
-	//}
-	//hashtags.add(hashtag);
-	//TagCommand command = new TagCommand(taskDes,hashtags, 1);
-	//return command;
-	//}else{
-	//return null;
-	//}
-	//}
+	private ModifyCommand parseTag() throws Exception {
+		ArrayList<String> hashtags = new ArrayList<String>();
+		String taskDes=extractTillHashtagOrEnd();
+		if(!taskDes.equals("")) {
+			while (!(_userInput.equals(""))) {
+				String hashtag=extractHashtag();
+				if(hashtag.equals("")){
+					break;
+				}
+				hashtags.add(hashtag);
+			}
+			ModifyCommand command = new ModifyCommand(taskDes, hashtags, true);
+			return command;
+		} else{
+			return null;
+		}
+	}
 
 	/**
 	 * This function performs the actual parsing of a untag type command and
-	 * creates a tag command type object
+	 * creates a ModifyCommand type object
 	 * 
-	 * @return TagCommand type object or null
+	 * @return ModifyCommand type object or null
 	 * 
 	 */
-
-	//TODO: private TagCommand parseUntag(){
-	//ArrayList<String> hashtags = new ArrayList<String>();
-	//String taskDes=extractTillHashtagOrEnd();
-	//if(!taskDes.equals("")){
-	//while (!(_userInput.equals(""))) {
-	//String hashtag=extractHashtag();
-	//if(hashtag.equals("")){
-	//return null;
-	//}
-	//hashtags.add(hashtag);
-	//TagCommand command = new TagCommand(taskDes,hashtags, -1);
-	//return command;
-	//}else{
-	//return null;
-	//}
-	//}
+	private ModifyCommand parseUntag() throws Exception {
+		ArrayList<String> hashtags = new ArrayList<String>();
+		String taskDes=extractTillHashtagOrEnd();
+		if(!taskDes.equals("")) {
+			while (!(_userInput.equals(""))) {
+				String hashtag=extractHashtag();
+				if(hashtag.equals("")){
+					break;
+				}
+				hashtags.add(hashtag);
+			}
+			ModifyCommand command = new ModifyCommand(taskDes, hashtags, false);
+			return command;
+		} else{
+			return null;
+		}
+	}
 
 
 
