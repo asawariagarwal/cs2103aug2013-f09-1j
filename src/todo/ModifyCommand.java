@@ -16,6 +16,15 @@ public class ModifyCommand extends Command {
 	
 	private static final String FEEDBACK_NOT_FOUND = "no tasks containing %1$s can be found";
 	private static final String FEEDBACK_MULTIPLE_FOUND = "multiple tasks containing %1$s found - refine your keywords";
+	private static final String FEEDBACK_NOT_DEADLINE = "%1$s is not a deadline";
+	private static final String FEEDBACK_NOT_TIMED = "%1$s is not an event";
+	private static final String FEEDBACK_CHANGED = "changed: \"%1$s\" to \"%2$s\"";
+	private static final String FEEDBACK_RESCHEDULE_DEADLINE = "rescheduled deadline of: %1$s";
+	private static final String FEEDBACK_RESCHEDULE_TIMED = "reschedule event: %1$s";
+	private static final String FEEDBACK_ALREADY_MARKED = "%1$s is already marked";
+	private static final String FEEDBACK_ALREADY_UNMARKED = "%1$s is already unmarked";
+	private static final String FEEDBACK_MARK_SUCCESS = "marked: %1$s";
+	private static final String FEEDBACK_UNMARK_SUCCESS = "unmarked: %1$s";
 	
 	private String taskString;
 	private String newTaskString;
@@ -188,28 +197,32 @@ public class ModifyCommand extends Command {
 		assert(this.isValid());
 		
 		if (!state.hasTask(taskString)) {
-			return executeTaskNotFound(displayState);
+			return makeErrorState(displayState,
+								  String.format(FEEDBACK_NOT_FOUND, taskString));
 		} else if (isOnlyTask(state)) {
-			return executeTaskFound(state);
+			return executeTaskFound(state, displayState, false);
 		} else if (isOnlyTask(displayState)) {
-			return executeTaskFoundDisplay(state, displayState);
+			return executeTaskFound(state, displayState, true);
 		} else {
-			return executeTaskMultiple(displayState);
+			return makeErrorState(displayState,
+								  String.format(FEEDBACK_MULTIPLE_FOUND, taskString));
 		}
 	}
-
+	
 	/**
-	 * Execution when task cannot be found
+	 * Makes an error state to be returned
 	 * 
 	 * @param state
-	 * 			state of program
+	 * 			current state of program
 	 * 
-	 * @return state after execution of command
+	 * @param feedback
+	 * 			feedback of error state
+	 * @return
 	 */
-	private State executeTaskNotFound(State state) {
+	private State makeErrorState(State state, String feedback) {
 		this.setMutator(false);
 		State s = new State(state);
-		s.setFeedback(String.format(FEEDBACK_NOT_FOUND, taskString));
+		s.setFeedback(feedback);
 		return s;
 	}
 	
@@ -219,62 +232,52 @@ public class ModifyCommand extends Command {
 	 * @param state
 	 * 			state of program
 	 * 
-	 * @return state after execution of command
-	 */
-	private State executeTaskFound(State state) throws Exception {
-		Task t = findTask(state);
-		if (isChange()) {
-			return executeChange(state, t);
-		} else if (isRescheduleDeadline()) {
-			return executeRescheduleDeadline(state, (DeadlineTask) t);
-		} else if (isRescheduleTimed()) {
-			return executeRescheduleTimed(state, (TimedTask) t);
-		} else if (isMark()) {
-			return executeMark(state, t);
-		} else {
-			throw new Exception();
-		}
-	}
-	
-	/**
-	 * Execution when single task found in display
-	 * 
-	 * @param state
-	 * 			state of program
-	 * 
 	 * @param displayState
-	 * 			state being displayed by program
+	 * 			display state of program
+	 * 
+	 * @param isFromDisplay
+	 * 			true if task found is from display state, false if task is from state
 	 * 
 	 * @return state after execution of command
 	 */
-	private State executeTaskFoundDisplay(State state, State displayState) throws Exception {
-		Task t = findTask(displayState);
+	private State executeTaskFound(State state, State displayState, boolean isFromDisplay) throws Exception {
+		Task t;
+		if (isFromDisplay) {
+			t = findTask(displayState);
+		} else {
+			t = findTask(state);
+		}
+		State newState = new State(state);
+		Task cloned = t.clone();
 		if (isChange()) {
-			return executeChange(state, t);
+			newState.removeTask(t);
+			newState.addTask(cloned);
+			return executeChange(newState, cloned);
 		} else if (isRescheduleDeadline()) {
-			return executeRescheduleDeadline(state, (DeadlineTask) t);
+			if (t instanceof DeadlineTask) {
+				newState.removeTask(t);
+				newState.addTask(cloned);
+				return executeRescheduleDeadline(newState, (DeadlineTask) cloned);
+			} else {
+				return makeErrorState(displayState,
+									  String.format(FEEDBACK_NOT_DEADLINE, t.getTaskDescription()));
+			}
 		} else if (isRescheduleTimed()) {
-			return executeRescheduleTimed(state, (TimedTask) t);
+			if (t instanceof TimedTask) {
+				newState.removeTask(t);
+				newState.addTask(cloned);
+				return executeRescheduleTimed(newState, (TimedTask) cloned);
+			} else {
+				return makeErrorState(displayState,
+									  String.format(FEEDBACK_NOT_TIMED, t.getTaskDescription()));
+			}
 		} else if (isMark()) {
-			return executeMark(state, t);
+			newState.removeTask(t);
+			newState.addTask(cloned);
+			return executeMark(newState, cloned);
 		} else {
 			throw new Exception();
 		}
-	}
-	
-	/**
-	 * Execution when multiple tasks found
-	 * 
-	 * @param state
-	 * 			state of program
-	 * 
-	 * @return state after execution of command
-	 */
-	private State executeTaskMultiple(State state) {
-		this.setMutator(false);
-		State s = new State(state);
-		s.setFeedback(String.format(FEEDBACK_MULTIPLE_FOUND, taskString));
-		return s;
 	}
 	
 	/**
@@ -289,11 +292,10 @@ public class ModifyCommand extends Command {
 	 * @return state after executing command
 	 */
 	private State executeChange(State state, Task task) {
-		State s = new State(state);
 		String old = task.getTaskDescription();
 		task.setTaskDescription(newTaskString);
-		s.setFeedback("changed: \"" + old + "\" to \"" + newTaskString + "\"");
-		return s;
+		state.setFeedback(String.format(FEEDBACK_CHANGED, old, newTaskString));
+		return state;
 	}
 	
 	/**
@@ -308,10 +310,9 @@ public class ModifyCommand extends Command {
 	 * @return state after executing command
 	 */
 	private State executeRescheduleDeadline(State state, DeadlineTask task) {
-		State s = new State(state);
 		task.setDeadline(newDeadline);
-		s.setFeedback("rescheduled deadline of: " + task.getTaskDescription());
-		return s;
+		state.setFeedback(String.format(FEEDBACK_RESCHEDULE_DEADLINE, task.getTaskDescription()));
+		return state;
 	}
 	
 	/**
@@ -326,11 +327,10 @@ public class ModifyCommand extends Command {
 	 * @return state after executing command
 	 */
 	private State executeRescheduleTimed(State state, TimedTask task) {
-		State s = new State(state);
 		task.setStartDate(newStartDate);
 		task.setEndDate(newEndDate);
-		s.setFeedback("reschedule date of: " + task.getTaskDescription());
-		return s;
+		state.setFeedback(String.format(FEEDBACK_RESCHEDULE_TIMED, task.getTaskDescription()));
+		return state;
 	}
 	
 	/**
@@ -345,22 +345,21 @@ public class ModifyCommand extends Command {
 	 * @return state after executing command
 	 */
 	private State executeMark(State state, Task task) {
-		State s = new State(state);
 		if (mark) {
 			if (task.isComplete()) {
-				s.setFeedback(task.getTaskDescription() + " is already marked");
+				state.setFeedback(String.format(FEEDBACK_ALREADY_MARKED, task.getTaskDescription()));
 			} else {
 				task.markAsDone();
-				s.setFeedback("marked: " + task.getTaskDescription());
+				state.setFeedback(String.format(FEEDBACK_MARK_SUCCESS, task.getTaskDescription()));
 			}
 		} else {
 			if (!task.isComplete()) {
-				s.setFeedback(task.getTaskDescription() + " is already unmarked");
+				state.setFeedback(String.format(FEEDBACK_ALREADY_UNMARKED, task.getTaskDescription()));
 			} else {
 				task.markAsPending();
-				s.setFeedback("unmarked: " + task.getTaskDescription());
+				state.setFeedback(String.format(FEEDBACK_UNMARK_SUCCESS, task.getTaskDescription()));
 			}
 		}
-		return s;
+		return state;
 	}
 }

@@ -68,4 +68,21 @@ class FloatingTask extends Task implements Comparable<FloatingTask> {
 		String tagString = this.getTags().toString();
 		return (nameString + tagString).hashCode();
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see todo.Task#clone()
+	 */
+	protected FloatingTask clone() {
+		String desc = this.getTaskDescription();
+		ArrayList<String> tags = new ArrayList<String>(this.getTags());
+		FloatingTask result = new FloatingTask(desc, tags);
+		if (this.isComplete()) {
+			result.markAsDone();
+		}
+		if (this.isExpired()) {
+			result.expire();
+		}
+		return result;
+	}
 }

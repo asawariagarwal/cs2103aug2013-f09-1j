@@ -170,4 +170,21 @@ class Task {
 	protected boolean isComplete() {
 		return _done;
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	protected Task clone() {
+		String desc = this.getTaskDescription();
+		ArrayList<String> tags = new ArrayList<String>(this.getTags());
+		Task result = new Task(desc, tags);
+		if (this.isComplete()) {
+			result.markAsDone();
+		}
+		if (this.isExpired()) {
+			result.expire();
+		}
+		return result;
+	}
 }

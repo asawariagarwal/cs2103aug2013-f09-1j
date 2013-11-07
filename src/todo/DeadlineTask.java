@@ -147,5 +147,21 @@ import java.util.Calendar;
 			String tagString = this.getTags().toString();
 			return (deadlineString + nameString + tagString).hashCode();
 		}
+		
+		/*
+		 * (non-Javadoc)
+		 * @see todo.Task#clone()
+		 */
+		protected DeadlineTask clone() {
+			String desc = this.getTaskDescription();
+			ArrayList<String> tags = new ArrayList<String>(this.getTags());
+			Calendar deadline = Calendar.getInstance();
+			deadline.setTimeInMillis(this.getDeadline().getTimeInMillis());
+			DeadlineTask result = new DeadlineTask(desc, tags, deadline);
+			if (this.isComplete()) {
+				result.markAsDone();
+			}
+			return result;
+		}
 
 	}
