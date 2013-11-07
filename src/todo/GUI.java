@@ -293,28 +293,28 @@ public class GUI implements ActionListener {
 	private void activateMinMode(){
 		GUILogger.log(Level.INFO, "Activating MinMode");
 		//NotificationsArea.setSize(0, 0);
-		frmTodo.getContentPane().remove(NotificationsArea);
+		_frmTodo.getContentPane().remove(_notificationsArea);
 		//TaskScrollPane.setSize(0,0);
-		frmTodo.getContentPane().remove(TaskScrollPane);
+		_frmTodo.getContentPane().remove(TaskScrollPane);
 		//frmTodo.setBounds(670, 630, 700, 100);
-		frmTodo.setPreferredSize(new Dimension(700,100));
-		frmTodo.pack();
-		frmTodo.setVisible(true);
-		frmTodo.setExtendedState(Frame.NORMAL);
+		_frmTodo.setPreferredSize(new Dimension(700,100));
+		_frmTodo.pack();
+		_frmTodo.setVisible(true);
+		_frmTodo.setExtendedState(Frame.NORMAL);
 		//frmTodo.setLocationRelativeTo(null);
 		//frmTodo.setLocationByPlatform(true);
 	}
 	
 	private void deactivateMinMode(){
 		GUILogger.log(Level.INFO, "Deactivating MinMode");
-		frmTodo.getContentPane().add(NotificationsArea, BorderLayout.EAST);
-		frmTodo.getContentPane().add(TaskScrollPane, BorderLayout.CENTER);
-		frmTodo.setBounds(1100, 0, 800, 850);
-		frmTodo.setExtendedState(Frame.MAXIMIZED_BOTH);
-		frmTodo.setVisible(true);
+		_frmTodo.getContentPane().add(_notificationsArea, BorderLayout.EAST);
+		_frmTodo.getContentPane().add(TaskScrollPane, BorderLayout.CENTER);
+		_frmTodo.setBounds(1100, 0, 800, 850);
+		_frmTodo.setExtendedState(Frame.MAXIMIZED_BOTH);
+		_frmTodo.setVisible(true);
 	}
 
-	private JFrame frmTodo;
+	private JFrame _frmTodo;
 	private static JTextPane _currentDateTimeArea;
 	private static JTextPane _helpPane;
 	private static JPanel _notificationsArea;
