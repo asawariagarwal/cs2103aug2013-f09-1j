@@ -522,7 +522,28 @@ public class Interpreter {
 	 */
 
 	private ModifyCommand parseChange()throws Exception {
+		String regex="-[edf]\\d{1,} {1,}to {1,}.*";
+		char taskType;
+		int index;
 		String oldTask, newTask;
+		if(_userInput.matches(regex)){
+			ModifyCommand command;
+			taskType=_userInput.charAt(1);
+			int spaceIndex = _userInput.indexOf(" ");
+			index=Integer.parseInt(_userInput.substring(2, spaceIndex));
+			int toIndex = _userInput.indexOf(" to ", spaceIndex) + 3;
+			newTask = _userInput.substring(toIndex).trim();
+			if(taskType=='e'){
+				command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, newTask);
+				return command;
+			} else if(taskType=='d'){
+				command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, newTask);
+				return command;
+			} else if(taskType=='f'){
+			    command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, newTask);
+			    return command;
+			}
+		}
 		oldTask = getModifyTaskDescription().trim();
 		newTask = _userInput.trim();
 		ModifyCommand command = new ModifyCommand(oldTask, newTask);
@@ -538,10 +559,34 @@ public class Interpreter {
 	 */
 
 	private ModifyCommand parseReschedule()throws Exception{
-
 		ModifyCommand command;
 		String copyInput; 
 		copyInput=_userInput;
+		String regex="-[edf]\\d{1,} {1,}to {1,}.*";
+		char taskType;
+		int index;
+		if(_userInput.matches(regex)){
+			taskType=_userInput.charAt(1);
+			int spaceIndex = _userInput.indexOf(" ");
+			index=Integer.parseInt(_userInput.substring(2, spaceIndex));
+			int toIndex = _userInput.indexOf(" to ", spaceIndex) + 3;
+			_userInput = _userInput.substring(toIndex).trim();
+			if(taskType=='e'){
+				String startDate = extractTillKeyword(PREFIX_RESCHEDULE);
+				String endDate = _userInput.trim();
+				Calendar calendar1 = isValid(startDate);
+				Calendar calendar2 = isValid(endDate);
+				command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, calendar1, calendar2);
+				return command;
+			} else if(taskType=='d'){
+				String deadline= _userInput.trim();
+				Calendar calendar = isValid(deadline);
+				command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, calendar);
+				return command;
+			} else if(taskType=='f'){
+			    return null;
+			}
+		}
 
 		command = parseRescheduleTimed();
 		if (command != null) {
@@ -640,8 +685,26 @@ public class Interpreter {
 	 */
 
 	private ModifyCommand parseMark()throws Exception{
+		ModifyCommand command;
+		String regex="-[edf]\\d{1,}";
+		char taskType;
+		int index;
+		if(_userInput.matches(regex)){
+			taskType=_userInput.charAt(1);
+			index=Integer.parseInt(_userInput.substring(2));
+			if(taskType=='e'){
+				command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, true);
+				return command;
+			} else if(taskType=='d'){
+				command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, true);
+				return command;
+			} else if(taskType=='f'){
+				command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, true);
+				return command;
+			}
+		}
 		if(!_userInput.equals("")){
-			ModifyCommand command = new ModifyCommand(_userInput.trim(),true);
+			command = new ModifyCommand(_userInput.trim(),true);
 			return command;
 		}else{
 			return null;
@@ -657,8 +720,26 @@ public class Interpreter {
 	 */
 
 	private ModifyCommand parseUnmark()throws Exception{
+		ModifyCommand command;
+		String regex="-[edf]\\d{1,}";
+		char taskType;
+		int index;
+		if(_userInput.matches(regex)){
+			taskType=_userInput.charAt(1);
+			index=Integer.parseInt(_userInput.substring(2));
+			if(taskType=='e'){
+				command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, false);
+				return command;
+			} else if(taskType=='d'){
+				command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, false);
+				return command;
+			} else if(taskType=='f'){
+				command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, false);
+				return command;
+			}
+		}
 		if(!_userInput.equals("")){
-			ModifyCommand command = new ModifyCommand(_userInput.trim(),false);
+			command = new ModifyCommand(_userInput.trim(),false);
 			return command;
 		}else{
 			return null;
@@ -675,7 +756,34 @@ public class Interpreter {
 	 */
 
 	private ModifyCommand parseTag() throws Exception {
+		ModifyCommand command;
+		String regex="-[edf]\\d{1,} {1,}.*";
+		char taskType;
+		int index;
 		ArrayList<String> hashtags = new ArrayList<String>();
+		if(_userInput.matches(regex)){
+			taskType=_userInput.charAt(1);
+			int spaceIndex = _userInput.indexOf(" ");
+			index=Integer.parseInt(_userInput.substring(2, spaceIndex));
+			_userInput = _userInput.substring(spaceIndex).trim();
+			while (!(_userInput.equals(""))) {
+				String hashtag=extractHashtag();
+				if(hashtag.equals("")){
+					break;
+				}
+				hashtags.add(hashtag);
+			}
+			if(taskType=='e'){
+				command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, hashtags, true);
+				return command;
+			} else if(taskType=='d'){
+				command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, hashtags, true);
+				return command;
+			} else if(taskType=='f'){
+				command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, hashtags, true);
+				return command;
+			}
+		}
 		String taskDes=extractTillHashtagOrEnd();
 		if(!taskDes.equals("")) {
 			while (!(_userInput.equals(""))) {
@@ -685,7 +793,7 @@ public class Interpreter {
 				}
 				hashtags.add(hashtag);
 			}
-			ModifyCommand command = new ModifyCommand(taskDes, hashtags, true);
+			command = new ModifyCommand(taskDes, hashtags, true);
 			return command;
 		} else{
 			return null;
@@ -700,7 +808,34 @@ public class Interpreter {
 	 * 
 	 */
 	private ModifyCommand parseUntag() throws Exception {
+		ModifyCommand command;
+		String regex="-[edf]\\d{1,} {1,}.*";
+		char taskType;
+		int index;
 		ArrayList<String> hashtags = new ArrayList<String>();
+		if(_userInput.matches(regex)){
+			taskType=_userInput.charAt(1);
+			int spaceIndex = _userInput.indexOf(" ");
+			index=Integer.parseInt(_userInput.substring(2, spaceIndex));
+			_userInput = _userInput.substring(spaceIndex).trim();
+			while (!(_userInput.equals(""))) {
+				String hashtag=extractHashtag();
+				if(hashtag.equals("")){
+					break;
+				}
+				hashtags.add(hashtag);
+			}
+			if(taskType=='e'){
+				command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, hashtags, false);
+				return command;
+			} else if(taskType=='d'){
+				command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, hashtags, false);
+				return command;
+			} else if(taskType=='f'){
+				command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, hashtags, false);
+				return command;
+			}
+		}
 		String taskDes=extractTillHashtagOrEnd();
 		if(!taskDes.equals("")) {
 			while (!(_userInput.equals(""))) {
@@ -710,7 +845,7 @@ public class Interpreter {
 				}
 				hashtags.add(hashtag);
 			}
-			ModifyCommand command = new ModifyCommand(taskDes, hashtags, false);
+			command = new ModifyCommand(taskDes, hashtags, false);
 			return command;
 		} else{
 			return null;

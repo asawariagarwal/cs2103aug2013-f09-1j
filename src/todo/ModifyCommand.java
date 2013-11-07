@@ -2,6 +2,7 @@ package todo;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.TreeSet;
 
 /**
  * Subclass to encapsulate modify commands
@@ -35,6 +36,7 @@ public class ModifyCommand extends Command {
 	private static final String FEEDBACK_TAG_FAILURE = "%1$s already has tag(s): %2$s";
 	private static final String FEEDBACK_UNTAG_SUCCESS = "removed tags: %1$s from %2$s";
 	private static final String FEEDBACK_UNTAG_FAILURE = "%1$s does not have tag(s): %2$s";
+	private static final String FEEDBACK_BAD_INDEX = "invalid index";
 	
 	private String taskString;
 	private String newTaskString;
@@ -387,6 +389,10 @@ public class ModifyCommand extends Command {
 	protected State execute(State state, State displayState) throws Exception {
 		assert(this.isValid());
 		
+		if (isByIndex) {
+			return executeByIndex(state, displayState);
+		}
+		
 		if (!state.hasTask(taskString)) {
 			return makeErrorState(displayState,
 								  new Feedback(String.format(FEEDBACK_NOT_FOUND, taskString),false));
@@ -415,6 +421,81 @@ public class ModifyCommand extends Command {
 		State s = new State(state);
 		s.setFeedback(feedback);
 		return s;
+	}
+	
+	/**
+	 * Execution by index
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @param displayState
+	 * 			display state of program
+	 * 
+	 * @return state after execution of command
+	 */
+	private State executeByIndex(State state, State displayState) throws Exception {
+		TreeSet<? extends Task> tasks;
+		if (indexType == INDEX_FLOATING) {
+			tasks = displayState.getFloatingTasks();
+		} else if (indexType == INDEX_TIMED) {
+			tasks = displayState.getTimedTasks();
+		} else if (indexType == INDEX_DEADLINE) {
+			tasks = displayState.getDeadlineTasks();
+		} else {
+			throw new Exception();
+		}
+		
+		int i = 1;
+		boolean isFound = false;
+		Task t = null;
+		State newState = new State(state);
+		for (Task task : tasks) {
+			if (i > indexPos) {
+				break;
+			} else if (i == indexPos) {
+				isFound = true;
+				t = task;
+				break;
+			}
+		}
+		if (!isFound) {
+			return makeErrorState(displayState, new Feedback(FEEDBACK_BAD_INDEX, false));
+		}
+		Task cloned = t.clone();
+		if (isChange()) {
+			newState.removeTask(t);
+			newState.addTask(cloned);
+			return executeChange(newState, cloned);
+		} else if (isRescheduleDeadline()) {
+			if (t instanceof DeadlineTask) {
+				newState.removeTask(t);
+				newState.addTask(cloned);
+				return executeRescheduleDeadline(newState, (DeadlineTask) cloned);
+			} else {
+				return makeErrorState(displayState,
+									  new Feedback(String.format(FEEDBACK_NOT_DEADLINE, t.getTaskDescription()),false));
+			}
+		} else if (isRescheduleTimed()) {
+			if (t instanceof TimedTask) {
+				newState.removeTask(t);
+				newState.addTask(cloned);
+				return executeRescheduleTimed(newState, (TimedTask) cloned);
+			} else {
+				return makeErrorState(displayState,
+									  new Feedback(String.format(FEEDBACK_NOT_TIMED, t.getTaskDescription()),false));
+			}
+		} else if (isMark()) {
+			newState.removeTask(t);
+			newState.addTask(cloned);
+			return executeMark(newState, cloned);
+		} else if (isTag()) {
+			newState.removeTask(t);
+			newState.addTask(cloned);
+			return executeTag(newState, cloned);
+		} else {
+			throw new Exception();
+		}		
 	}
 	
 	/**
