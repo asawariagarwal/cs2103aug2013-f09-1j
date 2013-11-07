@@ -4,13 +4,23 @@ import java.awt.AWTException;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
+import java.awt.Rectangle;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
@@ -20,6 +30,9 @@ import java.awt.Color;
 import javax.swing.JPanel;
 
 import java.awt.BorderLayout;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -43,9 +56,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JTextPane;
 import javax.swing.JScrollPane;
+import javax.swing.plaf.metal.MetalScrollBarUI;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
@@ -63,12 +78,146 @@ public class GUI implements ActionListener {
 	private static final String HELP_TEXT_2 = "add\ndelete\nview\nundo\nredo\nchange\nexit";
 	private static final String HELP_TEXT_3 = "\n\nPress ";
 	private static final String HELP_TEXT_4 = "tab ";
-	private static final String HELP_TEXT_5 = "to auto-complete\n\nPress ";
+	private static final String HELP_TEXT_5 = "to \nauto-complete\n\nPress ";
 	private static final String HELP_TEXT_6 = "arrow-up ";
-	private static final String HELP_TEXT_7 = "to cycle\nthrough previous commands\n\nPress ";
+	private static final String HELP_TEXT_7 = "to \ncycle through\nprevious commands\n\nPress ";
 	private static final String HELP_TEXT_8 = "F3 ";
 	private static final String HELP_TEXT_9 = "to minimize\nto/maximize from the\nSystem Tray";
-	
+
+	private static AudioFeedBack audio;
+
+	private static class CustomScrollBar extends MetalScrollBarUI {
+
+		private Image imageThumb, imageTrack;
+		private JButton b = new JButton() {
+
+			@Override
+			public Dimension getPreferredSize() {
+				return new Dimension(0, 0);
+			}
+
+		};
+
+		CustomScrollBar() {
+			imageThumb = ScrollImage.create(32, 32, Color.blue.darker());
+			imageTrack = ScrollImage.create(32, 32, Color.white);
+		}
+
+		@Override
+		protected void paintThumb(Graphics g, JComponent c, Rectangle r) {
+			g.setColor(Color.blue);
+			((Graphics2D) g).drawImage(imageThumb, r.x, r.y, r.width, r.height,
+					null);
+		}
+
+		@Override
+		protected void paintTrack(Graphics g, JComponent c, Rectangle r) {
+			((Graphics2D) g).drawImage(imageTrack, r.x, r.y, r.width, r.height,
+					null);
+		}
+
+		@Override
+		protected JButton createDecreaseButton(int orientation) {
+			return b;
+		}
+
+		@Override
+		protected JButton createIncreaseButton(int orientation) {
+			return b;
+		}
+	}
+
+	private static class ScrollImage {
+
+		static public Image create(int w, int h, Color c) {
+			BufferedImage bi = new BufferedImage(w, h,
+					BufferedImage.TYPE_INT_ARGB);
+			Graphics2D g2d = bi.createGraphics();
+			g2d.setPaint(c);
+			g2d.fillRect(0, 0, w, h);
+			g2d.dispose();
+			return bi;
+		}
+	}
+
+	private final static class AudioFeedBack {
+		/**
+		 * Log messages
+		 */
+		private static final String LOG_FAILURE_AUDIO_PLAYED = "Failure Audio Played";
+		private static final String LOG_SUCCESS_AUDIO_PLAYED = "Success Audio Played";
+		private static final String LOG_AUDIO_FILE_FAILED_TO_OPEN = "Audio file failed to open";
+		private static final String LOG_AUDIO_FAILED_TO_STREAM = "Audio failed to stream";
+		private static final String LOG_AUDIO_SET_UP_HAS_FAILED = "Audio Set Up has failed";
+		private static final String LOG_AUDIO_SET_UP_IS_SUCCESSFUL = "Audio Set Up is successful";
+		private static final String FILE_SRC_SOUND_FAILURE_WAV = "file:./src/sound/beep2.wav";
+		private static final String FILE_SRC_SOUND_SUCCESS_WAV = "file:./src/sound/beep1.wav";
+		
+		/**
+		 * To store clips and URL's to them
+		 */
+		private static Clip _successClip;
+		private static Clip _failureClip;
+		private static URL _urlSuccess;
+		private static URL _urlFailure;
+
+		AudioFeedBack() {
+			try {
+				_urlSuccess = new URL(FILE_SRC_SOUND_SUCCESS_WAV);
+				_successClip = AudioSystem.getClip();
+				_urlFailure = new URL(FILE_SRC_SOUND_FAILURE_WAV);
+				_failureClip = AudioSystem.getClip();
+				GUILogger.log(Level.INFO, LOG_AUDIO_SET_UP_IS_SUCCESSFUL);
+			} catch (MalformedURLException | LineUnavailableException e) {
+				GUILogger.log(Level.WARNING, LOG_AUDIO_SET_UP_HAS_FAILED);
+				e.printStackTrace();
+			}
+			AudioInputStream ais = null;
+			try {
+				ais = AudioSystem.getAudioInputStream(_urlSuccess);
+			} catch (UnsupportedAudioFileException | IOException e) {
+				GUILogger.log(Level.WARNING, LOG_AUDIO_FAILED_TO_STREAM);
+				e.printStackTrace();
+			}
+			try {
+				_successClip.open(ais);
+			} catch (LineUnavailableException e) {
+				GUILogger.log(Level.WARNING, LOG_AUDIO_FILE_FAILED_TO_OPEN);
+				e.printStackTrace();
+			} catch (IOException e) {
+				GUILogger.log(Level.WARNING, LOG_AUDIO_FILE_FAILED_TO_OPEN);
+				e.printStackTrace();
+			}
+
+			ais = null;
+			try {
+				ais = AudioSystem.getAudioInputStream(_urlFailure);
+			} catch (UnsupportedAudioFileException | IOException e) {
+				e.printStackTrace();
+			}
+			try {
+				_failureClip.open(ais);
+			} catch (LineUnavailableException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		protected void playSuccess() {
+			_successClip.setFramePosition(_successClip.getFrameLength());
+			_successClip.loop(1);
+			GUILogger.log(Level.INFO, LOG_SUCCESS_AUDIO_PLAYED);
+		}
+
+		protected void playFailure() {
+			_failureClip.setFramePosition(_failureClip.getFrameLength());
+			_failureClip.loop(1);
+			GUILogger.log(Level.INFO, LOG_FAILURE_AUDIO_PLAYED);
+		}
+
+	}
+
 	private final class InputProcessor extends KeyAdapter {
 		
 		boolean altPressed = false;
@@ -86,44 +235,45 @@ public class GUI implements ActionListener {
 						min = true;
 					}
 				} else {
-					String input = UserInputField.getText();
+				String input = _userInputField.getText();
 					if (input.equals("exit")) {
 						System.exit(0);
 					} else if (input.trim().equals("help")) {
 						_helpPane.setText("");
 						updateHelpPane();
-						UserInputField.setText("");
+					_userInputField.setText("");
 					} else {
 						_helpPane.setText("");
-						appendToPane(_helpPane, HELP_PROMPT, headerAttributes);
-		
+					appendToPane(_helpPane, HELP_PROMPT, _headerAttributes);
+
 						_displayState = _handler.handleInput(input);
-						UserInputField.setText("");
+					_userInputField.setText("");
 						_autoComplete.updateState(_handler.getCurrentState());
-						previousInputs.add(input);
+					_previousInputs.add(input);
 						UP_KEYPRESS_COUNTER = 1;
 						updateTaskFields();
 						updateFeedbackPane();
+					playAudioFeedback();
 					}
 				}
 			}
 			if (e.getKeyCode() == KeyEvent.VK_UP) {
 				GUILogger.log(Level.INFO, "Up key pressed");
-				if (previousInputs.size() - UP_KEYPRESS_COUNTER >= 0) {
-					UserInputField.setText(previousInputs.get(previousInputs
+				if (_previousInputs.size() - UP_KEYPRESS_COUNTER >= 0) {
+					_userInputField.setText(_previousInputs.get(_previousInputs
 							.size()
 							- UP_KEYPRESS_COUNTER++));
 				} else {
 					UP_KEYPRESS_COUNTER = 1;
-					UserInputField.setText(previousInputs.get(previousInputs
+					_userInputField.setText(_previousInputs.get(_previousInputs
 							.size()
 							- UP_KEYPRESS_COUNTER++));
 				}
 			}
 			if (e.getKeyCode() == KeyEvent.VK_TAB) {
 				GUILogger.log(Level.INFO, "Tab key pressed");
-				String current = UserInputField.getText();
-				UserInputField.setText(_autoComplete.getSuggestion(current));
+				String current = _userInputField.getText();
+				_userInputField.setText(_autoComplete.getSuggestion(current));
 			}
 			if (e.getKeyCode() == KeyEvent.VK_ALT) {
 				GUILogger.log(Level.INFO, "Alt key pressed");
@@ -167,35 +317,37 @@ public class GUI implements ActionListener {
 	private JFrame frmTodo;
 	private static JTextPane _currentDateTimeArea;
 	private static JTextPane _helpPane;
-	private static JPanel NotificationsArea;
-	private Timer timer;
-	private JTextField UserInputField;
-	private JTextField PromptSymbol;
-	private JPanel UserInputArea;
-	private JPanel UserPromptArea;
-	private JTextPane TimedTaskView;
-	private JTextPane DeadlineTaskView;
-	private JTextPane FloatingTaskView;
-	private JTextPane FeedbackPane;
-	private JPanel MainViewArea;
+	private static JPanel _notificationsArea;
+	private Timer _timer;
+	private JTextField _userInputField;
+	private JTextField _promptSymbol;
+	private JPanel _userInputArea;
+	private JPanel _userPromptArea;
+	private JTextPane _timedTaskView;
+	private JTextPane _deadlineTaskView;
+	private JTextPane _floatingTaskView;
+	private JTextPane _feedbackPane;
+	private JPanel _mainViewArea;
 	private JScrollPane TaskScrollPane;
-	private ArrayList<String> previousInputs;
-	private SystemTray systemTray;
-	private Image trayImage;
-	private PopupMenu menu;
-	private TrayIcon trayIcon;
+	private ArrayList<String> _previousInputs;
+	private SystemTray _systemTray;
+	private Image _trayImage;
+	private PopupMenu _menu;
+	private TrayIcon _trayIcon;
 	private static CommandHandler _handler;
 	private static State _displayState;
 	private static Suggestor _autoComplete;
 	private static int UP_KEYPRESS_COUNTER;
-	private JHotKeys shortcutKey;
-	private SimpleAttributeSet headerAttributes;
-	private SimpleAttributeSet bodyAttributes;
-	private SimpleAttributeSet tagAttributes;
-	private SimpleAttributeSet feedbackTextAttributes;
+	private JHotKeys _shortcutKey;
+	private SimpleAttributeSet _headerAttributes;
+	private SimpleAttributeSet _bodyAttributes;
+	private SimpleAttributeSet _tagAttributes;
+	private SimpleAttributeSet _feedbackTextAttributes;
 	private static boolean min = true;
 
 	private String HELP_PROMPT = "\nFeeling Lost?\nTry keying in 'help'";
+	private SimpleAttributeSet completedAttributes;
+	private SimpleAttributeSet expiredAttributes;
 
 	protected static Logger GUILogger = Logger.getLogger("GUILogger");
 
@@ -208,7 +360,7 @@ public class GUI implements ActionListener {
 			public void run() {
 				try {
 					GUI window = new GUI();
-					window.frmTodo.setVisible(true);
+					window._frmTodo.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -236,9 +388,9 @@ public class GUI implements ActionListener {
 		} finally {
 			initialize();
 			UP_KEYPRESS_COUNTER = 1;
-			previousInputs = new ArrayList<String>();
-			timer = new Timer(1000, this);
-			timer.start();
+			_previousInputs = new ArrayList<String>();
+			_timer = new Timer(1000, this);
+			_timer.start();
 		}
 	}
 
@@ -281,24 +433,44 @@ public class GUI implements ActionListener {
 		deactivateMinMode();
 		
 		activateMinMode();
+
+		initAudioFeedBack();
+	}
+
+	private void initAudioFeedBack() {
+		audio = new AudioFeedBack();
+	}
+
+	private void playAudioFeedback() {
+		if (audio == null) {
+			return;
+		}
+
+		if (_displayState.getFeedback().trim().substring(0, 15)
+				.equalsIgnoreCase("Invalid Command")) {
+			audio.playFailure();
+		} else {
+			audio.playSuccess();
+		}
 	}
 
 	private void initHelpPane() {
 		_helpPane = new JTextPane();
 		_helpPane.setBackground(Color.BLACK);
 		_helpPane.setFont(new Font("Consolas", Font.PLAIN, 17));
-		appendToPane(_helpPane, HELP_PROMPT, headerAttributes);
-		NotificationsArea.add(_helpPane, BorderLayout.CENTER);
+		_helpPane.setEditable(false);
+		appendToPane(_helpPane, HELP_PROMPT, _headerAttributes);
+		_notificationsArea.add(_helpPane, BorderLayout.CENTER);
 	}
 
 	private void setUpShortcutKey() {
 		GUILogger.log(Level.INFO, "Shortcut Key Being Initialized");
-		shortcutKey = new JHotKeys("./lib");
+		_shortcutKey = new JHotKeys("./lib");
 		if (System.getProperty("os.name").contains("Windows")) {
 			GUILogger.log(Level.INFO, "Windows Detected");
 			JIntellitype.setLibraryLocation("./lib/windows/JIntellitype.dll");
 			try {
-				shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
+				_shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
 			} catch (Exception e) {
 				GUILogger.log(Level.INFO,
 						"Attempting to use 64 bit dll as 32 bit failed.");
@@ -308,67 +480,67 @@ public class GUI implements ActionListener {
 						.setLibraryLocation("./lib/windows/JIntellitype64.dll");
 			}
 		}
-		shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
+		_shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
 		JHotKeyListener hotkeyListener = new JHotKeyListener() {
 			@Override
 			public void onHotKey(int id) {
 				GUILogger.log(Level.INFO, "Shortcut Trigerred");
 				if (id == 0) {
-					if (frmTodo.isShowing() == true) {
-						frmTodo.dispose();
+					if (_frmTodo.isShowing() == true) {
+						_frmTodo.dispose();
 					} else {
-						frmTodo.setVisible(true);
+						_frmTodo.setVisible(true);
 					}
 				}
 			}
 		};
-		shortcutKey.addHotKeyListener(hotkeyListener);
+		_shortcutKey.addHotKeyListener(hotkeyListener);
 	}
 
 	private void assignFocusToInput() {
-		frmTodo.addWindowFocusListener(new WindowAdapter() {
+		_frmTodo.addWindowFocusListener(new WindowAdapter() {
 			@Override
 			public void windowGainedFocus(WindowEvent e) {
-				UserInputField.requestFocusInWindow();
+				_userInputField.requestFocusInWindow();
 			}
 		});
 	}
 
 	private void updateFeedbackPane() {
-		FeedbackPane.setText(_displayState.getFeedback());
-		UserInputArea.add(FeedbackPane);
+		_feedbackPane.setText(_displayState.getFeedback());
+		_userInputArea.add(_feedbackPane);
 	}
-	
+
 	private void updateHelpPane() {
-		appendToPane(_helpPane, HELP_TEXT_1, headerAttributes);
-		appendToPane(_helpPane, HELP_TEXT_2, feedbackTextAttributes);
-		appendToPane(_helpPane, HELP_TEXT_3, headerAttributes);
-		appendToPane(_helpPane, HELP_TEXT_4, feedbackTextAttributes);
-		appendToPane(_helpPane, HELP_TEXT_5, headerAttributes);
-		appendToPane(_helpPane, HELP_TEXT_6, feedbackTextAttributes);
-		appendToPane(_helpPane, HELP_TEXT_7, headerAttributes);
-		appendToPane(_helpPane, HELP_TEXT_8, feedbackTextAttributes);
-		appendToPane(_helpPane, HELP_TEXT_9, headerAttributes);
+		appendToPane(_helpPane, HELP_TEXT_1, _headerAttributes);
+		appendToPane(_helpPane, HELP_TEXT_2, _feedbackTextAttributes);
+		appendToPane(_helpPane, HELP_TEXT_3, _headerAttributes);
+		appendToPane(_helpPane, HELP_TEXT_4, _feedbackTextAttributes);
+		appendToPane(_helpPane, HELP_TEXT_5, _headerAttributes);
+		appendToPane(_helpPane, HELP_TEXT_6, _feedbackTextAttributes);
+		appendToPane(_helpPane, HELP_TEXT_7, _headerAttributes);
+		appendToPane(_helpPane, HELP_TEXT_8, _feedbackTextAttributes);
+		appendToPane(_helpPane, HELP_TEXT_9, _headerAttributes);
 	}
-	
+
 	private void updateSystemTray() {
 		GUILogger.log(Level.INFO, "Attempting to enable systray support");
 		if (SystemTray.isSupported()) {
-			systemTray = SystemTray.getSystemTray();
+			_systemTray = SystemTray.getSystemTray();
 
-			trayImage = Toolkit.getDefaultToolkit().getImage(
+			_trayImage = Toolkit.getDefaultToolkit().getImage(
 					"./src/img/Two.jpg");
 
-			menu = new PopupMenu();
+			_menu = new PopupMenu();
 
 			MenuItem pullUpItem = new MenuItem("Pull Up");
 			pullUpItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					frmTodo.setVisible(true);
+					_frmTodo.setVisible(true);
 				}
 			});
-			menu.add(pullUpItem);
+			_menu.add(pullUpItem);
 
 			MenuItem exitItem = new MenuItem("Exit");
 			exitItem.addActionListener(new ActionListener() {
@@ -377,20 +549,20 @@ public class GUI implements ActionListener {
 					System.exit(0);
 				}
 			});
-			menu.add(exitItem);
+			_menu.add(exitItem);
 
-			trayIcon = new TrayIcon(trayImage, "ToDo", menu);
-			trayIcon.setImageAutoSize(true);
+			_trayIcon = new TrayIcon(_trayImage, "ToDo", _menu);
+			_trayIcon.setImageAutoSize(true);
 
-			trayIcon.addMouseListener(new MouseAdapter() {
+			_trayIcon.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent arg0) {
-					frmTodo.setVisible(true);
+					_frmTodo.setVisible(true);
 				}
 			});
 
 			try {
-				systemTray.add(trayIcon);
+				_systemTray.add(_trayIcon);
 			} catch (AWTException e) {
 				GUILogger.log(Level.SEVERE,
 						"Systray enable failed for unknown reason");
@@ -402,62 +574,62 @@ public class GUI implements ActionListener {
 	}
 
 	private void initUserInputArea() {
-		UserInputArea = new JPanel();
-		frmTodo.getContentPane().add(UserInputArea, BorderLayout.SOUTH);
-		UserInputArea.setLayout(new BorderLayout(0, 0));
+		_userInputArea = new JPanel();
+		_frmTodo.getContentPane().add(_userInputArea, BorderLayout.SOUTH);
+		_userInputArea.setLayout(new BorderLayout(0, 0));
 		initUserPromptArea();
 		initPromptSymbol();
 		initPromptInputField();
 	}
 
 	private void initUserPromptArea() {
-		UserPromptArea = new JPanel();
-		UserPromptArea.setLayout(new BorderLayout(0, 0));
-		UserInputArea.add(UserPromptArea, BorderLayout.SOUTH);
+		_userPromptArea = new JPanel();
+		_userPromptArea.setLayout(new BorderLayout(0, 0));
+		_userInputArea.add(_userPromptArea, BorderLayout.SOUTH);
 
 	}
 
 	private void initPromptInputField() {
-		UserInputField = new JTextField();
-		UserInputField.addKeyListener(new InputProcessor());
-		UserInputField.setCaretColor(Color.WHITE);
-		UserInputField.setFocusTraversalKeysEnabled(false);
-		UserInputField.addFocusListener(new FocusAdapter() {
+		_userInputField = new JTextField();
+		_userInputField.addKeyListener(new InputProcessor());
+		_userInputField.setCaretColor(Color.WHITE);
+		_userInputField.setFocusTraversalKeysEnabled(false);
+		_userInputField.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
-				UserInputField.setText("");
+				_userInputField.setText("");
 			}
 		});
-		UserPromptArea.add(UserInputField, BorderLayout.CENTER);
-		UserInputField
+		_userPromptArea.add(_userInputField, BorderLayout.CENTER);
+		_userInputField
 				.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
-		UserInputField.setBorder(null);
-		UserInputField.setForeground(Color.WHITE);
-		UserInputField.setBackground(new Color(0, 0, 0));
-		UserInputField.setText("Start Typing Here....");
-		UserInputField.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
-		UserInputField.setSize(20, 1);
-		UserInputField.requestFocusInWindow();
+		_userInputField.setBorder(null);
+		_userInputField.setForeground(Color.WHITE);
+		_userInputField.setBackground(new Color(0, 0, 0));
+		_userInputField.setText("Start Typing Here....");
+		_userInputField.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
+		_userInputField.setSize(20, 1);
+		_userInputField.requestFocusInWindow();
 	}
 
 	private void initPromptSymbol() {
-		PromptSymbol = new JTextField();
-		UserPromptArea.add(PromptSymbol, BorderLayout.WEST);
-		PromptSymbol.setEditable(false);
-		PromptSymbol.setText(">");
-		PromptSymbol.setForeground(Color.WHITE);
-		PromptSymbol.setFont(new Font("Courier New", Font.PLAIN, 20));
-		PromptSymbol.setColumns(1);
-		PromptSymbol.setBorder(null);
-		PromptSymbol.setBackground(Color.BLACK);
-		PromptSymbol.setText(">");
+		_promptSymbol = new JTextField();
+		_userPromptArea.add(_promptSymbol, BorderLayout.WEST);
+		_promptSymbol.setEditable(false);
+		_promptSymbol.setText(">");
+		_promptSymbol.setForeground(Color.WHITE);
+		_promptSymbol.setFont(new Font("Courier New", Font.PLAIN, 20));
+		_promptSymbol.setColumns(1);
+		_promptSymbol.setBorder(null);
+		_promptSymbol.setBackground(Color.BLACK);
+		_promptSymbol.setText(">");
 	}
 
 	private void initNotificationsArea() {
-		NotificationsArea = new JPanel();
-		NotificationsArea.setBackground(new Color(0, 0, 0));
-		frmTodo.getContentPane().add(NotificationsArea, BorderLayout.EAST);
-		NotificationsArea.setLayout(new BorderLayout(0, 0));
+		_notificationsArea = new JPanel();
+		_notificationsArea.setBackground(new Color(0, 0, 0));
+		_frmTodo.getContentPane().add(_notificationsArea, BorderLayout.EAST);
+		_notificationsArea.setLayout(new BorderLayout(0, 0));
 	}
 
 	private void initDateTimeArea() {
@@ -469,79 +641,80 @@ public class GUI implements ActionListener {
 
 		_currentDateTimeArea.setEditable(false);
 
-		NotificationsArea.add(_currentDateTimeArea, BorderLayout.NORTH);
+		_notificationsArea.add(_currentDateTimeArea, BorderLayout.NORTH);
 	}
 
 	private void initFloatingTaskView() {
-		FloatingTaskView = new JTextPane();
-		FloatingTaskView.setEditable(false);
-		FloatingTaskView.setForeground(Color.WHITE);
-		FloatingTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
-		FloatingTaskView.setBackground(Color.BLACK);
-		FloatingTaskView.setAutoscrolls(false);
+		_floatingTaskView = new JTextPane();
+		_floatingTaskView.setEditable(false);
+		_floatingTaskView.setForeground(Color.WHITE);
+		_floatingTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
+		_floatingTaskView.setBackground(Color.BLACK);
+		_floatingTaskView.setAutoscrolls(false);
 	}
 
 	private void initDeadlineTaskView() {
-		DeadlineTaskView = new JTextPane();
-		DeadlineTaskView.setEditable(false);
-		DeadlineTaskView.setForeground(Color.WHITE);
-		DeadlineTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
-		DeadlineTaskView.setBackground(Color.BLACK);
-		DeadlineTaskView.setAutoscrolls(false);
+		_deadlineTaskView = new JTextPane();
+		_deadlineTaskView.setEditable(false);
+		_deadlineTaskView.setForeground(Color.WHITE);
+		_deadlineTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
+		_deadlineTaskView.setBackground(Color.BLACK);
+		_deadlineTaskView.setAutoscrolls(false);
 
 	}
 
 	private void initTimedTaskView() {
-		TimedTaskView = new JTextPane();
-		TimedTaskView.setEditable(false);
-		TimedTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
-		TimedTaskView.setForeground(Color.WHITE);
-		TimedTaskView.setBackground(new Color(0, 0, 0));
-		TimedTaskView.setAutoscrolls(false);
+		_timedTaskView = new JTextPane();
+		_timedTaskView.setEditable(false);
+		_timedTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
+		_timedTaskView.setForeground(Color.WHITE);
+		_timedTaskView.setBackground(new Color(0, 0, 0));
+		_timedTaskView.setAutoscrolls(false);
 	}
 
 	private void initFeedbackPane() {
-		FeedbackPane = new JTextPane();
-		FeedbackPane.setForeground(Color.YELLOW);
-		FeedbackPane.setBackground(new Color(0, 0, 0));
-		FeedbackPane.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
-		FeedbackPane.setEditable(false);
-		FeedbackPane.setDisabledTextColor(Color.BLUE);
+		_feedbackPane = new JTextPane();
+		_feedbackPane.setForeground(Color.YELLOW);
+		_feedbackPane.setBackground(new Color(0, 0, 0));
+		_feedbackPane.setFont(new Font(FONT_NAME, Font.PLAIN, 30));
+		_feedbackPane.setEditable(false);
+		_feedbackPane.setDisabledTextColor(Color.BLUE);
 		if (!_displayState.getFeedback().equals("")) {
-			FeedbackPane.setText(_displayState.getFeedback());
+			_feedbackPane.setText(_displayState.getFeedback());
 		}
-		UserInputArea.add(FeedbackPane, BorderLayout.CENTER);
+		_userInputArea.add(_feedbackPane, BorderLayout.CENTER);
 	}
 
 	private void initMainViewArea() {
-		MainViewArea = new JPanel();
-		MainViewArea.setForeground(Color.GREEN);
-		MainViewArea.setBackground(new Color(0, 0, 0));
+		_mainViewArea = new JPanel();
+		_mainViewArea.setForeground(Color.GREEN);
+		_mainViewArea.setBackground(new Color(0, 0, 0));
 
-		TaskScrollPane = new JScrollPane(MainViewArea);
+		TaskScrollPane = new JScrollPane(_mainViewArea);
 		TaskScrollPane.setBorder(null);
 		TaskScrollPane.setViewportBorder(null);
 		TaskScrollPane
 				.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-		TaskScrollPane.setViewportView(MainViewArea);
+		TaskScrollPane.setViewportView(_mainViewArea);
+		TaskScrollPane.getVerticalScrollBar().setUI(new CustomScrollBar());
 
-		frmTodo.getContentPane().add(TaskScrollPane, BorderLayout.CENTER);
-		MainViewArea.setLayout(new GridLayout(0, 1, 0, 0));
+		_frmTodo.getContentPane().add(TaskScrollPane, BorderLayout.CENTER);
+		_mainViewArea.setLayout(new GridLayout(0, 1, 0, 0));
 	}
 
 	private void initMainWindow() {
 		JFrame.setDefaultLookAndFeelDecorated(true);
-		frmTodo = new JFrame();
-		frmTodo.setIconImage(trayImage);
-		frmTodo.getContentPane().setForeground(new Color(0, 0, 0));
-		frmTodo.getContentPane().setBackground(new Color(0, 0, 0));
-		frmTodo.getContentPane().setLayout(new BorderLayout(0, 0));
-		frmTodo.setTitle("ToDo");
-		frmTodo.setBounds(1100, 0, 800, 850);
-		frmTodo.setLocationRelativeTo(null);
+		_frmTodo = new JFrame();
+		_frmTodo.setIconImage(_trayImage);
+		_frmTodo.getContentPane().setForeground(new Color(0, 0, 0));
+		_frmTodo.getContentPane().setBackground(new Color(0, 0, 0));
+		_frmTodo.getContentPane().setLayout(new BorderLayout(0, 0));
+		_frmTodo.setTitle("ToDo");
+		_frmTodo.setBounds(1100, 0, 800, 850);
+		_frmTodo.setLocationRelativeTo(null);
 		// frmTodo.setLocationByPlatform(true);
-		frmTodo.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-		frmTodo.setExtendedState(Frame.MAXIMIZED_BOTH);
+		_frmTodo.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+		_frmTodo.setExtendedState(Frame.MAXIMIZED_BOTH);
 	}
 
 	private void updateTaskFields() {
@@ -584,7 +757,7 @@ public class GUI implements ActionListener {
 		StyleConstants.setFontFamily(attributes, FONT_NAME);
 		return attributes;
 	}
-	
+
 	private SimpleAttributeSet getFeedbackAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, Color.YELLOW);
@@ -592,109 +765,161 @@ public class GUI implements ActionListener {
 		StyleConstants.setFontFamily(attributes, FONT_NAME);
 		return attributes;
 	}
-	
+
+	private SimpleAttributeSet getExpiredAttributeSet() {
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributes, Color.RED);
+		StyleConstants.setBackground(attributes, Color.BLACK);
+		StyleConstants.setFontFamily(attributes, FONT_NAME);
+		return attributes;
+	}
+
+	private SimpleAttributeSet getCompletedAttributeSet() {
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributes, Color.GREEN);
+		StyleConstants.setBackground(attributes, Color.BLACK);
+		StyleConstants.setFontFamily(attributes, FONT_NAME);
+		return attributes;
+	}
+
 	private void setUpAttributes() {
 
-		headerAttributes = getHeadingAttributeSet();
-		bodyAttributes = getBodyAttributeSet();
-		tagAttributes = getTagAttributeSet();
-		feedbackTextAttributes = getFeedbackAttributeSet();
+		_headerAttributes = getHeadingAttributeSet();
+		_bodyAttributes = getBodyAttributeSet();
+		_tagAttributes = getTagAttributeSet();
+		_feedbackTextAttributes = getFeedbackAttributeSet();
+		completedAttributes = getCompletedAttributeSet();
+		expiredAttributes = getExpiredAttributeSet();
 	}
 
 	private void updateTimedTaskField() {
 		if (!_displayState.getTimedTasks().isEmpty()) {
 
-			TimedTaskView.setText("");
+			_timedTaskView.setText("");
 
-			appendToPane(TimedTaskView, "Events :\n\n", headerAttributes);
+			appendToPane(_timedTaskView, "Events :\n\n", _headerAttributes);
 			String timedTaskText = "";
 			String taskTags = "";
-
+			String taskStart = "";
+			String taskEnd = "";
+			String taskNum = "";
 			int index = 0;
 			for (TimedTask task : _displayState.getTimedTasks()) {
 				taskTags = "";
 				timedTaskText = "";
-				timedTaskText += ("\t" + (++index) + ". "
-						+ task.getTaskDescription() + "\t");
-				appendToPane(TimedTaskView, timedTaskText, bodyAttributes);
+				taskNum = "\t" + ++index + ". ";
+				timedTaskText += task.getTaskDescription() + "\t";
 
 				taskTags = task.getTagString() + "\n";
-				appendToPane(TimedTaskView, taskTags, tagAttributes);
+				taskStart = task.getStartString();
+				taskEnd = task.getEndString();
 
-				appendToPane(TimedTaskView, "\t\tfrom: ", tagAttributes);
-				appendToPane(TimedTaskView, task.getStartString() + "\n",
-						bodyAttributes);
+				appendToPane(_timedTaskView, taskNum, _bodyAttributes);
 
-				appendToPane(TimedTaskView, "\t\tto:   ", tagAttributes);
-				appendToPane(TimedTaskView, task.getEndString() + "\n",
-						bodyAttributes);
+				if (task.isComplete()) {
+					appendToPane(_timedTaskView, timedTaskText,
+							completedAttributes);
+				} else if (task.isExpired()) {
+					appendToPane(_timedTaskView, timedTaskText,
+							expiredAttributes);
+				} else {
+					appendToPane(_timedTaskView, timedTaskText, _bodyAttributes);
+				}
+
+				appendToPane(_timedTaskView, taskTags, _tagAttributes);
+
+				appendToPane(_timedTaskView, "\t\tfrom: ", _tagAttributes);
+				appendToPane(_timedTaskView, taskStart + "\n", _bodyAttributes);
+
+				appendToPane(_timedTaskView, "\t\tto:   ", _tagAttributes);
+				appendToPane(_timedTaskView, taskEnd + "\n", _bodyAttributes);
 			}
 
-			MainViewArea.add(TimedTaskView);
+			_mainViewArea.add(_timedTaskView);
 		} else if (_displayState.getTimedTasks().isEmpty()) {
-			MainViewArea.remove(TimedTaskView);
-			TimedTaskView.setText("");
+			_mainViewArea.remove(_timedTaskView);
+			_timedTaskView.setText("");
 		}
 	}
 
 	private void updateDeadlineTaskField() {
 		if (!_displayState.getDeadlineTasks().isEmpty()) {
 
-			DeadlineTaskView.setText("");
+			_deadlineTaskView.setText("");
 
-			appendToPane(DeadlineTaskView, "Deadlines :\n\n", headerAttributes);
+			appendToPane(_deadlineTaskView, "Deadlines :\n\n", _headerAttributes);
 			String deadlineTaskText = "";
 			String taskTags = "";
+			String taskDeadline = "";
+			String taskNum = "";
 
 			int index = 0;
 			for (DeadlineTask task : _displayState.getDeadlineTasks()) {
 				taskTags = "";
 				deadlineTaskText = "";
-
-				deadlineTaskText += ("\t" + (++index) + ". "
-						+ task.getTaskDescription() + "\t");
-				appendToPane(DeadlineTaskView, deadlineTaskText, bodyAttributes);
-
+				taskNum = "\t" + (++index) + ". ";
 				taskTags = task.getTagString() + "\n";
-				appendToPane(DeadlineTaskView, taskTags, tagAttributes);
+				taskDeadline = task.getDeadlineString();
 
-				appendToPane(DeadlineTaskView, "\t\tby:   ", tagAttributes);
-				appendToPane(DeadlineTaskView, task.getDeadlineString() + "\n",
-						bodyAttributes);
+				deadlineTaskText += task.getTaskDescription() + "\t";
+				appendToPane(_deadlineTaskView, taskNum, _bodyAttributes);
+
+				if (task.isComplete()) {
+					appendToPane(_deadlineTaskView, deadlineTaskText,
+							completedAttributes);
+				} else if (task.isExpired()) {
+					appendToPane(_deadlineTaskView, deadlineTaskText,
+							expiredAttributes);
+				} else {
+					appendToPane(_deadlineTaskView, deadlineTaskText,
+							_bodyAttributes);
+				}
+
+				appendToPane(_deadlineTaskView, taskTags, _tagAttributes);
+
+				appendToPane(_deadlineTaskView, "\t\tby:   ", _tagAttributes);
+				appendToPane(_deadlineTaskView, taskDeadline + "\n",
+						_bodyAttributes);
 			}
 
-			MainViewArea.add(DeadlineTaskView);
+			_mainViewArea.add(_deadlineTaskView);
 		} else if (_displayState.getDeadlineTasks().isEmpty()) {
-			MainViewArea.remove(DeadlineTaskView);
-			DeadlineTaskView.setText("");
+			_mainViewArea.remove(_deadlineTaskView);
+			_deadlineTaskView.setText("");
 		}
 	}
 
 	private void updateFloatingTaskField() {
 		if (!_displayState.getFloatingTasks().isEmpty()) {
-			FloatingTaskView.setText("");
+			_floatingTaskView.setText("");
 
-			appendToPane(FloatingTaskView, "Flexible Tasks :\n\n",
-					headerAttributes);
+			appendToPane(_floatingTaskView, "Flexible Tasks :\n\n",
+					_headerAttributes);
 			String floatingTaskText = "";
 			String taskTags = "";
+			String taskNum = "";
 			int index = 0;
 			for (FloatingTask task : _displayState.getFloatingTasks()) {
 				taskTags = "";
 				floatingTaskText = "";
-
-				floatingTaskText += ("\t" + (++index) + ". "
-						+ task.getTaskDescription() + "\t");
-				appendToPane(FloatingTaskView, floatingTaskText, bodyAttributes);
-
+				taskNum = "\t" + (++index) + ". ";
+				floatingTaskText += task.getTaskDescription() + "\t";
+				appendToPane(_floatingTaskView, taskNum, _bodyAttributes);
+				if (task.isComplete()) {
+					appendToPane(_floatingTaskView, floatingTaskText,
+							completedAttributes);
+				} else {
+					appendToPane(_floatingTaskView, floatingTaskText,
+							_bodyAttributes);
+				}
 				taskTags = task.getTagString() + "\n";
-				appendToPane(FloatingTaskView, taskTags, tagAttributes);
+				appendToPane(_floatingTaskView, taskTags, _tagAttributes);
 			}
 
-			MainViewArea.add(FloatingTaskView);
+			_mainViewArea.add(_floatingTaskView);
 		} else if (_displayState.getFloatingTasks().isEmpty()) {
-			MainViewArea.remove(FloatingTaskView);
-			FloatingTaskView.setText("");
+			_mainViewArea.remove(_floatingTaskView);
+			_floatingTaskView.setText("");
 		}
 	}
 

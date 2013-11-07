@@ -35,7 +35,19 @@ class TimedTask extends Task implements Comparable<TimedTask> {
 		_startDate = startDate;
 		_endDate = endDate;
 	}
-
+	
+	/* (non-Javadoc)
+	 * @see todo.Task#isExpired()
+	 */
+	protected boolean isExpired() {
+		Calendar currentTime = Calendar.getInstance();
+		
+		if(currentTime.getTimeInMillis() > this.getEndDate().getTimeInMillis() || this.getEndDate().getTimeInMillis() < this.getStartDate().getTimeInMillis()) {
+			return true;
+		}
+		
+		return false;
+	}
 	/**
 	 * Routine to set the start date of a Task
 	 * 
