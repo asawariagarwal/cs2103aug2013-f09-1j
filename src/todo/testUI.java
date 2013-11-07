@@ -74,7 +74,7 @@ public class testUI implements ActionListener {
 	public testUI() {
 		_handler = new CommandHandler();
 		_displayState = new State();
-		_displayState.setFeedback("Corrupted Previous State");
+		_displayState.setFeedback(new Feedback("Corrupted Previous State",false));
 		try {
 			_displayState = _handler.getCurrentState();
 		} catch (Exception e) {
@@ -158,7 +158,7 @@ public class testUI implements ActionListener {
 
 					_displayState = _handler.handleInput(input);
 					UserInputField.setText("");
-					FeedbackPane.setText(_displayState.getFeedback());
+					FeedbackPane.setText(_displayState.getFeedback().getDisplay());
 					previousInputs.add(input);
 					UP_KEYPRESS_COUNTER = 1;
 					updateTaskFields();
@@ -244,7 +244,7 @@ public class testUI implements ActionListener {
 		FeedbackPane.setEditable(false);
 		FeedbackPane.setDisabledTextColor(Color.BLUE);
 		if (!_displayState.getFeedback().equals("")) {
-			FeedbackPane.setText(_displayState.getFeedback());
+			FeedbackPane.setText(_displayState.getFeedback().getDisplay());
 		}
 		MainViewArea.add(FeedbackPane);
 	}

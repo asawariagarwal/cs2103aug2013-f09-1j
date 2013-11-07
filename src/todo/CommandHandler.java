@@ -74,14 +74,14 @@ class CommandHandler {
 			try {
 				newState = command.execute(getCurrentState(), getDisplayState());
 			} catch (Exception e) {
-				return makeInvalidState("Error encountered executing command");
+				return makeInvalidState(new Feedback("Error encountered executing command",false));
 			}
 			if (command.isMutator()) {
 				handleMutator(command, newState);
 			}
 			return newState;
 		} else {
-			return makeInvalidState("Invalid command");
+			return makeInvalidState(new Feedback("Invalid command",false));
 		}
 	}
 	
@@ -141,7 +141,7 @@ class CommandHandler {
 	 * 
 	 * @return an invalid State
 	 */
-	protected State makeInvalidState(String feedback) {
+	protected State makeInvalidState(Feedback feedback) {
 		State s = new State(getCurrentState());
 		s.setFeedback(feedback);
 		return s;
@@ -179,7 +179,7 @@ class CommandHandler {
 			initState = store.readStore();
 			return initState;
 		} catch (Exception e) {
-			initState.setFeedback("Corrupted Previous State");
+			initState.setFeedback(new Feedback("Corrupted Previous State",false));
 			return initState;
 		}
 	}	

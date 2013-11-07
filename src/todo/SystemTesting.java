@@ -34,7 +34,7 @@ public void SetUp(){
 		
 		//Checks whether the feedback send to the GUI is correct 
 		State displayState  = handler.handleInput("add complete V0.3 by 05/10/2013 #CS2103");
-		String feedback = displayState.getFeedback();
+		String feedback = displayState.getFeedback().getDisplay();
 		assertEquals("added new deadline task: complete V0.3", feedback);
 		
 		//Checks whether the task description stored in the state is correct
@@ -63,7 +63,7 @@ public void SetUp(){
 		
 		//Checks whether the feedback send to the GUi is correct 
 		State displayState2  = handler.handleInput("add read a book #hobby #interest ");
-		String feedback = displayState2.getFeedback();
+		String feedback = displayState2.getFeedback().getDisplay();
 		assertEquals("added new floating task: read a book", feedback);
 		
 		//Checks whether the task description stored in the state is correct
@@ -76,9 +76,10 @@ public void SetUp(){
 		
 		String hashtag2 = displayState2.getFloatingTasks().last().getTags().get(1);
 		assertEquals("interest",hashtag2);
-		
-		
+			
 	}
+	
+	
 	
 	//Test to check if adding of a timed task works
 	@Test 
@@ -86,7 +87,7 @@ public void SetUp(){
 		
 		//Checks whether the feedback send to the GUi is correct 
 		State displayState3  =handler.handleInput("add attend seminar from 2/12/2013 to 5/12/2013 #work");
-		String feedback = displayState3.getFeedback();
+		String feedback = displayState3.getFeedback().getDisplay();
 		assertEquals("added new timed task: attend seminar", feedback);
 		
 		//Checks whether the task description stored in the state is correct
@@ -121,7 +122,7 @@ public void SetUp(){
 	public void deleteInvalidTask(){
 		
 		State displayState3  = handler.handleInput("delete nosuchtask");
-		String feedback = displayState3.getFeedback();
+		String feedback = displayState3.getFeedback().getDisplay();
 		assertEquals("no tasks containing nosuchtask can be found", feedback);
 		
 	}
