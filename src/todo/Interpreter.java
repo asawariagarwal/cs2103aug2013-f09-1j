@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.text.ParseException;
 
 import com.joestelmach.natty.*;
 
@@ -28,8 +27,14 @@ import todo.ModifyCommand;
 
 public class Interpreter {
 
+	/**
+	 * Logger for Interpreter
+	 */
 	protected static Logger interpreterLogger = Logger.getLogger("Interpreter");
 
+    /**
+     * Exception Message
+     */
 	private static final String EXCEPTION_MSG = "Unsupported Format : ";
 
 
@@ -264,7 +269,7 @@ public class Interpreter {
 	 * The default interpretation of an add command is floating.
 	 * 
 	 * @return AddCommand object
-	 * 
+	 * @throws Exception
 	 */
 
 	private AddCommand parseAdd() throws Exception {
@@ -289,10 +294,11 @@ public class Interpreter {
 
 	/**
 	 * This function is used in case the Task is a deadline task and it parses
-	 * the input to create a deadline type object
+	 * the input to create a DeadlineTask type object in case of valid input
+	 * and return null for invalid input
 	 * 
 	 * @return AddCommand type object or null
-	 * 
+	 * @throws Exception
 	 */
 
 	private AddCommand parseDeadlineTask()throws Exception  {
@@ -323,10 +329,11 @@ public class Interpreter {
 
 	/**
 	 * This function is used in case the Task is a timed task and it parses 
-	 * the input to create a timed task type object
+	 * the input to create a TimedTask type object in case of valid input
+	 * and return null for invalid input
 	 * 
 	 * @return AddCommand type object or null
-	 * @throws ParseException
+	 * @throws Exception
 	 */
 
 	private AddCommand parseTimedTask()throws Exception {
@@ -372,9 +379,11 @@ public class Interpreter {
 
 	/**
 	 * This function is used in case the task is a floating task and it parses
-	 * the input to create a floating type object
+	 * the input to create a FloatingTask type object in case of valid input
+	 * and return null for invalid input
 	 * 
 	 * @return AddCommand type object or null
+	 * @throws Exception
 	 */
 
 	private AddCommand parseFloatingTask() throws Exception{
@@ -394,11 +403,12 @@ public class Interpreter {
 
 
 	/**
-	 * This function performs the actual parsing of a view type command and
-	 * creates a view command type object
+	 * This function performs the parsing of a view type command and
+	 * creates a ViewCommand type object depending on the type of view
+	 * It uses helper methods to check which type of view is required 
 	 * 
 	 * @return ViewCommand type object or null
-	 * @throws ParseException
+	 * @throws Exception
 	 */
 
 	private ViewCommand parseView() throws Exception  {
@@ -413,6 +423,10 @@ public class Interpreter {
 			command = new ViewCommand(ViewCommand.MODE_VIEW_TIMED);
 		}else if (isViewCommandDisplayingDeadLineTasks()) {
 			command = new ViewCommand(ViewCommand.MODE_VIEW_DEADLINE);
+		}else if(isViewCommandDisplayingDone()){
+			command = new ViewCommand(ViewCommand.MODE_VIEW_DONE);
+		}else if(isViewCommandDisplayingExpired()){
+			command = new ViewCommand(ViewCommand.MODE_VIEW_EXPIRED);
 		}else if (isViewCommandDisplayingTasksWithHashtag()) {
 			String hashtag = getHashtag();
 			command = new ViewCommand(hashtag);
@@ -424,29 +438,53 @@ public class Interpreter {
 		return command;
 	}
 
+	
 	/**
-	 * This function performs the actual parsing of a delete type command and
-	 * creates a delete command type object
+	 * This function performs the parsing of a delete type command and
+	 * creates a DeleteCommand type object
+	 * The delete can be by index and by snippet.The function uses regex to
+	 * check for delete by index
 	 * 
 	 * @return DeleteCommand type object or null
+	 * @throws Exception
 	 * 
 	 */
 
 	private DeleteCommand parseDelete() throws Exception {
-		if (!_userInput.equals("")) {
+		String regex="-[edf]\\d{1,}";
+		char taskType;
+		int index;
+		if(_userInput.matches(regex)){
+			DeleteCommand command;
+			taskType=_userInput.charAt(1);
+			index=Integer.parseInt(_userInput.substring(2));
+			if(taskType=='e'){
+			command = new DeleteCommand(index,DeleteCommand.INDEX_TIMED);
+			return command;
+			}
+			else if(taskType=='d'){
+			command = new DeleteCommand(index,DeleteCommand.INDEX_DEADLINE);
+			return command;
+			}
+			else if(taskType=='f'){
+		    command = new DeleteCommand(index,DeleteCommand.INDEX_FLOATING);
+		    return command;
+			}	
+		}
+		else if(!_userInput.equals("")) {
 			DeleteCommand command = new DeleteCommand(_userInput);
 			return command;
-		} else {
+		} 
 			return null;
-		}
 	}
 
 	/**
-	 * This function performs the actual parsing of a clear type command and
-	 * creates a clear command type object
+	 * This function performs the parsing of a clear type command and
+	 * creates a ClearCommand type object
+	 * It calls helper methods to determine what is to be cleared 
 	 * 
 	 * @return ClearCommand type object or null
-	 * 
+	 * @throws Exception
 	 */
 
 	private ClearCommand parseClear() throws Exception {
@@ -474,11 +512,12 @@ public class Interpreter {
 
 
 	/**
-	 * This function performs the actual parsing of a change type command and
-	 * creates a modify command type object
+	 * This function performs the parsing of a change type command and
+	 * creates a ModifyCommand type object
+	 * A change command is used to change the task description of a task 
 	 * 
 	 * @return ModifyCommand type object
-	 * 
+	 * @throws Exception
 	 */
 
 	private ModifyCommand parseChange()throws Exception {
@@ -490,11 +529,11 @@ public class Interpreter {
 	}
 
 	/**
-	 * This function performs the actual parsing of a tag type command and
-	 * creates a tag command type object
+	 * This function performs the parsing of a reschedule type command and
+	 * creates a ModifyCommand type object
 	 * 
-	 * @return TagCommand type object or null
-	 * 
+	 * @return ModifyCommand type object or null
+	 * @throws Exception
 	 */
 
 	private ModifyCommand parseReschedule()throws Exception{
@@ -517,11 +556,11 @@ public class Interpreter {
 
 
 	/**
-	 * This function performs the actual parsing of a reschedule type command
-	 * and creates a modify command type object
+	 * This function performs the parsing of a reschedule type command on 
+	 * a Timed task and creates a ModifyCommand type object
 	 * 
 	 * @return ModifyCommand type object or null
-	 * 
+	 * @throws Exception
 	 */
 
 	private ModifyCommand parseRescheduleTimed()throws Exception  {
@@ -547,7 +586,13 @@ public class Interpreter {
 		return null;
 	}
 
-
+	/**
+	 * This function performs the parsing of a reschedule type command on 
+	 * a Deadline task and creates a ModifyCommand type object
+	 * 
+	 * @return ModifyCommand type object or null
+	 * @throws Exception
+	 */
 
 	private ModifyCommand parseRescheduleDeadline()throws Exception {
 		String taskName ;
@@ -569,11 +614,11 @@ public class Interpreter {
 	}
 
 	/**
-	 * This function performs the actual parsing of a search type command and
+	 * This function performs the parsing of a search type command and
 	 * creates a search command type object
 	 * 
 	 * @return SearchCommand type object or null
-	 * 
+	 * @throws Exception
 	 */
 
 	private SearchCommand parseSearch()throws Exception{
@@ -587,10 +632,10 @@ public class Interpreter {
 
 	/**
 	 * This function performs the actual parsing of a mark type command and
-	 * creates a mark command type object
+	 * creates a MarkCommand type object
 	 * 
 	 * @return MarkCommand type object or null
-	 * 
+	 * @throws Exception
 	 */
 
 	private ModifyCommand parseMark()throws Exception{
@@ -604,7 +649,7 @@ public class Interpreter {
 
 	/**
 	 * This function performs the actual parsing of a unmark type command and
-	 * creates a mark command type object
+	 * creates a MarkCommand type object
 	 * 
 	 * @return MarkCommand type object or null
 	 * 
@@ -674,9 +719,10 @@ public class Interpreter {
 
 	/**
 	 * This function performs the actual parsing of a undo type command
-	 * and creates a undo command type object
+	 * and creates a UndoCommand type object
 	 * 
 	 * @return UndoCommand type object or null
+	 * @throws Exception
 	 */
 
 	private UndoCommand parseUndo()throws Exception{
@@ -693,9 +739,10 @@ public class Interpreter {
 
 	/**
 	 * This function performs the actual parsing of a redo type command
-	 * and creates a redo command type object
+	 * and creates a UndoCommand type object
 	 * 
 	 * @return UndoCommand type object or null
+	 * @throws Exception
 	 */
 
 	private UndoCommand parseRedo()throws Exception{
@@ -709,7 +756,12 @@ public class Interpreter {
 		return command;
 	}
 
-
+/**
+ * This function checks if view command refers to displaying all tasks
+ * 
+ * @return boolean 
+ * @throws Exception
+ */
 	private boolean isViewCommandDisplayingAllTasks() throws Exception {
 		_userInput=_userInput.trim();
 		if (_userInput.equals(KEYWORD_ALL)) {
@@ -718,6 +770,13 @@ public class Interpreter {
 		return false;
 	}
 
+	/**
+	 * This function checks if view command refers to displaying floating tasks
+	 * 
+	 * @return boolean 
+	 * @throws Exception
+	 */
+	
 	private boolean isViewCommandDisplayingFloatingTasks() throws Exception {
 		if (_userInput.equals(KEYWORD_FLOATING)) {
 			return true;
@@ -725,6 +784,13 @@ public class Interpreter {
 		return false;
 	}
 
+	/**
+	 * This function checks if view command refers to displaying timed tasks
+	 * 
+	 * @return boolean 
+	 * @throws Exception
+	 */	
+	
 	private boolean isViewCommandDisplayingTimedTasks()throws Exception {
 		if (_userInput.equals(KEYWORD_TIMED)) {
 			return true;
@@ -732,6 +798,13 @@ public class Interpreter {
 		return false;
 	}
 
+	/**
+	 * This function checks if view command refers to displaying deadline tasks
+	 * 
+	 * @return boolean 
+	 * @throws Exception
+	 */	
+	
 	private boolean isViewCommandDisplayingDeadLineTasks()throws Exception {
 		if (_userInput.equals(KEYWORD_DEADLINE)) {
 			return true;
@@ -739,7 +812,44 @@ public class Interpreter {
 		return false;
 	}
 
-
+	/**
+	 * This function checks if view command refers to displaying completed tasks
+	 * 
+	 * @return boolean 
+	 * @throws Exception
+	 */	
+	
+	private boolean isViewCommandDisplayingDone()throws Exception {
+		_userInput=_userInput.trim();
+		if (_userInput.equals(KEYWORD_DONE)) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * This function checks if view command refers to displaying expired tasks
+	 * 
+	 * @return boolean 
+	 * @throws Exception
+	 */	
+	
+	private boolean isViewCommandDisplayingExpired()throws Exception {
+		_userInput=_userInput.trim();
+		if (_userInput.equals(KEYWORD_EXPIRED)) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * This function checks if view command refers to displaying tasks which 
+	 * have a specific hashtag
+	 * 
+	 * @return boolean 
+	 * @throws Exception
+	 */	
+	
 	private boolean isViewCommandDisplayingTasksWithHashtag()throws Exception {
 		if (_userInput.startsWith("#")) {
 			return true;
@@ -747,6 +857,14 @@ public class Interpreter {
 		return false;
 	}
 
+	/**
+	 * This function checks if view command refers to displaying tasks on 
+	 * a particular date 
+	 * 
+	 * @return boolean 
+	 * @throws Exception
+	 */	
+	
 	private boolean isViewCommandDisplayingTasksOnADate(Calendar[] calendar)throws Exception {
 		String dateStr=_userInput.trim();
 
@@ -758,6 +876,13 @@ public class Interpreter {
 		return false;
 	}
 
+	/**
+	 * This function checks if clear command refers to clearing all deadline tasks
+	 * 
+	 * @return boolean 
+	 * @throws Exception
+	 */	
+	
 	private boolean isClearCommandDeadline()throws Exception {
 		_userInput=_userInput.trim();
 		if (_userInput.equals(KEYWORD_DEADLINE)) {
@@ -766,6 +891,13 @@ public class Interpreter {
 		return false;
 	}
 
+	/**
+	 * This function checks if clear command refers to clearing all timed tasks
+	 * 
+	 * @return boolean 
+	 * @throws Exception
+	 */	
+	
 	private boolean isClearCommandTimed()throws Exception {
 		_userInput=_userInput.trim();
 		if (_userInput.equals(KEYWORD_TIMED)) {
@@ -774,6 +906,13 @@ public class Interpreter {
 		return false;
 	}
 
+	/**
+	 * This function checks if clear command refers to clearing all floating tasks
+	 * 
+	 * @return boolean 
+	 * @throws Exception
+	 */	
+	
 	private boolean isClearCommandFloating()throws Exception {
 		_userInput=_userInput.trim();
 		if (_userInput.equals(KEYWORD_FLOATING)) {
@@ -782,6 +921,13 @@ public class Interpreter {
 		return false;
 	}
 
+	/**
+	 * This function checks if clear command refers to clearing all completed tasks
+	 * 
+	 * @return boolean 
+	 * @throws Exception
+	 */	
+	
 	private boolean isClearCommandDone()throws Exception {
 		_userInput=_userInput.trim();
 		if (_userInput.equals(KEYWORD_DONE)) {
@@ -790,6 +936,13 @@ public class Interpreter {
 		return false;
 	}
 
+	/**
+	 * This function checks if clear command refers to clearing all expired tasks
+	 * 
+	 * @return boolean 
+	 * @throws Exception
+	 */	
+	
 	private boolean isClearCommandExpired()throws Exception {
 		_userInput=_userInput.trim();
 		if (_userInput.equals(KEYWORD_EXPIRED)) {
@@ -803,8 +956,8 @@ public class Interpreter {
 	 * This function returns the command type part of the user input and also
 	 * truncates the user input
 	 * 
-	 * Return Type: string
-	 * 
+	 *@return String
+	 *@throws Exception
 	 */
 
 	private String getCommandType() throws Exception{
@@ -827,6 +980,8 @@ public class Interpreter {
 	 * This functions is used when the default command i.e. ADD has to be executed.
 	 * It returns the original input to ease the parsing 
 	 * @param String - commandTypeKeyword
+	 *@return String
+	 *@throws Exception
 	 */
 
 	private void getOriginalInput(String commandTypeKeyword)throws Exception{
@@ -835,7 +990,8 @@ public class Interpreter {
 
 	/**
 	 * This function is used to extract the task description of a deadline type task
-	 * @return String TaskDes
+	 * @return String 
+	 * @throws Exception
 	 */
 
 	private String getDeadlineTaskDescription()throws Exception {
@@ -849,7 +1005,8 @@ public class Interpreter {
 
 	/**
 	 * This function is used to extract the task description of a timed type task
-	 * @return String TaskDes
+	 * @return String 
+	 * @throws Exception
 	 */
 
 	private String getTimedTaskDescription()throws Exception {
@@ -861,6 +1018,11 @@ public class Interpreter {
 		return TaskDes;
 	}
 
+	/**
+	 * This function is used to extract the task description of a task to be modified
+	 * @return String
+	 * @throws Exception 
+	 */
 
 	private String getModifyTaskDescription()throws Exception {
 		String TaskDes = extractTillKeyword(PREFIX_END_TIME);
@@ -880,6 +1042,7 @@ public class Interpreter {
 	 * 
 	 * @param -ArrayList<String> hashtags
 	 * @return integer 
+	 * @throws Exception
 	 */
 
 	private int populateHashtags(ArrayList<String> hashtags)throws Exception {
@@ -893,7 +1056,51 @@ public class Interpreter {
 		return 1;
 	}
 
-	String dateManipulator(String dateStr)throws Exception{
+	/**This functions checks the validity of the date using the Parser defined by 
+	 *Natty Date Parser
+	 *It uses try- catch to handle exceptions thrown by Natty
+	 * 
+	 *It returns a calendar object if date is valid else returns null
+	 * 
+	 * @param String Date_str
+	 * @return Calendar object
+	 * @throws Exception
+	 */
+
+	private Calendar isValid(String Date_str)throws Exception {
+		try{
+			Date_str=manipulateDate(Date_str);
+			interpreterLogger.log(Level.INFO,Date_str);
+			Parser parser = new Parser();
+			List<DateGroup> groups = parser.parse(Date_str);
+			if(groups.isEmpty()){
+				return null;
+			}
+			for(DateGroup group:groups)  {
+				Date dates = group.getDates().get(0); 
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTime(dates);
+				return calendar;
+			}
+		}
+		catch (NoClassDefFoundError e) {
+			System.err.println("NoClassDefFoundError: " + e.getMessage());
+		}
+		return null;
+	}
+
+	/**
+	 * This is an internal helper method for isValid.
+	 * This converts a date format from month followed by date 
+	 * to date followed by month as that is more intuitive for our user
+	 * than compared to the one implemented by natty
+	 * It uses regex to compare date formats 
+	 * 
+	 * @param String dateStr
+	 * @return String
+	 * @throws Exception
+	 */
+	private String manipulateDate(String dateStr)throws Exception{
 		int slash, dash;
 		String dd , mm, newdate;
 		char d , m ;
@@ -901,12 +1108,12 @@ public class Interpreter {
 		String dregex12 = ".*\\d{1}-\\d{2}-\\d{0,4}.*";
 		String dregex21 = ".*\\d{2}-\\d{1}-\\d{0,4}.*";
 		String dregex22 = ".*\\d{2}-\\d{2}-\\d{0,4}.*";
-
+	
 		String sregex11 = ".*\\d{1}/\\d{1}/\\d{0,4}.*";
 		String sregex12 = ".*\\d{1}/\\d{2}/\\d{0,4}.*";
 		String sregex21 = ".*\\d{2}/\\d{1}/\\d{0,4}.*";
 		String sregex22 = ".*\\d{2}/\\d{2}/\\d{0,4}.*";
-
+	
 		if (dateStr.matches(dregex22)){
 			dash =dateStr.indexOf("-");
 			dd=dateStr.substring(dash-2,dash);
@@ -935,7 +1142,7 @@ public class Interpreter {
 			newdate=m+"-"+d;
 			dateStr=dateStr.replaceFirst("\\d{1}-\\d{1}", newdate);	
 		}
-
+	
 		else if (dateStr.matches(sregex22)){
 			slash =dateStr.indexOf("/");
 			dd=dateStr.substring(slash-2,slash);
@@ -967,42 +1174,12 @@ public class Interpreter {
 		return dateStr;
 	}
 
-
-	/**This functions checks the validity of the date using the Parser defined by natty
-	 * 
-	 *It returns a calendar object if date is valid else returns null
-	 * 
-	 * @param Date_str
-	 * @return Calendar object
-	 */
-
-	private Calendar isValid(String Date_str)throws Exception {
-		try{
-			Date_str=dateManipulator(Date_str);
-			interpreterLogger.log(Level.INFO,Date_str);
-			Parser parser = new Parser();
-			List<DateGroup> groups = parser.parse(Date_str);
-			if(groups.isEmpty()){
-				return null;
-			}
-			for(DateGroup group:groups)  {
-				Date dates = group.getDates().get(0); 
-				Calendar calendar = Calendar.getInstance();
-				calendar.setTime(dates);
-				return calendar;
-			}
-		}
-		catch (NoClassDefFoundError e) {
-			System.err.println("NoClassDefFoundError: " + e.getMessage());
-		}
-		return null;
-	}
-
 	/**
 	 * This function extracts and returns the string from the beginning to the
 	 * keyword specified from the user input and also truncates the user input
 	 * 
-	 * Return Type: string
+	 * @return String
+	 * @throws Exception
 	 * 
 	 */
 
@@ -1030,7 +1207,8 @@ public class Interpreter {
 	 * This function extract the string in user input upto the end or upto the
 	 * hashtags
 	 * 
-	 * Return Type : String
+	 * @return String
+	 * @throws Exception
 	 */
 	private String extractTillHashtagOrEnd()throws Exception {
 
@@ -1048,7 +1226,11 @@ public class Interpreter {
 
 	/**
 	 * This function extracts the hashtags - hashtags cannot contain spaces 
+	 * 
+	 * @return String
+	 * @throws Exception
 	 */
+	
 	private String extractHashtag()throws Exception {
 		String hashtag;
 		if (_userInput.startsWith("#")){
@@ -1067,6 +1249,14 @@ public class Interpreter {
 		return "";
 	}
 
+	/**
+	 * This function helps extractHashtag in extracts the 
+	 * hashtags
+	 * 
+	 * @return String
+	 * @throws Exception
+	 */
+	
 	private String getHashtag()throws Exception {
 		String hashtag ;
 		hashtag=_userInput.substring(1);
