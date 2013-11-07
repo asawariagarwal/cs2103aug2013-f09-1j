@@ -198,14 +198,14 @@ public class ModifyCommand extends Command {
 		
 		if (!state.hasTask(taskString)) {
 			return makeErrorState(displayState,
-								  String.format(FEEDBACK_NOT_FOUND, taskString));
+								  new Feedback(String.format(FEEDBACK_NOT_FOUND, taskString),false));
 		} else if (isOnlyTask(state)) {
 			return executeTaskFound(state, displayState, false);
 		} else if (isOnlyTask(displayState)) {
 			return executeTaskFound(state, displayState, true);
 		} else {
 			return makeErrorState(displayState,
-								  String.format(FEEDBACK_MULTIPLE_FOUND, taskString));
+								  new Feedback(String.format(FEEDBACK_MULTIPLE_FOUND, taskString),false));
 		}
 	}
 	
@@ -219,7 +219,7 @@ public class ModifyCommand extends Command {
 	 * 			feedback of error state
 	 * @return
 	 */
-	private State makeErrorState(State state, String feedback) {
+	private State makeErrorState(State state, Feedback feedback) {
 		this.setMutator(false);
 		State s = new State(state);
 		s.setFeedback(feedback);
@@ -260,7 +260,7 @@ public class ModifyCommand extends Command {
 				return executeRescheduleDeadline(newState, (DeadlineTask) cloned);
 			} else {
 				return makeErrorState(displayState,
-									  String.format(FEEDBACK_NOT_DEADLINE, t.getTaskDescription()));
+									  new Feedback(String.format(FEEDBACK_NOT_DEADLINE, t.getTaskDescription()),false));
 			}
 		} else if (isRescheduleTimed()) {
 			if (t instanceof TimedTask) {
@@ -269,7 +269,7 @@ public class ModifyCommand extends Command {
 				return executeRescheduleTimed(newState, (TimedTask) cloned);
 			} else {
 				return makeErrorState(displayState,
-									  String.format(FEEDBACK_NOT_TIMED, t.getTaskDescription()));
+									  new Feedback(String.format(FEEDBACK_NOT_TIMED, t.getTaskDescription()),false));
 			}
 		} else if (isMark()) {
 			newState.removeTask(t);
@@ -294,7 +294,7 @@ public class ModifyCommand extends Command {
 	private State executeChange(State state, Task task) {
 		String old = task.getTaskDescription();
 		task.setTaskDescription(newTaskString);
-		state.setFeedback(String.format(FEEDBACK_CHANGED, old, newTaskString));
+		state.setFeedback(new Feedback (String.format(FEEDBACK_CHANGED, old, newTaskString), true));
 		return state;
 	}
 	
@@ -311,7 +311,7 @@ public class ModifyCommand extends Command {
 	 */
 	private State executeRescheduleDeadline(State state, DeadlineTask task) {
 		task.setDeadline(newDeadline);
-		state.setFeedback(String.format(FEEDBACK_RESCHEDULE_DEADLINE, task.getTaskDescription()));
+		state.setFeedback(new Feedback(String.format(FEEDBACK_RESCHEDULE_DEADLINE, task.getTaskDescription()),true));
 		return state;
 	}
 	
@@ -329,7 +329,7 @@ public class ModifyCommand extends Command {
 	private State executeRescheduleTimed(State state, TimedTask task) {
 		task.setStartDate(newStartDate);
 		task.setEndDate(newEndDate);
-		state.setFeedback(String.format(FEEDBACK_RESCHEDULE_TIMED, task.getTaskDescription()));
+		state.setFeedback(new Feedback (String.format(FEEDBACK_RESCHEDULE_TIMED, task.getTaskDescription()), true));
 		return state;
 	}
 	
@@ -347,17 +347,17 @@ public class ModifyCommand extends Command {
 	private State executeMark(State state, Task task) {
 		if (mark) {
 			if (task.isComplete()) {
-				state.setFeedback(String.format(FEEDBACK_ALREADY_MARKED, task.getTaskDescription()));
+				state.setFeedback(new Feedback(String.format(FEEDBACK_ALREADY_MARKED, task.getTaskDescription()),false));
 			} else {
 				task.markAsDone();
-				state.setFeedback(String.format(FEEDBACK_MARK_SUCCESS, task.getTaskDescription()));
+				state.setFeedback(new Feedback(String.format(FEEDBACK_MARK_SUCCESS, task.getTaskDescription()),true));
 			}
 		} else {
 			if (!task.isComplete()) {
-				state.setFeedback(String.format(FEEDBACK_ALREADY_UNMARKED, task.getTaskDescription()));
+				state.setFeedback(new Feedback(String.format(FEEDBACK_ALREADY_UNMARKED, task.getTaskDescription()),false));
 			} else {
 				task.markAsPending();
-				state.setFeedback(String.format(FEEDBACK_UNMARK_SUCCESS, task.getTaskDescription()));
+				state.setFeedback(new Feedback(String.format(FEEDBACK_UNMARK_SUCCESS, task.getTaskDescription()), true));
 			}
 		}
 		return state;

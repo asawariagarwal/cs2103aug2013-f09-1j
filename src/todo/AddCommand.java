@@ -106,13 +106,16 @@ public class AddCommand extends Command {
 		String desc = task.getTaskDescription();
 		logger.log(Level.INFO, LOG_MESSAGE);
 		if (task instanceof TimedTask) {
-			s.setFeedback(String.format(FEEDBACK_TIMED, desc));
+			Feedback f = new Feedback(String.format(FEEDBACK_TIMED, desc),true);
+			s.setFeedback(f);
 			return s;
 		} else if (task instanceof DeadlineTask) {
-			s.setFeedback(String.format(FEEDBACK_DEADLINE, desc));
+			Feedback f = new Feedback(String.format(FEEDBACK_DEADLINE, desc),true);
+			s.setFeedback(f);
 			return s;
 		} else if (task instanceof FloatingTask) {
-			s.setFeedback(String.format(FEEDBACK_FLOATING, desc));
+			Feedback f = new Feedback(String.format(FEEDBACK_FLOATING, desc),true);
+			s.setFeedback(f);
 			return s;
 		} else {
 			logger.log(Level.WARNING, LOG_ERROR);

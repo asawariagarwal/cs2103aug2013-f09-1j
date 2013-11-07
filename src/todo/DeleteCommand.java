@@ -108,13 +108,13 @@ public class DeleteCommand extends Command {
 		}
 		
 		if (!state.hasTask(taskString)) {
-			return makeErrorState(displayState, String.format(FEEDBACK_NOT_FOUND, taskString));
+			return makeErrorState(displayState, new Feedback(String.format(FEEDBACK_NOT_FOUND, taskString),false));
 		} else if (isOnlyTask(state)) {
 			return executeTaskFound(state, displayState, false);
 		} else if (isOnlyTask(displayState)) {
 			return executeTaskFound(state, displayState, true);
 		} else {
-			return makeErrorState(displayState, String.format(FEEDBACK_MULTIPLE_FOUND, taskString));
+			return makeErrorState(displayState, new Feedback(String.format(FEEDBACK_MULTIPLE_FOUND, taskString),false));
 		}
 	}
 	
@@ -148,11 +148,12 @@ public class DeleteCommand extends Command {
 				break;
 			} else if (i == indexPos) {
 				s.removeTask(t);
-				s.setFeedback(String.format(FEEDBACK_DELETED, t.getTaskDescription()));
+				Feedback f = new Feedback(String.format(FEEDBACK_DELETED, t.getTaskDescription()),true);
+				s.setFeedback(f);
 				return s;
 			}
 		}
-		return makeErrorState(displayState, FEEDBACK_BAD_INDEX);
+		return makeErrorState(displayState, new Feedback(FEEDBACK_BAD_INDEX, false));
 	}
 
 	/**
@@ -165,7 +166,7 @@ public class DeleteCommand extends Command {
 	 * 			feedback of error state
 	 * @return
 	 */
-	private State makeErrorState(State state, String feedback) {
+	private State makeErrorState(State state, Feedback feedback) {
 		this.setMutator(false);
 		State s = new State(state);
 		s.setFeedback(feedback);
@@ -195,7 +196,8 @@ public class DeleteCommand extends Command {
 		}
 		State s = new State(state);
 		s.removeTask(deletedTask);
-		s.setFeedback(String.format(FEEDBACK_DELETED, deletedTask.getTaskDescription()));
+		Feedback f = new Feedback(String.format(FEEDBACK_DELETED, deletedTask.getTaskDescription()),true);
+		s.setFeedback(f);
 		return s;
 	}
 	

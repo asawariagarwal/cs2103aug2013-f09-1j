@@ -54,7 +54,7 @@ public class SimpleUI{
 		TreeSet<? extends Task> timedTasks = displayState.getTimedTasks();
 		TreeSet<? extends Task> deadlineTasks = displayState.getDeadlineTasks();
 		TreeSet<? extends Task> floatingTasks = displayState.getFloatingTasks();
-		String userFeedback = displayState.getFeedback();
+		String userFeedback = displayState.getFeedback().getDisplay();
 		
 		String out = "";
 		
