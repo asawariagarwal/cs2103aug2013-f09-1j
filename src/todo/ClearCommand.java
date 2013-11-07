@@ -55,15 +55,15 @@ public class ClearCommand extends Command {
 			return s;
 		} else if (mode == MODE_CLEAR_DEADLINE) {
 			s.getDeadlineTasks().clear();
-			s.setFeedback("deadline tasks cleared");
+			s.setFeedback("deadlines cleared");
 			return s;
 		} else if (mode == MODE_CLEAR_TIMED) {
 			s.getTimedTasks().clear();
-			s.setFeedback("timed tasks cleared");
+			s.setFeedback("events cleared");
 			return s;
 		} else if (mode == MODE_CLEAR_FLOATING) {
 			s.getFloatingTasks().clear();
-			s.setFeedback("floating tasks cleared");
+			s.setFeedback("flexible tasks cleared");
 			return s;
 		} else if (mode == MODE_CLEAR_EXPIRED) {
 			for (Task t : s.getAllTasks()) {
