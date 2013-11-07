@@ -3,6 +3,7 @@ package todo;
 import java.util.Calendar;
 import java.util.TreeSet;
 import java.util.logging.*;
+import todo.Feedback;
 
 /**
  * Subclass to encapsulate view commands
@@ -29,7 +30,7 @@ public class ViewCommand extends Command {
 	private static final String FEEDBACK_VIEW_DATE_NOT_FOUND = "no tasks found for %1$s";
 	private static final String FEEDBACK_VIEW_EXPIRED = "viewing expired tasks";
 	private static final String FEEDBACK_VIEW_DONE = "viewing completed tasks";
-	
+
 	private static final String LOG_ERROR = "error executing view";
 	private static final String LOG_VIEW_ALL = "executing view all";
 	private static final String LOG_VIEW_FLOATING = "executing view floating";
@@ -152,7 +153,7 @@ public class ViewCommand extends Command {
 	private boolean isViewTag() {
 		return (mode == MODE_VIEW_TAG && tag != null);
 	}
-	
+
 	/**
 	 * Checks if command is a "view expired" command
 	 * 
@@ -160,7 +161,7 @@ public class ViewCommand extends Command {
 	private boolean isViewExpired() {
 		return mode == MODE_VIEW_EXPIRED;
 	}
-	
+
 	/**
 	 * Checks if command is a "view done" command
 	 * 
@@ -282,17 +283,20 @@ public class ViewCommand extends Command {
 			}
 		}
 		for (TimedTask cur : timed) {
-			if (date.compareTo(cur.getStartDate()) >= 0
-					&& date.compareTo(cur.getEndDate()) <= 0) {
+			if (dd == cur.getStartDate().get(Calendar.DATE)
+					&& mm == cur.getStartDate().get(Calendar.MONTH)
+					&& yy == cur.getStartDate().get(Calendar.YEAR)) {
 				s.addTask(cur);
 			}
 		}
 		String dateStr = String.format(DATE_FORMAT, String.valueOf(dd), String
 				.valueOf(mm + MONTH_OFFSET), String.valueOf(yy));
-		s.setFeedback(new Feedback(String.format(FEEDBACK_VIEW_DATE, dateStr), true));
+		s.setFeedback(new Feedback(String.format(FEEDBACK_VIEW_DATE, dateStr),
+				true));
 
 		if (!s.hasDateTasks()) {
-			state.setFeedback(new Feedback(String.format(FEEDBACK_VIEW_DATE_NOT_FOUND, dateStr),false));
+			state.setFeedback(new Feedback(String.format(
+					FEEDBACK_VIEW_DATE_NOT_FOUND, dateStr), false));
 			return state;
 		}
 
@@ -326,15 +330,15 @@ public class ViewCommand extends Command {
 				s.addTask(cur);
 			}
 		}
-		s.setFeedback(new Feedback(String.format(FEEDBACK_VIEW_TAG, tag),true));
+		s.setFeedback(new Feedback(String.format(FEEDBACK_VIEW_TAG, tag), true));
 		return s;
 	}
-	
+
 	/**
 	 * Executes view expired command
 	 * 
 	 * @param state
-	 * 			state of current program
+	 *            state of current program
 	 * 
 	 * @return state after execution
 	 */
@@ -348,12 +352,12 @@ public class ViewCommand extends Command {
 		s.setFeedback(new Feedback(FEEDBACK_VIEW_EXPIRED, true));
 		return s;
 	}
-	
+
 	/**
 	 * Executes view done command
 	 * 
 	 * @param state
-	 * 			state of current program
+	 *            state of current program
 	 * 
 	 * @return state after execution
 	 */
