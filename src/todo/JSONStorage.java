@@ -20,6 +20,8 @@ import org.json.simple.parser.ParseException;
 public class JSONStorage {
 	
 	private static String _filename = "C:\\ToDo\\taskstore.txt";
+	private static final String TIMED_FORMAT = "hh:mm aa 'on' EEEEEEEEE ',' dd MMMMMMMMM, yyyy ";
+	private static final String DEADLINE_FORMAT = " 'by' hh:mm aa 'on' EEEEEEEEE',' dd MMMMMMMMM',' yyyy ";
 	
 	protected static Logger storageLogger = Logger.getLogger("JSONStorage");
 	
@@ -94,7 +96,7 @@ public class JSONStorage {
 		boolean isCompleted = (boolean) deadlineTaskJSON.get("done");
 		storageLogger.log(Level.FINE, "Got from JSON");
 		
-		String deadlineFormat = " 'by' EEEEEEEEE',' dd MMMMMMMMM',' yyyy ";
+		String deadlineFormat = DEADLINE_FORMAT;
 		SimpleDateFormat curFormater = new SimpleDateFormat(deadlineFormat);
 		Date deadlineDate = curFormater.parse(deadlineString);
 		
@@ -122,7 +124,7 @@ public class JSONStorage {
 		String endString = (String) timedTaskJSON.get("to");
 		storageLogger.log(Level.FINER, "Got from JSON");
 		
-		String timedTaskFormat = "hh:mm aa 'on' EEEEEEEEE ',' dd MMMMMMMMM, yyyy ";
+		String timedTaskFormat = TIMED_FORMAT;
 		SimpleDateFormat curFormater = new SimpleDateFormat(timedTaskFormat);
 		Date fromDate = curFormater.parse(startString);
 		Date toDate = curFormater.parse(endString);
@@ -224,7 +226,7 @@ public class JSONStorage {
 		JSONArray tags = getTagsJSON(task.getTags());
 		taskObject.put("tags",tags);
 		
-		String timedTaskFormat = "hh:mm aa 'on' EEEEEEEEE ',' dd MMMMMMMMM, yyyy ";
+		String timedTaskFormat = TIMED_FORMAT;
 		SimpleDateFormat sdf = new SimpleDateFormat(timedTaskFormat);
 		
 		String startString = sdf.format(task.getStartDate().getTime());
@@ -245,7 +247,7 @@ public class JSONStorage {
 		JSONArray tags = getTagsJSON(task.getTags());
 		taskObject.put("tags",tags);
 
-		String deadlineFormat = " 'by' EEEEEEEEE',' dd MMMMMMMMM',' yyyy ";
+		String deadlineFormat = DEADLINE_FORMAT;
 		SimpleDateFormat sdf = new SimpleDateFormat(deadlineFormat);
 		
 		String deadlineString = sdf.format(task.getDeadline().getTime());
