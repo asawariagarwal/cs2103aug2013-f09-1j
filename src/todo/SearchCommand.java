@@ -44,14 +44,14 @@ public class SearchCommand extends Command {
 		ArrayList<Task> found = state.getTasks(keyword);
 		if (found.isEmpty()) {
 			logger.log(Level.INFO, LOG_NONE);
-			s.setFeedback(String.format(FEEDBACK_NONE, keyword));
+			s.setFeedback(new Feedback(String.format(FEEDBACK_NONE, keyword),false));
 			return s;
 		} else {
 			logger.log(Level.INFO, LOG_FOUND);
 			for (Task t: found) {
 				s.addTask(t);
 			}
-			s.setFeedback(String.format(FEEDBACK_FOUND, keyword));
+			s.setFeedback(new Feedback(String.format(FEEDBACK_FOUND, keyword),true));
 			return s;
 		}
 	}

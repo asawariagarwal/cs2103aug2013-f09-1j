@@ -51,19 +51,23 @@ public class ClearCommand extends Command {
 			s.getDeadlineTasks().clear();
 			s.getFloatingTasks().clear();
 			s.getTimedTasks().clear();
-			s.setFeedback("all tasks cleared");
+			Feedback f = new Feedback("all tasks cleared", true);
+			s.setFeedback(f);
 			return s;
 		} else if (mode == MODE_CLEAR_DEADLINE) {
 			s.getDeadlineTasks().clear();
-			s.setFeedback("deadline tasks cleared");
+			Feedback f = new Feedback("deadlines cleared", true);
+			s.setFeedback(f);
 			return s;
 		} else if (mode == MODE_CLEAR_TIMED) {
 			s.getTimedTasks().clear();
-			s.setFeedback("timed tasks cleared");
+			Feedback f = new Feedback("events cleared", true);
+			s.setFeedback(f);
 			return s;
 		} else if (mode == MODE_CLEAR_FLOATING) {
 			s.getFloatingTasks().clear();
-			s.setFeedback("floating tasks cleared");
+			Feedback f = new Feedback("flexible tasks cleared", true);
+			s.setFeedback(f);
 			return s;
 		} else if (mode == MODE_CLEAR_EXPIRED) {
 			for (Task t : s.getAllTasks()) {
@@ -71,7 +75,8 @@ public class ClearCommand extends Command {
 					s.removeTask(t);
 				}
 			}
-			s.setFeedback("expired tasks cleared");
+			Feedback f = new Feedback("expired tasks cleared", true);
+			s.setFeedback(f);
 			return s;
 		} else if (mode == MODE_CLEAR_DONE) {
 			for (Task t : s.getAllTasks()) {
@@ -79,7 +84,8 @@ public class ClearCommand extends Command {
 					s.removeTask(t);
 				}
 			}
-			s.setFeedback("completed tasks cleared");
+			Feedback f = new Feedback("completed tasks cleared", true);
+			s.setFeedback(f);
 			return s;
 		} else {
 			throw new Exception();

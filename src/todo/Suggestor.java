@@ -41,19 +41,23 @@ public class Suggestor {
 		commandList.add(CLEAR);
 		commandList.add(MARK);
 		
+		ArrayList<String> typeSuggestions = new ArrayList<String>();
 		ArrayList<String> viewSuggestions = new ArrayList<String>();
-		viewSuggestions.add("all");
-		viewSuggestions.add("flexible");
-		viewSuggestions.add("events");
-		viewSuggestions.add("deadlines");
+		typeSuggestions.add("all");
+		typeSuggestions.add("flexible");
+		typeSuggestions.add("events");
+		typeSuggestions.add("deadlines");
+		typeSuggestions.add("completed");
+		typeSuggestions.add("expired");
+		typeSuggestions.add("pending");
+		
+		commandSuggestionMap.put(CLEAR, typeSuggestions);
+		
+		viewSuggestions.addAll(typeSuggestions);
 		viewSuggestions.add("today");
 		viewSuggestions.add("tomorrow");
-		viewSuggestions.add("completed");
-		viewSuggestions.add("expired");
-		viewSuggestions.add("pending");
 		
-		commandSuggestionMap.put(VIEW, viewSuggestions);
-		
+		commandSuggestionMap.put(VIEW, viewSuggestions);		
 	}
 	
 	protected String getSuggestion(String inputString){
@@ -111,15 +115,23 @@ public class Suggestor {
 		
 		ArrayList<Task> taskList = currentState.getAllTasks();
 		ArrayList<String> descriptionList = new ArrayList<String>();
+		ArrayList<String> hashtagList = new ArrayList<String>();
 		
 		for (Task task : taskList){
 			descriptionList.add(task.getTaskDescription());
+			for (String hashtag : task.getTags()){
+				hashtagList.add("#"+hashtag);
+			}
 		}
 		
 		commandSuggestionMap.put(DELETE, descriptionList);
 		commandSuggestionMap.put(CHANGE, descriptionList);
 		commandSuggestionMap.put(RESCHEDULE, descriptionList);
 		commandSuggestionMap.put(MARK, descriptionList);
+		
+		ArrayList<String> standardViewSugg = commandSuggestionMap.get(VIEW);
+		standardViewSugg.addAll(hashtagList);
+		commandSuggestionMap.put(VIEW,standardViewSugg);
 		
 	}
 	

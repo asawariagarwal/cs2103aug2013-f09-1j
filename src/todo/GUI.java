@@ -73,14 +73,16 @@ public class GUI implements ActionListener {
 
 	private static final String FONT_NAME = "Consolas";
 	private static final String HELP_TEXT_1 = "Command List:\n\n";
-	private static final String HELP_TEXT_2 = "add\ndelete\nview\nundo\nredo\nchange\nexit";
+	private static final String HELP_TEXT_2 = "add\ndelete\nview\nundo\nredo\nchange\nreschedule\nmark\nexit";
 	private static final String HELP_TEXT_3 = "\n\nPress ";
 	private static final String HELP_TEXT_4 = "tab ";
 	private static final String HELP_TEXT_5 = "to \nauto-complete\n\nPress ";
 	private static final String HELP_TEXT_6 = "arrow-up ";
 	private static final String HELP_TEXT_7 = "to \ncycle through\nprevious commands\n\nPress ";
 	private static final String HELP_TEXT_8 = "F3 ";
-	private static final String HELP_TEXT_9 = "to minimize\nto/maximize from the\nSystem Tray";
+	private static final String HELP_TEXT_9 = "to minimize\nto/maximize from the\nSystem Tray\n\nPress ";
+	private static final String HELP_TEXT_10 = "Alt+Enter ";
+	private static final String HELP_TEXT_11 = "to \nswitch between Min \nand Full Modes";
 
 	private static AudioFeedBack audio;
 
@@ -371,7 +373,7 @@ public class GUI implements ActionListener {
 		_handler = new CommandHandler();
 		_displayState = new State();
 		_autoComplete = new Suggestor();
-		_displayState.setFeedback("Corrupted Previous State");
+		_displayState.setFeedback(new Feedback("Corrupted Previous State",false));
 		try {
 			_displayState = _handler.getCurrentState();
 			_autoComplete.updateState(_displayState);
@@ -442,11 +444,10 @@ public class GUI implements ActionListener {
 			return;
 		}
 
-		if (_displayState.getFeedback().trim().substring(0, 15)
-				.equalsIgnoreCase("Invalid Command")) {
-			audio.playFailure();
-		} else {
+		if (_displayState.getFeedback().isPositive()){
 			audio.playSuccess();
+		} else {
+			audio.playFailure();
 		}
 	}
 
@@ -507,7 +508,7 @@ public class GUI implements ActionListener {
 	}
 
 	private void updateFeedbackPane() {
-		_feedbackPane.setText(_displayState.getFeedback());
+		_feedbackPane.setText(_displayState.getFeedback().getDisplay());
 		_userInputArea.add(_feedbackPane);
 	}
 
@@ -521,6 +522,8 @@ public class GUI implements ActionListener {
 		appendToPane(_helpPane, HELP_TEXT_7, _headerAttributes);
 		appendToPane(_helpPane, HELP_TEXT_8, _feedbackTextAttributes);
 		appendToPane(_helpPane, HELP_TEXT_9, _headerAttributes);
+		appendToPane(_helpPane, HELP_TEXT_10, _feedbackTextAttributes);
+		appendToPane(_helpPane, HELP_TEXT_11, _headerAttributes);
 	}
 
 	private void updateSystemTray() {
@@ -679,8 +682,8 @@ public class GUI implements ActionListener {
 		_feedbackPane.setFont(new Font(FONT_NAME, Font.PLAIN, 30));
 		_feedbackPane.setEditable(false);
 		_feedbackPane.setDisabledTextColor(Color.BLUE);
-		if (!_displayState.getFeedback().equals("")) {
-			_feedbackPane.setText(_displayState.getFeedback());
+		if (!_displayState.getFeedback().getDisplay().equals("")) {
+			_feedbackPane.setText(_displayState.getFeedback().getDisplay());
 		}
 		_userInputArea.add(_feedbackPane, BorderLayout.CENTER);
 	}

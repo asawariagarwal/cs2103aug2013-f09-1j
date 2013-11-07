@@ -76,7 +76,7 @@ public class JSONStorage {
 			savedState.addTask(deadlineTask);
 		}
 		
-		savedState.setFeedback("Welcome");
+		savedState.setFeedback(new Feedback("Welcome",true));
 		
 		storageLogger.log(Level.INFO, "Done Parsing");
 		return savedState;
