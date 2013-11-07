@@ -187,4 +187,22 @@ class TimedTask extends Task implements Comparable<TimedTask> {
 		String tagString = this.getTags().toString();
 		return (startString + endString + nameString + tagString).hashCode();
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see todo.Task#clone()
+	 */
+	protected TimedTask clone() {
+		String desc = this.getTaskDescription();
+		ArrayList<String> tags = new ArrayList<String>(this.getTags());
+		Calendar start = Calendar.getInstance();
+		Calendar end = Calendar.getInstance();
+		start.setTimeInMillis(this.getStartDate().getTimeInMillis());
+		end.setTimeInMillis(this.getEndDate().getTimeInMillis());
+		TimedTask result = new TimedTask(desc, tags, start, end);
+		if (this.isComplete()) {
+			result.markAsDone();
+		}
+		return result;
+	}
 }
