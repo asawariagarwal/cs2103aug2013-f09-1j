@@ -682,6 +682,7 @@ public class ModifyCommand extends Command {
 			feedback += String.format(msg,
 					getTagString(success),
 					task.getTaskDescription());
+			state.setFeedback(new Feedback(feedback, true));
 		}
 		if (!failure.isEmpty()) {
 			if (!feedback.isEmpty()) {
@@ -696,8 +697,9 @@ public class ModifyCommand extends Command {
 			feedback += String.format(msg,
 					task.getTaskDescription(),
 					getTagString(failure));
+			state.setFeedback(new Feedback(feedback, false));
 		}
-		state.setFeedback(new Feedback(feedback, false));
+		
 		return state;
 	}
 	

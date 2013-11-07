@@ -533,7 +533,13 @@ public class GUI implements ActionListener {
 	}
 
 	private void updateFeedbackPane() {
-		_feedbackPane.setText(_displayState.getFeedback().getDisplay());
+		_feedbackPane.setText("");
+		String feedbackText = _displayState.getFeedback().getDisplay();
+		if (_displayState.getFeedback().isPositive()){
+			appendToPane(_feedbackPane, feedbackText, completedAttributes);
+		} else {
+			appendToPane(_feedbackPane, feedbackText, expiredAttributes);
+		}
 		_userInputArea.add(_feedbackPane);
 	}
 
@@ -704,11 +710,11 @@ public class GUI implements ActionListener {
 		_feedbackPane = new JTextPane();
 		_feedbackPane.setForeground(Color.YELLOW);
 		_feedbackPane.setBackground(new Color(0, 0, 0));
-		_feedbackPane.setFont(new Font(FONT_NAME, Font.PLAIN, 30));
+		_feedbackPane.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
 		_feedbackPane.setEditable(false);
 		_feedbackPane.setDisabledTextColor(Color.BLUE);
 		if (!_displayState.getFeedback().getDisplay().equals("")) {
-			_feedbackPane.setText(_displayState.getFeedback().getDisplay());
+			updateFeedbackPane();
 		}
 		_userInputArea.add(_feedbackPane, BorderLayout.CENTER);
 	}
