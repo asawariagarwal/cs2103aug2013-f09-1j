@@ -17,6 +17,7 @@ public class Suggestor {
 	private static final String HELP = "help";
 	private static final String CLEAR = "clear";
 	private static final String MARK = "mark";
+	private static final String UNMARK = "unmark";
 	
 	private static ArrayList<String> commandList = new ArrayList<String>();	
 	
@@ -116,18 +117,27 @@ public class Suggestor {
 		ArrayList<Task> taskList = currentState.getAllTasks();
 		ArrayList<String> descriptionList = new ArrayList<String>();
 		ArrayList<String> hashtagList = new ArrayList<String>();
+		ArrayList<String> completedList = new ArrayList<String>();
+		ArrayList<String> pendingList = new ArrayList<String>();
 		
 		for (Task task : taskList){
 			descriptionList.add(task.getTaskDescription());
 			for (String hashtag : task.getTags()){
 				hashtagList.add("#"+hashtag);
 			}
+			if (task.isComplete()){
+				completedList.add(task.getTaskDescription());
+			} else {
+				pendingList.add(task.getTaskDescription());
+			}
 		}
 		
 		commandSuggestionMap.put(DELETE, descriptionList);
 		commandSuggestionMap.put(CHANGE, descriptionList);
 		commandSuggestionMap.put(RESCHEDULE, descriptionList);
-		commandSuggestionMap.put(MARK, descriptionList);
+		
+		commandSuggestionMap.put(MARK,pendingList);
+		commandSuggestionMap.put(UNMARK,completedList);
 		
 		ArrayList<String> standardViewSugg = commandSuggestionMap.get(VIEW);
 		standardViewSugg.addAll(hashtagList);
