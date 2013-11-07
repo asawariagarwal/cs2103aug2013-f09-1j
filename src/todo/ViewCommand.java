@@ -211,7 +211,7 @@ public class ViewCommand extends Command {
 	 */
 	private State executeViewAll(State state) {
 		State s = new State(state);
-		s.setFeedback(FEEDBACK_VIEW_ALL);
+		s.setFeedback(new Feedback(FEEDBACK_VIEW_ALL, true));
 		return s;
 	}
 
@@ -226,7 +226,7 @@ public class ViewCommand extends Command {
 		State s = new State(state);
 		s.getDeadlineTasks().clear();
 		s.getTimedTasks().clear();
-		s.setFeedback(FEEDBACK_VIEW_FLOATING);
+		s.setFeedback(new Feedback(FEEDBACK_VIEW_FLOATING, true));
 		return s;
 	}
 
@@ -241,7 +241,7 @@ public class ViewCommand extends Command {
 		State s = new State(state);
 		s.getFloatingTasks().clear();
 		s.getTimedTasks().clear();
-		s.setFeedback(FEEDBACK_VIEW_DEADLINE);
+		s.setFeedback(new Feedback(FEEDBACK_VIEW_DEADLINE, true));
 		return s;
 	}
 
@@ -256,7 +256,7 @@ public class ViewCommand extends Command {
 		State s = new State(state);
 		s.getDeadlineTasks().clear();
 		s.getFloatingTasks().clear();
-		s.setFeedback(FEEDBACK_VIEW_TIMED);
+		s.setFeedback(new Feedback(FEEDBACK_VIEW_TIMED, true));
 		return s;
 	}
 
@@ -289,10 +289,10 @@ public class ViewCommand extends Command {
 		}
 		String dateStr = String.format(DATE_FORMAT, String.valueOf(dd), String
 				.valueOf(mm + MONTH_OFFSET), String.valueOf(yy));
-		s.setFeedback(String.format(FEEDBACK_VIEW_DATE, dateStr));
+		s.setFeedback(new Feedback(String.format(FEEDBACK_VIEW_DATE, dateStr), true));
 
 		if (!s.hasDateTasks()) {
-			state.setFeedback(String.format(FEEDBACK_VIEW_DATE_NOT_FOUND, dateStr));
+			state.setFeedback(new Feedback(String.format(FEEDBACK_VIEW_DATE_NOT_FOUND, dateStr),false));
 			return state;
 		}
 
@@ -326,7 +326,7 @@ public class ViewCommand extends Command {
 				s.addTask(cur);
 			}
 		}
-		s.setFeedback(String.format(FEEDBACK_VIEW_TAG, tag));
+		s.setFeedback(new Feedback(String.format(FEEDBACK_VIEW_TAG, tag),true));
 		return s;
 	}
 	
@@ -345,7 +345,7 @@ public class ViewCommand extends Command {
 				s.addTask(t);
 			}
 		}
-		s.setFeedback(FEEDBACK_VIEW_EXPIRED);
+		s.setFeedback(new Feedback(FEEDBACK_VIEW_EXPIRED, true));
 		return s;
 	}
 	
@@ -364,7 +364,7 @@ public class ViewCommand extends Command {
 				s.addTask(t);
 			}
 		}
-		s.setFeedback(FEEDBACK_VIEW_DONE);
+		s.setFeedback(new Feedback(FEEDBACK_VIEW_DONE, true));
 		return s;
 	}
 }

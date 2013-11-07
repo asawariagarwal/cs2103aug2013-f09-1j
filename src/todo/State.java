@@ -16,7 +16,7 @@ public class State {
 	/**
 	 * Stores the feedback to be displayed
 	 */
-	private String _feedback;
+	private Feedback _feedback;
 	/**
 	 * ArrayLists to store the three types of tasks
 	 */
@@ -33,7 +33,7 @@ public class State {
 		_currentTimedTasks = new TreeSet<TimedTask>();
 		_currentFloatingTasks = new TreeSet<FloatingTask>();
 		_currentDeadlineTasks = new TreeSet<DeadlineTask>();
-		_feedback = new String();
+		_feedback = new Feedback();
 		_previous = null;
 		_next = null;
 	}
@@ -50,6 +50,7 @@ public class State {
 				.getDeadlineTasks());
 		_currentFloatingTasks = new TreeSet<FloatingTask>(previous
 				.getFloatingTasks());
+		_feedback = new Feedback(previous.getFeedback());
 		_previous = previous.getPrevious();
 		_next = previous.getNext();
 	}
@@ -255,7 +256,7 @@ public class State {
 	 * @param feedback
 	 *            feedback to be set
 	 */
-	protected void setFeedback(String feedback) {
+	protected void setFeedback(Feedback feedback) {
 		_feedback = feedback;
 	}
 
@@ -264,7 +265,7 @@ public class State {
 	 * 
 	 * @return the feedback currently set
 	 */
-	protected String getFeedback() {
+	protected Feedback getFeedback() {
 		return _feedback;
 	}
 

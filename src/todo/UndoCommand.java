@@ -87,11 +87,11 @@ public class UndoCommand extends Command {
 			done++;
 		}
 		if (done == 0) {
-			currentState.setFeedback(FEEDBACK_UNDO_NONE);
+			currentState.setFeedback(new Feedback(FEEDBACK_UNDO_NONE,false));
 		} else if (done == 1) {
-			currentState.setFeedback(FEEDBACK_UNDO_SINGLE);
+			currentState.setFeedback(new Feedback(FEEDBACK_UNDO_SINGLE,true));
 		} else {
-			currentState.setFeedback(String.format(FEEDBACK_UNDO_MULTIPLE, String.valueOf(done)));
+			currentState.setFeedback(new Feedback(String.format(FEEDBACK_UNDO_MULTIPLE, String.valueOf(done)),true));
 		}
 		return currentState;
 	}
@@ -115,11 +115,11 @@ public class UndoCommand extends Command {
 			done++;
 		}
 		if (done == 0) {
-			currentState.setFeedback(FEEDBACK_REDO_NONE);
+			currentState.setFeedback(new Feedback(FEEDBACK_REDO_NONE,false));
 		} else if (done == 1) {
-			currentState.setFeedback(FEEDBACK_REDO_SINGLE);
+			currentState.setFeedback(new Feedback(FEEDBACK_REDO_SINGLE,true));
 		} else {
-			currentState.setFeedback(String.format(FEEDBACK_REDO_MULTIPLE, String.valueOf(done)));
+			currentState.setFeedback(new Feedback(String.format(FEEDBACK_REDO_MULTIPLE, String.valueOf(done)),true));
 		}
 		return currentState;
 	}
