@@ -747,6 +747,7 @@ public class GUI implements ActionListener {
 		updateTimedTaskField();
 		updateDeadlineTaskField();
 		updateFloatingTaskField();
+		_mainViewArea.repaint();
 	}
 
 	private void appendToPane(JTextPane textPane, String text,
