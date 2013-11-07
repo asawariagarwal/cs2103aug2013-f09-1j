@@ -38,9 +38,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.swing.JTextArea;
-
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -75,7 +72,7 @@ public class GUI implements ActionListener {
 
 	private static final String FONT_NAME = "Consolas";
 	private static final String HELP_TEXT_1 = "Command List:\n\n";
-	private static final String HELP_TEXT_2 = "add\ndelete\nview\nundo\nredo\nchange\nreschedule\nmark\nexit";
+	private static final String HELP_TEXT_2 = "add\ndelete\nview\nundo\nredo\nchange\nreschedule\nmark\nmute/unmute\nexit";
 	private static final String HELP_TEXT_3 = "\n\nPress ";
 	private static final String HELP_TEXT_4 = "tab ";
 	private static final String HELP_TEXT_5 = "to \nauto-complete\n\nPress ";
@@ -154,7 +151,7 @@ public class GUI implements ActionListener {
 		private static final String LOG_AUDIO_SET_UP_IS_SUCCESSFUL = "Audio Set Up is successful";
 		private static final String FILE_SRC_SOUND_FAILURE_WAV = "file:./src/sound/beep2.wav";
 		private static final String FILE_SRC_SOUND_SUCCESS_WAV = "file:./src/sound/beep1.wav";
-		
+
 		/**
 		 * To store clips and URL's to them
 		 */
@@ -162,6 +159,7 @@ public class GUI implements ActionListener {
 		private static Clip _failureClip;
 		private static URL _urlSuccess;
 		private static URL _urlFailure;
+		private static boolean AUDIO_ENABLED;
 
 		AudioFeedBack() {
 			try {
@@ -204,32 +202,46 @@ public class GUI implements ActionListener {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			this.enable();
+		}
+
+		protected void enable() {
+			AUDIO_ENABLED = true;
 		}
 
 		protected void playSuccess() {
-			_successClip.setFramePosition(_successClip.getFrameLength());
-			_successClip.loop(1);
-			GUILogger.log(Level.INFO, LOG_SUCCESS_AUDIO_PLAYED);
+			if (AUDIO_ENABLED) {
+				_successClip.setFramePosition(_successClip.getFrameLength());
+				_successClip.loop(1);
+				GUILogger.log(Level.INFO, LOG_SUCCESS_AUDIO_PLAYED);
+			}
 		}
 
 		protected void playFailure() {
-			_failureClip.setFramePosition(_failureClip.getFrameLength());
-			_failureClip.loop(1);
-			GUILogger.log(Level.INFO, LOG_FAILURE_AUDIO_PLAYED);
+			if (AUDIO_ENABLED) {
+				_failureClip.setFramePosition(_failureClip.getFrameLength());
+				_failureClip.loop(1);
+				GUILogger.log(Level.INFO, LOG_FAILURE_AUDIO_PLAYED);
+			}
 		}
 
+		protected void disable() {
+			AUDIO_ENABLED = false;
+		}
 	}
 
 	private final class InputProcessor extends KeyAdapter {
-		
+
+		private static final String LOG_TAB_KEY_PRESSED = "Tab key pressed";
+		private static final String LOG_UP_KEY_PRESSED = "Up key pressed";
 		boolean altPressed = false;
-		
+
 		@Override
 		public void keyPressed(KeyEvent e) {
 			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 				GUILogger.log(Level.INFO, "Enter key pressed");
-				if (altPressed){
-					if (min){
+				if (altPressed) {
+					if (min) {
 						deactivateMinMode();
 						min = false;
 					} else {
@@ -237,21 +249,32 @@ public class GUI implements ActionListener {
 						min = true;
 					}
 				} else {
-				String input = _userInputField.getText();
+					String input = _userInputField.getText();
 					if (input.equals("exit")) {
 						System.exit(0);
 					} else if (input.trim().equals("help")) {
 						_helpPane.setText("");
+						_userInputField.setText("");
 						updateHelpPane();
-					_userInputField.setText("");
+
+					} else if (input.trim().equals("mute")) {
+						audio.disable();
+						_userInputField.setText("");
+						_displayState.setFeedback(new Feedback(
+								"Sound turned off", true));
+					} else if (input.trim().equals("unmute")) {
+						audio.enable();
+						_userInputField.setText("");
+						_displayState.setFeedback(new Feedback(
+								"Sound turned on", true));
 					} else {
 						_helpPane.setText("");
-					appendToPane(_helpPane, HELP_PROMPT, _headerAttributes);
+						appendToPane(_helpPane, HELP_PROMPT, _headerAttributes);
 
 						_displayState = _handler.handleInput(input);
-					_userInputField.setText("");
+						_userInputField.setText("");
 						_autoComplete.updateState(_handler.getCurrentState());
-					_previousInputs.add(input);
+						_previousInputs.add(input);
 						UP_KEYPRESS_COUNTER = 1;
 						updateTaskFields();
 						updateFeedbackPane();
@@ -260,7 +283,7 @@ public class GUI implements ActionListener {
 				}
 			}
 			if (e.getKeyCode() == KeyEvent.VK_UP) {
-				GUILogger.log(Level.INFO, "Up key pressed");
+				GUILogger.log(Level.INFO, LOG_UP_KEY_PRESSED);
 				if (_previousInputs.size() - UP_KEYPRESS_COUNTER >= 0) {
 					_userInputField.setText(_previousInputs.get(_previousInputs
 							.size()
@@ -273,7 +296,7 @@ public class GUI implements ActionListener {
 				}
 			}
 			if (e.getKeyCode() == KeyEvent.VK_TAB) {
-				GUILogger.log(Level.INFO, "Tab key pressed");
+				GUILogger.log(Level.INFO, LOG_TAB_KEY_PRESSED);
 				String current = _userInputField.getText();
 				_userInputField.setText(_autoComplete.getSuggestion(current));
 			}
@@ -282,27 +305,27 @@ public class GUI implements ActionListener {
 				altPressed = true;
 			}
 		}
-		
+
 		@Override
-		public void keyReleased(KeyEvent e){
+		public void keyReleased(KeyEvent e) {
 			if (e.getKeyCode() == KeyEvent.VK_ALT) {
 				GUILogger.log(Level.INFO, "Alt key released");
 				altPressed = false;
 			}
 		}
 	}
-	
-	private void activateMinMode(){
+
+	private void activateMinMode() {
 		GUILogger.log(Level.INFO, "Activating MinMode");
 		_frmTodo.getContentPane().remove(_notificationsArea);
 		_frmTodo.getContentPane().remove(TaskScrollPane);
-		_frmTodo.setPreferredSize(new Dimension(700,100));
+		_frmTodo.setPreferredSize(new Dimension(700, 100));
 		_frmTodo.pack();
 		_frmTodo.setVisible(true);
 		_frmTodo.setExtendedState(Frame.NORMAL);
 	}
-	
-	private void deactivateMinMode(){
+
+	private void deactivateMinMode() {
 		GUILogger.log(Level.INFO, "Deactivating MinMode");
 		_frmTodo.getContentPane().add(_notificationsArea, BorderLayout.EAST);
 		_frmTodo.getContentPane().add(TaskScrollPane, BorderLayout.CENTER);
@@ -374,7 +397,8 @@ public class GUI implements ActionListener {
 		_handler = new CommandHandler();
 		_displayState = new State();
 		_autoComplete = new Suggestor();
-		_displayState.setFeedback(new Feedback("Corrupted Previous State",false));
+		_displayState.setFeedback(new Feedback("Corrupted Previous State",
+				false));
 		try {
 			_displayState = _handler.getCurrentState();
 			_autoComplete.updateState(_displayState);
@@ -424,11 +448,11 @@ public class GUI implements ActionListener {
 		setUpShortcutKey();
 
 		initHelpPane();
-		
-		//I know. But hey, whatever works.
-		
+
+		// I know. But hey, whatever works.
+
 		deactivateMinMode();
-		
+
 		activateMinMode();
 
 		initAudioFeedBack();
@@ -443,7 +467,7 @@ public class GUI implements ActionListener {
 			return;
 		}
 
-		if (_displayState.getFeedback().isPositive()){
+		if (_displayState.getFeedback().isPositive()) {
 			audio.playSuccess();
 		} else {
 			audio.playFailure();
@@ -488,7 +512,7 @@ public class GUI implements ActionListener {
 		};
 		_shortcutKey.addHotKeyListener(hotkeyListener);
 	}
-	
+
 	private void toggleGUI() {
 		if (_frmTodo.isShowing() == true) {
 			_frmTodo.dispose();
@@ -496,7 +520,7 @@ public class GUI implements ActionListener {
 			_frmTodo.setVisible(true);
 		}
 	}
-	
+
 	private void assignFocusToInput() {
 		_frmTodo.addWindowFocusListener(new WindowAdapter() {
 			@Override
@@ -603,8 +627,8 @@ public class GUI implements ActionListener {
 			}
 		});
 		_userPromptArea.add(_userInputField, BorderLayout.CENTER);
-		_userInputField
-				.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+		_userInputField.setCursor(Cursor
+				.getPredefinedCursor(Cursor.TEXT_CURSOR));
 		_userInputField.setBorder(null);
 		_userInputField.setForeground(Color.WHITE);
 		_userInputField.setBackground(new Color(0, 0, 0));
@@ -850,7 +874,8 @@ public class GUI implements ActionListener {
 
 			_deadlineTaskView.setText("");
 
-			appendToPane(_deadlineTaskView, "Deadlines :\n\n", _headerAttributes);
+			appendToPane(_deadlineTaskView, "Deadlines :\n\n",
+					_headerAttributes);
 			String deadlineTaskText = "";
 			String taskTags = "";
 			String taskDeadline = "";
