@@ -292,17 +292,12 @@ public class GUI implements ActionListener {
 	
 	private void activateMinMode(){
 		GUILogger.log(Level.INFO, "Activating MinMode");
-		//NotificationsArea.setSize(0, 0);
 		_frmTodo.getContentPane().remove(_notificationsArea);
-		//TaskScrollPane.setSize(0,0);
 		_frmTodo.getContentPane().remove(TaskScrollPane);
-		//frmTodo.setBounds(670, 630, 700, 100);
 		_frmTodo.setPreferredSize(new Dimension(700,100));
 		_frmTodo.pack();
 		_frmTodo.setVisible(true);
 		_frmTodo.setExtendedState(Frame.NORMAL);
-		//frmTodo.setLocationRelativeTo(null);
-		//frmTodo.setLocationByPlatform(true);
 	}
 	
 	private void deactivateMinMode(){
@@ -486,17 +481,21 @@ public class GUI implements ActionListener {
 			public void onHotKey(int id) {
 				GUILogger.log(Level.INFO, "Shortcut Trigerred");
 				if (id == 0) {
-					if (_frmTodo.isShowing() == true) {
-						_frmTodo.dispose();
-					} else {
-						_frmTodo.setVisible(true);
-					}
+					toggleGUI();
 				}
 			}
 		};
 		_shortcutKey.addHotKeyListener(hotkeyListener);
 	}
-
+	
+	private void toggleGUI() {
+		if (_frmTodo.isShowing() == true) {
+			_frmTodo.dispose();
+		} else {
+			_frmTodo.setVisible(true);
+		}
+	}
+	
 	private void assignFocusToInput() {
 		_frmTodo.addWindowFocusListener(new WindowAdapter() {
 			@Override
