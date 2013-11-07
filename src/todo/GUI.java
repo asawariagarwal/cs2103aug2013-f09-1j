@@ -75,14 +75,16 @@ public class GUI implements ActionListener {
 
 	private static final String FONT_NAME = "Consolas";
 	private static final String HELP_TEXT_1 = "Command List:\n\n";
-	private static final String HELP_TEXT_2 = "add\ndelete\nview\nundo\nredo\nchange\nexit";
+	private static final String HELP_TEXT_2 = "add\ndelete\nview\nundo\nredo\nchange\nreschedule\nmark\nexit";
 	private static final String HELP_TEXT_3 = "\n\nPress ";
 	private static final String HELP_TEXT_4 = "tab ";
 	private static final String HELP_TEXT_5 = "to \nauto-complete\n\nPress ";
 	private static final String HELP_TEXT_6 = "arrow-up ";
 	private static final String HELP_TEXT_7 = "to \ncycle through\nprevious commands\n\nPress ";
 	private static final String HELP_TEXT_8 = "F3 ";
-	private static final String HELP_TEXT_9 = "to minimize\nto/maximize from the\nSystem Tray";
+	private static final String HELP_TEXT_9 = "to minimize\nto/maximize from the\nSystem Tray\n\nPress ";
+	private static final String HELP_TEXT_10 = "Alt+Enter ";
+	private static final String HELP_TEXT_11 = "to \nswitch between Min \nand Full Modes";
 
 	private static AudioFeedBack audio;
 
@@ -521,6 +523,8 @@ public class GUI implements ActionListener {
 		appendToPane(_helpPane, HELP_TEXT_7, _headerAttributes);
 		appendToPane(_helpPane, HELP_TEXT_8, _feedbackTextAttributes);
 		appendToPane(_helpPane, HELP_TEXT_9, _headerAttributes);
+		appendToPane(_helpPane, HELP_TEXT_10, _feedbackTextAttributes);
+		appendToPane(_helpPane, HELP_TEXT_11, _headerAttributes);
 	}
 
 	private void updateSystemTray() {
