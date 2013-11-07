@@ -14,8 +14,8 @@ public class Suggestor {
 	private static final String UNDO = "undo";
 	private static final String REDO = "redo";
 	private static final String EXIT = "exit";
-	private static final String CLEAR = "clear";
 	private static final String HELP = "help";
+	private static final String CLEAR = "clear";
 	
 	private static ArrayList<String> commandList = new ArrayList<String>();	
 	
@@ -35,6 +35,7 @@ public class Suggestor {
 		commandList.add(UNDO);
 		commandList.add(REDO);
 		commandList.add(HELP);
+		commandList.add(CLEAR);
 		commandList.add(EXIT);
 		commandList.add(CLEAR);
 		
