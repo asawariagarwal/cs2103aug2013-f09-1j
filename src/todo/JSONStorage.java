@@ -91,6 +91,7 @@ public class JSONStorage {
 		String taskDescription = (String) deadlineTaskJSON.get("description");
 		ArrayList<String> tags = (ArrayList<String>) deadlineTaskJSON.get("tags");
 		String deadlineString = (String) deadlineTaskJSON.get("deadline");
+		boolean isCompleted = (boolean) deadlineTaskJSON.get("done");
 		storageLogger.log(Level.FINE, "Got from JSON");
 		
 		String deadlineFormat = " 'by' EEEEEEEEE',' dd MMMMMMMMM',' yyyy ";
@@ -101,7 +102,9 @@ public class JSONStorage {
 		deadlineCalendar.setTime(deadlineDate);
 		
 		DeadlineTask deadlineTask = new DeadlineTask(taskDescription, tags, deadlineCalendar);
-		
+		if (isCompleted){
+			deadlineTask.markAsDone();
+		}
 		storageLogger.log(Level.FINE, "Deadline Task Created");
 		return deadlineTask;
 	}
@@ -113,6 +116,7 @@ public class JSONStorage {
 		JSONObject timedTaskJSON = (JSONObject) timedObj;
 		String taskDescription = (String) timedTaskJSON.get("description");
 		ArrayList<String> tags = (ArrayList<String>) timedTaskJSON.get("tags");
+		boolean isCompleted = (boolean) timedTaskJSON.get("done");
 		
 		String startString = (String) timedTaskJSON.get("from");
 		String endString = (String) timedTaskJSON.get("to");
@@ -129,6 +133,9 @@ public class JSONStorage {
 		toCalendar.setTime(toDate);
 		
 		TimedTask timedTask = new TimedTask(taskDescription, tags, fromCalendar, toCalendar);
+		if (isCompleted){
+			timedTask.markAsDone();
+		}
 		storageLogger.log(Level.FINER, "Timed Task Created");
 		return timedTask;
 	}
@@ -139,8 +146,13 @@ public class JSONStorage {
 		JSONObject floatingTaskJSON = (JSONObject) floatObj;
 		String taskDescription = (String) floatingTaskJSON.get("description");
 		ArrayList<String> tags = (ArrayList<String>) floatingTaskJSON.get("tags");
+		boolean isCompleted = (boolean) floatingTaskJSON.get("done");
 		storageLogger.log(Level.FINER, "Got from JSON");
+		
 		FloatingTask floatingTask = new FloatingTask(taskDescription, tags);
+		if (isCompleted){
+			floatingTask.markAsDone();
+		}
 		storageLogger.log(Level.FINER, "Floating Task Created");
 		return floatingTask;
 	}
@@ -200,6 +212,7 @@ public class JSONStorage {
 		taskObject.put("description",task.getTaskDescription());
 		JSONArray tags = getTagsJSON(task.getTags());
 		taskObject.put("tags",tags);
+		taskObject.put("done",task.isComplete());
 		storageLogger.log(Level.FINE, "Created Floating JSON");
 		return taskObject;
 	}
@@ -219,6 +232,7 @@ public class JSONStorage {
 		
 		taskObject.put("from", startString);
 		taskObject.put("to", endString);
+		taskObject.put("done",task.isComplete());
 		storageLogger.log(Level.FINE, "Created Timed JSON");
 		return taskObject;
 		
@@ -237,6 +251,7 @@ public class JSONStorage {
 		String deadlineString = sdf.format(task.getDeadline().getTime());
 		
 		taskObject.put("deadline", deadlineString);
+		taskObject.put("done",task.isComplete());
 		storageLogger.log(Level.FINE, "Created Deadline JSON");
 		return taskObject;
 	}
