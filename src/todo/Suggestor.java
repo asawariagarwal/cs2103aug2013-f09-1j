@@ -16,6 +16,7 @@ public class Suggestor {
 	private static final String EXIT = "exit";
 	private static final String HELP = "help";
 	private static final String CLEAR = "clear";
+	private static final String MARK = "mark";
 	
 	private static ArrayList<String> commandList = new ArrayList<String>();	
 	
@@ -38,6 +39,7 @@ public class Suggestor {
 		commandList.add(CLEAR);
 		commandList.add(EXIT);
 		commandList.add(CLEAR);
+		commandList.add(MARK);
 		
 		ArrayList<String> viewSuggestions = new ArrayList<String>();
 		viewSuggestions.add("all");
@@ -46,6 +48,9 @@ public class Suggestor {
 		viewSuggestions.add("deadlines");
 		viewSuggestions.add("today");
 		viewSuggestions.add("tomorrow");
+		viewSuggestions.add("completed");
+		viewSuggestions.add("expired");
+		viewSuggestions.add("pending");
 		
 		commandSuggestionMap.put(VIEW, viewSuggestions);
 		
@@ -114,6 +119,7 @@ public class Suggestor {
 		commandSuggestionMap.put(DELETE, descriptionList);
 		commandSuggestionMap.put(CHANGE, descriptionList);
 		commandSuggestionMap.put(RESCHEDULE, descriptionList);
+		commandSuggestionMap.put(MARK, descriptionList);
 		
 	}
 	
