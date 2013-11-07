@@ -17,6 +17,8 @@ public class ViewCommand extends Command {
 	public static final int MODE_VIEW_DEADLINE = 3;
 	public static final int MODE_VIEW_DATE = 4;
 	public static final int MODE_VIEW_TAG = 5;
+	public static final int MODE_VIEW_EXPIRED = 6;
+	public static final int MODE_VIEW_DONE = 7;
 
 	private static final String FEEDBACK_VIEW_ALL = "viewing all tasks";
 	private static final String FEEDBACK_VIEW_FLOATING = "viewing flexible tasks";
@@ -24,7 +26,9 @@ public class ViewCommand extends Command {
 	private static final String FEEDBACK_VIEW_DEADLINE = "viewing deadlines";
 	private static final String FEEDBACK_VIEW_DATE = "viewing date: %1$s";
 	private static final String FEEDBACK_VIEW_TAG = "viewing tag: #%1$s";
-	private static final String FEEDBACK_VIEW_DATE_NOT_FOUND = "No tasks found for %1$s";
+	private static final String FEEDBACK_VIEW_DATE_NOT_FOUND = "no tasks found for %1$s";
+	private static final String FEEDBACK_VIEW_EXPIRED = "viewing expired tasks";
+	private static final String FEEDBACK_VIEW_DONE = "viewing completed tasks";
 	
 	private static final String LOG_ERROR = "error executing view";
 	private static final String LOG_VIEW_ALL = "executing view all";
@@ -33,6 +37,8 @@ public class ViewCommand extends Command {
 	private static final String LOG_VIEW_DEADLINE = "executing view deadline";
 	private static final String LOG_VIEW_DATE = "executing view date";
 	private static final String LOG_VIEW_TAG = "executing view tag";
+	private static final String LOG_VIEW_EXPIRED = "executing view expired";
+	private static final String LOG_VIEW_DONE = "executing view done";
 
 	private static final String DATE_FORMAT = "%1$s/%2$s/%3$s";
 	private static final int MONTH_OFFSET = 1;
@@ -58,7 +64,7 @@ public class ViewCommand extends Command {
 	 * @param mode
 	 *            defines what the viewCommand does possible modes:
 	 *            MODE_VIEW_ALL, MODE_VIEW_FLOATING, MODE_VIEW_DEADLINE,
-	 *            MODE_VIEW_TIMED
+	 *            MODE_VIEW_TIMED, MODE_VIEW_EXPIRED, MODE_VIEW_DONE
 	 * 
 	 */
 	ViewCommand(int mode) {
@@ -95,7 +101,8 @@ public class ViewCommand extends Command {
 	@Override
 	protected boolean isValid() {
 		return (isViewAll() || isViewFloating() || isViewDeadline()
-				|| isViewTimed() || isViewDate() || isViewTag());
+				|| isViewTimed() || isViewDate() || isViewTag()
+				|| isViewExpired() || isViewDone());
 	}
 
 	/**
@@ -145,6 +152,22 @@ public class ViewCommand extends Command {
 	private boolean isViewTag() {
 		return (mode == MODE_VIEW_TAG && tag != null);
 	}
+	
+	/**
+	 * Checks if command is a "view expired" command
+	 * 
+	 */
+	private boolean isViewExpired() {
+		return mode == MODE_VIEW_EXPIRED;
+	}
+	
+	/**
+	 * Checks if command is a "view done" command
+	 * 
+	 */
+	private boolean isViewDone() {
+		return mode == MODE_VIEW_DONE;
+	}
 
 	@Override
 	protected State execute(State state) throws Exception {
@@ -167,6 +190,12 @@ public class ViewCommand extends Command {
 		} else if (isViewTag()) {
 			logger.log(Level.INFO, LOG_VIEW_TAG);
 			return executeViewTag(state);
+		} else if (isViewExpired()) {
+			logger.log(Level.INFO, LOG_VIEW_EXPIRED);
+			return executeViewExpired(state);
+		} else if (isViewDone()) {
+			logger.log(Level.INFO, LOG_VIEW_DONE);
+			return executeViewDone(state);
 		} else {
 			logger.log(Level.WARNING, LOG_ERROR);
 			throw new Exception();
@@ -298,6 +327,44 @@ public class ViewCommand extends Command {
 			}
 		}
 		s.setFeedback(String.format(FEEDBACK_VIEW_TAG, tag));
+		return s;
+	}
+	
+	/**
+	 * Executes view expired command
+	 * 
+	 * @param state
+	 * 			state of current program
+	 * 
+	 * @return state after execution
+	 */
+	private State executeViewExpired(State state) {
+		State s = new State();
+		for (Task t : state.getAllTasks()) {
+			if (t.isExpired() && !t.isComplete()) {
+				s.addTask(t);
+			}
+		}
+		s.setFeedback(FEEDBACK_VIEW_EXPIRED);
+		return s;
+	}
+	
+	/**
+	 * Executes view done command
+	 * 
+	 * @param state
+	 * 			state of current program
+	 * 
+	 * @return state after execution
+	 */
+	private State executeViewDone(State state) {
+		State s = new State();
+		for (Task t : state.getAllTasks()) {
+			if (t.isComplete()) {
+				s.addTask(t);
+			}
+		}
+		s.setFeedback(FEEDBACK_VIEW_DONE);
 		return s;
 	}
 }
