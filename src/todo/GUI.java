@@ -255,7 +255,7 @@ public class GUI implements ActionListener {
 						UP_KEYPRESS_COUNTER = 1;
 						updateTaskFields();
 						updateFeedbackPane();
-					playAudioFeedback();
+						playAudioFeedback();
 					}
 				}
 			}
@@ -294,17 +294,12 @@ public class GUI implements ActionListener {
 	
 	private void activateMinMode(){
 		GUILogger.log(Level.INFO, "Activating MinMode");
-		//NotificationsArea.setSize(0, 0);
 		_frmTodo.getContentPane().remove(_notificationsArea);
-		//TaskScrollPane.setSize(0,0);
 		_frmTodo.getContentPane().remove(TaskScrollPane);
-		//frmTodo.setBounds(670, 630, 700, 100);
 		_frmTodo.setPreferredSize(new Dimension(700,100));
 		_frmTodo.pack();
 		_frmTodo.setVisible(true);
 		_frmTodo.setExtendedState(Frame.NORMAL);
-		//frmTodo.setLocationRelativeTo(null);
-		//frmTodo.setLocationByPlatform(true);
 	}
 	
 	private void deactivateMinMode(){
@@ -487,17 +482,21 @@ public class GUI implements ActionListener {
 			public void onHotKey(int id) {
 				GUILogger.log(Level.INFO, "Shortcut Trigerred");
 				if (id == 0) {
-					if (_frmTodo.isShowing() == true) {
-						_frmTodo.dispose();
-					} else {
-						_frmTodo.setVisible(true);
-					}
+					toggleGUI();
 				}
 			}
 		};
 		_shortcutKey.addHotKeyListener(hotkeyListener);
 	}
-
+	
+	private void toggleGUI() {
+		if (_frmTodo.isShowing() == true) {
+			_frmTodo.dispose();
+		} else {
+			_frmTodo.setVisible(true);
+		}
+	}
+	
 	private void assignFocusToInput() {
 		_frmTodo.addWindowFocusListener(new WindowAdapter() {
 			@Override
@@ -840,8 +839,9 @@ public class GUI implements ActionListener {
 
 			_mainViewArea.add(_timedTaskView);
 		} else if (_displayState.getTimedTasks().isEmpty()) {
-			_mainViewArea.remove(_timedTaskView);
+			GUILogger.log(Level.INFO, "Timed Tasks are empty");
 			_timedTaskView.setText("");
+			_mainViewArea.remove(_timedTaskView);
 		}
 	}
 
@@ -887,8 +887,9 @@ public class GUI implements ActionListener {
 
 			_mainViewArea.add(_deadlineTaskView);
 		} else if (_displayState.getDeadlineTasks().isEmpty()) {
-			_mainViewArea.remove(_deadlineTaskView);
+			GUILogger.log(Level.INFO, "Deadline Tasks are empty");
 			_deadlineTaskView.setText("");
+			_mainViewArea.remove(_deadlineTaskView);
 		}
 	}
 
@@ -921,8 +922,9 @@ public class GUI implements ActionListener {
 
 			_mainViewArea.add(_floatingTaskView);
 		} else if (_displayState.getFloatingTasks().isEmpty()) {
-			_mainViewArea.remove(_floatingTaskView);
+			GUILogger.log(Level.INFO, "Floating Tasks are empty");
 			_floatingTaskView.setText("");
+			_mainViewArea.remove(_floatingTaskView);
 		}
 	}
 
