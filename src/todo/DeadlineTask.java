@@ -66,7 +66,7 @@ import java.util.Calendar;
 		 */
 		protected String getDeadlineString() {
 			String deadlineString = "";
-			String timeFormat = "hh:mm aa EEEEEEEEE',' dd MMMMMMMMM, yyyy ";
+			String timeFormat = "EEEEEEEEE',' dd MMMMMMMMM, yyyy ";
 
 			SimpleDateFormat sdf = new SimpleDateFormat(timeFormat);
 
