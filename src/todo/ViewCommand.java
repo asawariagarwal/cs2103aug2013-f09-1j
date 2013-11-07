@@ -1,8 +1,10 @@
 package todo;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TreeSet;
 import java.util.logging.*;
+
 import todo.Feedback;
 
 /**
@@ -282,13 +284,70 @@ public class ViewCommand extends Command {
 				s.addTask(cur);
 			}
 		}
+		Calendar previousEndTime = Calendar.getInstance();
+		Calendar nextStartTime = Calendar.getInstance();
+
+		if (!timed.isEmpty()) {
+			Calendar startOfDay = Calendar.getInstance();
+			startOfDay.clear();
+			previousEndTime.clear();
+			nextStartTime.clear();
+			startOfDay.set(Calendar.YEAR, yy);
+			startOfDay.set(Calendar.MONTH, mm);
+			startOfDay.set(Calendar.DATE, dd);
+
+			startOfDay.set(Calendar.HOUR_OF_DAY, 0);
+			startOfDay.set(Calendar.MINUTE, 0);
+			startOfDay.set(Calendar.SECOND, 0);
+			startOfDay.set(Calendar.MILLISECOND, 0);
+
+			TimedTask firstTask = timed.first();
+
+			if (startOfDay.getTimeInMillis() < firstTask.getStartDate()
+					.getTimeInMillis()) {
+				previousEndTime.setTimeInMillis(startOfDay.getTimeInMillis());
+			} else {
+				previousEndTime.setTimeInMillis(firstTask.getEndDate()
+						.getTimeInMillis());
+			}
+
+		}
+
 		for (TimedTask cur : timed) {
-			if (dd == cur.getStartDate().get(Calendar.DATE)
-					&& mm == cur.getStartDate().get(Calendar.MONTH)
-					&& yy == cur.getStartDate().get(Calendar.YEAR)) {
+			if (startDayMatches(dd, mm, yy, cur)
+					|| endDayMatches(dd, mm, yy, cur)) {
+				nextStartTime.setTimeInMillis(cur.getStartDate()
+						.getTimeInMillis());
+
+				TimedTask blankTask = createEmptyTask(previousEndTime,
+						nextStartTime);
+				System.out.println(previousEndTime);
+				System.out.println(nextStartTime);
+
+				if (previousEndTime.getTimeInMillis() < cur.getEndDate()
+						.getTimeInMillis()) {
+					previousEndTime.setTimeInMillis(cur.getEndDate()
+							.getTimeInMillis());
+				}
+
+				if (blankTask != null) {
+					s.addTask(blankTask);
+				}
 				s.addTask(cur);
 			}
 		}
+		
+		if(previousEndTime.get(Calendar.DATE) == dd) {
+			Calendar last = Calendar.getInstance();
+			last.clear();
+			last.setTimeInMillis(previousEndTime.getTimeInMillis());
+			last.set(Calendar.HOUR, 23);
+			last.set(Calendar.MINUTE, 59);
+			last.set(Calendar.SECOND, 59);
+			TimedTask lastEmptyTask = createEmptyTask(previousEndTime, last);
+			s.addTask(lastEmptyTask);
+		}
+		
 		String dateStr = String.format(DATE_FORMAT, String.valueOf(dd), String
 				.valueOf(mm + MONTH_OFFSET), String.valueOf(yy));
 		s.setFeedback(new Feedback(String.format(FEEDBACK_VIEW_DATE, dateStr),
@@ -301,6 +360,37 @@ public class ViewCommand extends Command {
 		}
 
 		return s;
+	}
+
+	private TimedTask createEmptyTask(Calendar previousEndTime,
+			Calendar nextStartTime) {
+		if (previousEndTime.getTimeInMillis() >= nextStartTime
+				.getTimeInMillis())
+			return null;
+		System.out.println("Here");
+		
+		Calendar start = Calendar.getInstance();
+		start.clear();
+		start.setTimeInMillis(previousEndTime.getTimeInMillis());
+		
+		Calendar end = Calendar.getInstance();
+		end.clear();
+		end.setTimeInMillis(nextStartTime.getTimeInMillis());
+		
+		TimedTask blankTask = new TimedTask("[EMPTY]", new ArrayList<String>(), start, end);
+		return blankTask;
+	}
+
+	private boolean endDayMatches(int dd, int mm, int yy, TimedTask cur) {
+		return dd == cur.getEndDate().get(Calendar.DATE)
+				&& mm == cur.getEndDate().get(Calendar.MONTH)
+				&& yy == cur.getEndDate().get(Calendar.YEAR);
+	}
+
+	private boolean startDayMatches(int dd, int mm, int yy, TimedTask cur) {
+		return dd == cur.getStartDate().get(Calendar.DATE)
+				&& mm == cur.getStartDate().get(Calendar.MONTH)
+				&& yy == cur.getStartDate().get(Calendar.YEAR);
 	}
 
 	/**

@@ -363,6 +363,8 @@ public class GUI implements ActionListener {
 	private SimpleAttributeSet _bodyAttributes;
 	private SimpleAttributeSet _tagAttributes;
 	private SimpleAttributeSet _feedbackTextAttributes;
+	private SimpleAttributeSet _emptyAttributes;
+
 	private static boolean min = true;
 
 	private String HELP_PROMPT = "\nFeeling Lost?\nTry keying in 'help'";
@@ -768,6 +770,14 @@ public class GUI implements ActionListener {
 		return attributes;
 	}
 
+	private SimpleAttributeSet getEmptyAttributeSet() {
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributes, Color.GRAY);
+		StyleConstants.setBackground(attributes, Color.BLACK);
+		StyleConstants.setFontFamily(attributes, FONT_NAME);
+		return attributes;
+	}
+
 	private SimpleAttributeSet getBodyAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, Color.WHITE);
@@ -811,6 +821,7 @@ public class GUI implements ActionListener {
 	private void setUpAttributes() {
 
 		_headerAttributes = getHeadingAttributeSet();
+		_emptyAttributes = getEmptyAttributeSet();
 		_bodyAttributes = getBodyAttributeSet();
 		_tagAttributes = getTagAttributeSet();
 		_feedbackTextAttributes = getFeedbackAttributeSet();
@@ -842,7 +853,10 @@ public class GUI implements ActionListener {
 
 				appendToPane(_timedTaskView, taskNum, _bodyAttributes);
 
-				if (task.isComplete()) {
+				if (task.isEmpty()) {
+					appendToPane(_timedTaskView, timedTaskText,
+							_emptyAttributes);
+				} else if (task.isComplete()) {
 					appendToPane(_timedTaskView, timedTaskText,
 							completedAttributes);
 				} else if (task.isExpired()) {
