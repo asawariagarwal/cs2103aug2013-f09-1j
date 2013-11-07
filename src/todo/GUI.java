@@ -253,7 +253,7 @@ public class GUI implements ActionListener {
 						UP_KEYPRESS_COUNTER = 1;
 						updateTaskFields();
 						updateFeedbackPane();
-					playAudioFeedback();
+						playAudioFeedback();
 					}
 				}
 			}
