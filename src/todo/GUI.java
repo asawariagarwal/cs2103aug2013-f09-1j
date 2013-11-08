@@ -70,6 +70,9 @@ import com.melloware.jintellitype.JIntellitype;
 
 public class GUI implements ActionListener {
 
+	private static final String LOG_PREVIOUS_STATE_WAS_CORRUPTED_NEW_STATE_CALLED = "Previous State was corrupted. New State called";
+	private static final String FEEDBACK_CORRUPTED_PREVIOUS_STATE = "Corrupted Previous State";
+	private static final String LOG_GUI_SETTING_UP = "GUI Setting Up";
 	private static final String FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL = "./lib/windows/JIntellitype64.dll";
 	private static final String LOG_SHORTCUT_TRIGERRED = "Shortcut Trigerred";
 	private static final String FONT_NAME = "Consolas";
@@ -91,7 +94,8 @@ public class GUI implements ActionListener {
 
 		private static final Color SCROLL_BAR_COLOR = Color.blue;
 		private static final Color SCROLL_BAR_TRACK_IMAGE = Color.white;
-		private static final Color SCROLL_BAR_THUMB_IMAGE = SCROLL_BAR_COLOR.darker();
+		private static final Color SCROLL_BAR_THUMB_IMAGE = SCROLL_BAR_COLOR
+				.darker();
 		private static final int SCROLL_IMAGE_DIMENSION = 32;
 		private Image imageThumb, imageTrack;
 		private JButton b = new JButton() {
@@ -104,8 +108,10 @@ public class GUI implements ActionListener {
 		};
 
 		CustomScrollBar() {
-			imageThumb = ScrollImage.create(SCROLL_IMAGE_DIMENSION, SCROLL_IMAGE_DIMENSION, SCROLL_BAR_THUMB_IMAGE);
-			imageTrack = ScrollImage.create(SCROLL_IMAGE_DIMENSION, SCROLL_IMAGE_DIMENSION, SCROLL_BAR_TRACK_IMAGE);
+			imageThumb = ScrollImage.create(SCROLL_IMAGE_DIMENSION,
+					SCROLL_IMAGE_DIMENSION, SCROLL_BAR_THUMB_IMAGE);
+			imageTrack = ScrollImage.create(SCROLL_IMAGE_DIMENSION,
+					SCROLL_IMAGE_DIMENSION, SCROLL_BAR_TRACK_IMAGE);
 		}
 
 		@Override
@@ -168,16 +174,34 @@ public class GUI implements ActionListener {
 		private static boolean AUDIO_ENABLED;
 
 		AudioFeedBack() {
+			setUpAudioClips();
+			openAudioClips();
+			this.enable();
+		}
+
+		private void openAudioClips() {
+			openSuccessClip();
+			openFailureClip();
+		}
+
+		private void openFailureClip() {
+			AudioInputStream ais;
+			ais = null;
 			try {
-				_urlSuccess = new URL(FILE_SRC_SOUND_SUCCESS_WAV);
-				_successClip = AudioSystem.getClip();
-				_urlFailure = new URL(FILE_SRC_SOUND_FAILURE_WAV);
-				_failureClip = AudioSystem.getClip();
-				GUILogger.log(Level.INFO, LOG_AUDIO_SET_UP_IS_SUCCESSFUL);
-			} catch (MalformedURLException | LineUnavailableException e) {
-				GUILogger.log(Level.WARNING, LOG_AUDIO_SET_UP_HAS_FAILED);
+				ais = AudioSystem.getAudioInputStream(_urlFailure);
+			} catch (UnsupportedAudioFileException | IOException e) {
 				e.printStackTrace();
 			}
+			try {
+				_failureClip.open(ais);
+			} catch (LineUnavailableException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		private void openSuccessClip() {
 			AudioInputStream ais = null;
 			try {
 				ais = AudioSystem.getAudioInputStream(_urlSuccess);
@@ -194,21 +218,19 @@ public class GUI implements ActionListener {
 				GUILogger.log(Level.WARNING, LOG_AUDIO_FILE_FAILED_TO_OPEN);
 				e.printStackTrace();
 			}
+		}
 
-			ais = null;
+		private void setUpAudioClips() {
 			try {
-				ais = AudioSystem.getAudioInputStream(_urlFailure);
-			} catch (UnsupportedAudioFileException | IOException e) {
+				_urlSuccess = new URL(FILE_SRC_SOUND_SUCCESS_WAV);
+				_successClip = AudioSystem.getClip();
+				_urlFailure = new URL(FILE_SRC_SOUND_FAILURE_WAV);
+				_failureClip = AudioSystem.getClip();
+				GUILogger.log(Level.INFO, LOG_AUDIO_SET_UP_IS_SUCCESSFUL);
+			} catch (MalformedURLException | LineUnavailableException e) {
+				GUILogger.log(Level.WARNING, LOG_AUDIO_SET_UP_HAS_FAILED);
 				e.printStackTrace();
 			}
-			try {
-				_failureClip.open(ais);
-			} catch (LineUnavailableException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			this.enable();
 		}
 
 		protected void enable() {
@@ -238,83 +260,149 @@ public class GUI implements ActionListener {
 
 	private final class InputProcessor extends KeyAdapter {
 
+		private static final String EMPTY_STRING = "";
+		private static final String FEEDBACK_SOUND_TURNED_ON = "Sound turned on";
+		private static final String FEEDBACK_SOUND_TURNED_OFF = "Sound turned off";
+		private static final String UNMUTE_INPUT = "unmute";
+		private static final String MUTE_INPUT = "mute";
+		private static final String HELP_INPUT = "help";
+		private static final String EXIT_INPUT = "exit";
+		private static final String LOG_ENTER_KEY_PRESSED = "Enter key pressed";
 		private static final String LOG_TAB_KEY_PRESSED = "Tab key pressed";
 		private static final String LOG_UP_KEY_PRESSED = "Up key pressed";
 		boolean altPressed = false;
 
 		@Override
 		public void keyPressed(KeyEvent e) {
-			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-				GUILogger.log(Level.INFO, "Enter key pressed");
-				if (altPressed) {
-					if (min) {
-						deactivateMinMode();
-						min = false;
-					} else {
-						activateMinMode();
-						min = true;
-					}
-				} else {
-					String input = _userInputField.getText();
-					if (input.equals("exit")) {
-						System.exit(0);
-					} else if (input.trim().equals("help")) {
-						_helpPane.setText("");
-						_userInputField.setText("");
-						updateHelpPane();
-
-					} else if (input.trim().equals("mute")) {
-						audio.disable();
-						_userInputField.setText("");
-						_displayState.setFeedback(new Feedback(
-								"Sound turned off", true));
-					} else if (input.trim().equals("unmute")) {
-						audio.enable();
-						_userInputField.setText("");
-						_displayState.setFeedback(new Feedback(
-								"Sound turned on", true));
-					} else {
-						_helpPane.setText("");
-						appendToPane(_helpPane, HELP_PROMPT, _headerAttributes);
-
-						_displayState = _handler.handleInput(input);
-						_userInputField.setText("");
-						_autoComplete.updateState(_handler.getCurrentState());
-						_previousInputs.add(input);
-						UP_KEYPRESS_COUNTER = 1;
-						updateTaskFields();
-						updateFeedbackPane();
-						playAudioFeedback();
-					}
-				}
+			if (isEnterKeyPress(e)) {
+				handleEnterKeyPress();
 			}
-			if (e.getKeyCode() == KeyEvent.VK_UP) {
+			if (isUpKeyPress(e)) {
 				GUILogger.log(Level.INFO, LOG_UP_KEY_PRESSED);
-				if (_previousInputs.size() - UP_KEYPRESS_COUNTER >= 0) {
-					_userInputField.setText(_previousInputs.get(_previousInputs
-							.size()
-							- UP_KEYPRESS_COUNTER++));
-				} else {
-					UP_KEYPRESS_COUNTER = 1;
-					_userInputField.setText(_previousInputs.get(_previousInputs
-							.size()
-							- UP_KEYPRESS_COUNTER++));
-				}
+				executePrompt();
 			}
-			if (e.getKeyCode() == KeyEvent.VK_TAB) {
+			if (isTabKeyPress(e)) {
 				GUILogger.log(Level.INFO, LOG_TAB_KEY_PRESSED);
-				String current = _userInputField.getText();
-				_userInputField.setText(_autoComplete.getSuggestion(current));
+				autocompleteCurrentInput();
 			}
-			if (e.getKeyCode() == KeyEvent.VK_ALT) {
+			if (isAltKeyPress(e)) {
 				GUILogger.log(Level.INFO, "Alt key pressed");
 				altPressed = true;
 			}
 		}
 
+		private boolean isAltKeyPress(KeyEvent e) {
+			return e.getKeyCode() == KeyEvent.VK_ALT;
+		}
+
+		private void autocompleteCurrentInput() {
+			String current = _userInputField.getText();
+			_userInputField.setText(_autoComplete.getSuggestion(current));
+		}
+
+		private boolean isTabKeyPress(KeyEvent e) {
+			return e.getKeyCode() == KeyEvent.VK_TAB;
+		}
+
+		private void handleEnterKeyPress() {
+			GUILogger.log(Level.INFO, LOG_ENTER_KEY_PRESSED);
+			if (altPressed) {
+				toggleMinMode();
+			} else {
+				handleEnteredInput();
+			}
+		}
+
+		private void executePrompt() {
+			if (_previousInputs.size() - UP_KEYPRESS_COUNTER >= 0) {
+				_userInputField.setText(_previousInputs.get(_previousInputs
+						.size()
+						- UP_KEYPRESS_COUNTER++));
+			} else {
+				UP_KEYPRESS_COUNTER = 1;
+				_userInputField.setText(_previousInputs.get(_previousInputs
+						.size()
+						- UP_KEYPRESS_COUNTER++));
+			}
+		}
+
+		private boolean isUpKeyPress(KeyEvent e) {
+			return e.getKeyCode() == KeyEvent.VK_UP;
+		}
+
+		private void handleEnteredInput() {
+			String input = _userInputField.getText();
+			if (isExit(input)) {
+				System.exit(0);
+			} else if (isHelp(input)) {
+				_helpPane.setText(EMPTY_STRING);
+				_userInputField.setText(EMPTY_STRING);
+				updateHelpPane();
+			} else if (isMute(input)) {
+				audio.disable();
+				_userInputField.setText(EMPTY_STRING);
+				_displayState.setFeedback(new Feedback(
+						FEEDBACK_SOUND_TURNED_OFF, true));
+			} else if (isUnmute(input)) {
+				audio.enable();
+				_userInputField.setText(EMPTY_STRING);
+				_displayState.setFeedback(new Feedback(
+						FEEDBACK_SOUND_TURNED_ON, true));
+			} else {
+				clearHelpPane();
+				_displayState = _handler.handleInput(input);
+				updateUI(input);
+			}
+		}
+
+		private void clearHelpPane() {
+			_helpPane.setText(EMPTY_STRING);
+			appendToPane(_helpPane, HELP_PROMPT, _headerAttributes);
+		}
+
+		private void updateUI(String input) {
+			_userInputField.setText(EMPTY_STRING);
+			_autoComplete.updateState(_handler.getCurrentState());
+			_previousInputs.add(input);
+			UP_KEYPRESS_COUNTER = 1;
+			updateTaskFields();
+			updateFeedbackPane();
+			playAudioFeedback();
+		}
+
+		private boolean isUnmute(String input) {
+			return input.trim().equals(UNMUTE_INPUT);
+		}
+
+		private boolean isMute(String input) {
+			return input.trim().equals(MUTE_INPUT);
+		}
+
+		private boolean isHelp(String input) {
+			return input.trim().equals(HELP_INPUT);
+		}
+
+		private boolean isExit(String input) {
+			return input.equals(EXIT_INPUT);
+		}
+
+		private void toggleMinMode() {
+			if (min) {
+				deactivateMinMode();
+				min = false;
+			} else {
+				activateMinMode();
+				min = true;
+			}
+		}
+
+		private boolean isEnterKeyPress(KeyEvent e) {
+			return e.getKeyCode() == KeyEvent.VK_ENTER;
+		}
+
 		@Override
 		public void keyReleased(KeyEvent e) {
-			if (e.getKeyCode() == KeyEvent.VK_ALT) {
+			if (isAltKeyPress(e)) {
 				GUILogger.log(Level.INFO, "Alt key released");
 				altPressed = false;
 			}
@@ -400,19 +488,19 @@ public class GUI implements ActionListener {
 	 * Create the application.
 	 */
 	public GUI() {
-		GUILogger.log(Level.INFO, "GUI Setting Up");
+		GUILogger.log(Level.INFO, LOG_GUI_SETTING_UP);
 
 		_handler = new CommandHandler();
 		_displayState = new State();
 		_autoComplete = new Suggestor();
-		_displayState.setFeedback(new Feedback("Corrupted Previous State",
+		_displayState.setFeedback(new Feedback(FEEDBACK_CORRUPTED_PREVIOUS_STATE,
 				false));
 		try {
 			_displayState = _handler.getCurrentState();
 			_autoComplete.updateState(_displayState);
 		} catch (Exception e) {
 			GUILogger.log(Level.WARNING,
-					"Previous State was corrupted. New State called");
+					LOG_PREVIOUS_STATE_WAS_CORRUPTED_NEW_STATE_CALLED);
 			e.printStackTrace();
 		} finally {
 			initialize();
@@ -541,7 +629,7 @@ public class GUI implements ActionListener {
 	private void updateFeedbackPane() {
 		_feedbackPane.setText("");
 		String feedbackText = _displayState.getFeedback().getDisplay();
-		if (_displayState.getFeedback().isPositive()){
+		if (_displayState.getFeedback().isPositive()) {
 			appendToPane(_feedbackPane, feedbackText, completedAttributes);
 		} else {
 			appendToPane(_feedbackPane, feedbackText, expiredAttributes);
