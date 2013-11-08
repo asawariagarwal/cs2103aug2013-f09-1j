@@ -17,7 +17,7 @@ public class DeleteCommand extends Command {
 	private static final String FEEDBACK_NOT_FOUND = "no tasks containing %1$s can be found";
 	private static final String FEEDBACK_MULTIPLE_FOUND = "multiple tasks containing %1$s found - refine your keywords";
 	private static final String FEEDBACK_DELETED = "deleted: %1$s";
-	private static final String FEEDBACK_BAD_INDEX = "index not in range";
+	private static final String FEEDBACK_BAD_INDEX = "invalid index";
 	
 	private static final String LOG_ERROR = "error executing delete";
 	
@@ -44,18 +44,18 @@ public class DeleteCommand extends Command {
 	/**
 	 * Constructor for DeleteCommand
 	 * 
-	 * @param index
+	 * @param indexPos
 	 * 			index of task in display state
 	 * 
-	 * @param type
+	 * @param indexType
 	 * 			type of task,
 	 * 			can be the following: INDEX_FLOATING, INDEX_DEADLINE, INDEX_TIMED
 	 * 
 	 */
-	DeleteCommand(int index, int type) {
+	DeleteCommand(int indexPos, int indexType) {
 		super(true);
-		this.indexPos = index;
-		this.indexType = type;
+		this.indexPos = indexPos;
+		this.indexType = indexType;
 		this.isByIndex = true;
 	}
 
@@ -152,6 +152,7 @@ public class DeleteCommand extends Command {
 				s.setFeedback(f);
 				return s;
 			}
+			i++;
 		}
 		return makeErrorState(displayState, new Feedback(FEEDBACK_BAD_INDEX, false));
 	}
