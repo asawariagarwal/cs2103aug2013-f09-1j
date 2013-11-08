@@ -1,5 +1,4 @@
 package todo;
-import java.util.logging.*;
 
 /**
  * Subclass to encapsulate clear commands
