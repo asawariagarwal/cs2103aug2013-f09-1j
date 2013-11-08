@@ -69,7 +69,30 @@ import com.dstjacques.jhotkeys.JHotKeyListener;
 import com.melloware.jintellitype.JIntellitype;
 
 public class GUI implements ActionListener {
-
+	
+	private static final String LOG_FLOATING_TASKS_ARE_EMPTY = "Floating Tasks are empty";
+	private static final String FLEXIBLE_HEADER = "Flexible Tasks :\n\n";
+	private static final String LOG_DEADLINE_TASKS_ARE_EMPTY = "Deadline Tasks are empty";
+	private static final String DEADLINES_HEADER = "Deadlines :\n\n";
+	private static final String LOG_TIMED_TASKS_ARE_EMPTY = "Timed Tasks are empty";
+	private static final String EVENTS_HEADER = "Events :\n\n";
+	private static final String EMPTY_STRING = "";
+	private static final String LOG_SYSTRAY_ENABLE_FAILED_FOR_UNKNOWN_REASON = "Systray enable failed for unknown reason";
+	private static final String TO_DO = "ToDo";
+	private static final String MENU_OPTION_EXIT = "Exit";
+	private static final String MENU_OPTION_PULL_UP = "Pull Up";
+	private static final String PATH_TO_SYSTRAY_IMAGE = "./src/img/Two.jpg";
+	private static final String LOG_ATTEMPTING_TO_ENABLE_SYSTRAY_SUPPORT = "Attempting to enable systray support";
+	private static final String ATTEMPTING_RESOLUTION = "\nAttempting Resolution..";
+	private static final String ERROR = "Error: ";
+	private static final String LOG_ATTEMPTING_TO_USE_64_BIT_DLL_AS_32_BIT_FAILED = "Attempting to use 64 bit dll as 32 bit failed.";
+	private static final String LIB_PATH_WINDOWS_J_INTELLITYPE_DLL = "./lib/windows/JIntellitype.dll";
+	private static final String LOG_WINDOWS_DETECTED = "Windows Detected";
+	private static final String OS_NAME_WINDOWS = "Windows";
+	private static final String OS_NAME = "os.name";
+	private static final String LIB_PATH_JHOTKEYS = "./lib";
+	private static final String LOG_SHORTCUT_KEY_BEING_INITIALIZED = "Shortcut Key Being Initialized";
+	private static final Color GUI_BACKGROUND_COLOR = Color.BLACK;
 	private static final String LOG_PREVIOUS_STATE_WAS_CORRUPTED_NEW_STATE_CALLED = "Previous State was corrupted. New State called";
 	private static final String FEEDBACK_CORRUPTED_PREVIOUS_STATE = "Corrupted Previous State";
 	private static final String LOG_GUI_SETTING_UP = "GUI Setting Up";
@@ -493,8 +516,8 @@ public class GUI implements ActionListener {
 		_handler = new CommandHandler();
 		_displayState = new State();
 		_autoComplete = new Suggestor();
-		_displayState.setFeedback(new Feedback(FEEDBACK_CORRUPTED_PREVIOUS_STATE,
-				false));
+		_displayState.setFeedback(new Feedback(
+				FEEDBACK_CORRUPTED_PREVIOUS_STATE, false));
 		try {
 			_displayState = _handler.getCurrentState();
 			_autoComplete.updateState(_displayState);
@@ -506,9 +529,13 @@ public class GUI implements ActionListener {
 			initialize();
 			UP_KEYPRESS_COUNTER = 1;
 			_previousInputs = new ArrayList<String>();
-			_timer = new Timer(1000, this);
-			_timer.start();
+			initTimer();
 		}
+	}
+
+	private void initTimer() {
+		_timer = new Timer(1000, this);
+		_timer.start();
 	}
 
 	/**
@@ -545,8 +572,6 @@ public class GUI implements ActionListener {
 
 		initHelpPane();
 
-		// I know. But hey, whatever works.
-
 		deactivateMinMode();
 
 		activateMinMode();
@@ -559,43 +584,49 @@ public class GUI implements ActionListener {
 	}
 
 	private void playAudioFeedback() {
-		if (audio == null) {
+		if (isUndefinedAudio()) {
 			return;
 		}
 
-		if (_displayState.getFeedback().isPositive()) {
+		if (isPositiveFeedback()) {
 			audio.playSuccess();
 		} else {
 			audio.playFailure();
 		}
 	}
 
+	private boolean isPositiveFeedback() {
+		return _displayState.getFeedback().isPositive();
+	}
+
+	private boolean isUndefinedAudio() {
+		return audio == null;
+	}
+
 	private void initHelpPane() {
-		_helpPane = new JTextPane();
-		_helpPane.setBackground(Color.BLACK);
-		_helpPane.setFont(new Font("Consolas", Font.PLAIN, 17));
-		_helpPane.setEditable(false);
+		createHelpPane();
 		appendToPane(_helpPane, HELP_PROMPT, _headerAttributes);
 		_notificationsArea.add(_helpPane, BorderLayout.CENTER);
 	}
 
+	private void createHelpPane() {
+		_helpPane = new JTextPane();
+		_helpPane.setBackground(GUI_BACKGROUND_COLOR);
+		_helpPane.setFont(new Font(FONT_NAME, Font.PLAIN, 17));
+		_helpPane.setEditable(false);
+	}
+
 	private void setUpShortcutKey() {
-		GUILogger.log(Level.INFO, "Shortcut Key Being Initialized");
-		_shortcutKey = new JHotKeys("./lib");
-		if (System.getProperty("os.name").contains("Windows")) {
-			GUILogger.log(Level.INFO, "Windows Detected");
-			JIntellitype.setLibraryLocation("./lib/windows/JIntellitype.dll");
-			try {
-				_shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
-			} catch (Exception e) {
-				GUILogger.log(Level.INFO,
-						"Attempting to use 64 bit dll as 32 bit failed.");
-				System.out.println("Error: " + e.getMessage()
-						+ "\nAttempting Resolution..");
-				JIntellitype
-						.setLibraryLocation(FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL);
-			}
+		GUILogger.log(Level.INFO, LOG_SHORTCUT_KEY_BEING_INITIALIZED);
+		_shortcutKey = new JHotKeys(LIB_PATH_JHOTKEYS);
+		if (isWindows()) {
+			GUILogger.log(Level.INFO, LOG_WINDOWS_DETECTED);
+			setUpJIntellitype();
 		}
+		assignShortcutHotKeyFunctionality();
+	}
+
+	private void assignShortcutHotKeyFunctionality() {
 		_shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
 		JHotKeyListener hotkeyListener = new JHotKeyListener() {
 			@Override
@@ -607,6 +638,24 @@ public class GUI implements ActionListener {
 			}
 		};
 		_shortcutKey.addHotKeyListener(hotkeyListener);
+	}
+
+	private void setUpJIntellitype() {
+		JIntellitype.setLibraryLocation(LIB_PATH_WINDOWS_J_INTELLITYPE_DLL);
+		try {
+			_shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
+		} catch (Exception e) {
+			GUILogger.log(Level.INFO,
+					LOG_ATTEMPTING_TO_USE_64_BIT_DLL_AS_32_BIT_FAILED);
+			GUILogger.log(Level.WARNING, ERROR + e.getMessage()
+					+ ATTEMPTING_RESOLUTION);
+			JIntellitype
+					.setLibraryLocation(FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL);
+		}
+	}
+
+	private boolean isWindows() {
+		return System.getProperty(OS_NAME).contains(OS_NAME_WINDOWS);
 	}
 
 	private void toggleGUI() {
@@ -629,7 +678,7 @@ public class GUI implements ActionListener {
 	private void updateFeedbackPane() {
 		_feedbackPane.setText("");
 		String feedbackText = _displayState.getFeedback().getDisplay();
-		if (_displayState.getFeedback().isPositive()) {
+		if (isPositiveFeedback()) {
 			appendToPane(_feedbackPane, feedbackText, completedAttributes);
 		} else {
 			appendToPane(_feedbackPane, feedbackText, expiredAttributes);
@@ -652,53 +701,72 @@ public class GUI implements ActionListener {
 	}
 
 	private void updateSystemTray() {
-		GUILogger.log(Level.INFO, "Attempting to enable systray support");
+		GUILogger.log(Level.INFO, LOG_ATTEMPTING_TO_ENABLE_SYSTRAY_SUPPORT);
 		if (SystemTray.isSupported()) {
 			_systemTray = SystemTray.getSystemTray();
 
 			_trayImage = Toolkit.getDefaultToolkit().getImage(
-					"./src/img/Two.jpg");
+					PATH_TO_SYSTRAY_IMAGE);
 
 			_menu = new PopupMenu();
 
-			MenuItem pullUpItem = new MenuItem("Pull Up");
-			pullUpItem.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					_frmTodo.setVisible(true);
-				}
-			});
-			_menu.add(pullUpItem);
+			populateSysTrayMenu();
 
-			MenuItem exitItem = new MenuItem("Exit");
-			exitItem.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					System.exit(0);
-				}
-			});
-			_menu.add(exitItem);
+			setUpTrayIcon();
 
-			_trayIcon = new TrayIcon(_trayImage, "ToDo", _menu);
-			_trayIcon.setImageAutoSize(true);
-
-			_trayIcon.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent arg0) {
-					_frmTodo.setVisible(true);
-				}
-			});
-
-			try {
-				_systemTray.add(_trayIcon);
-			} catch (AWTException e) {
-				GUILogger.log(Level.SEVERE,
-						"Systray enable failed for unknown reason");
-				System.out.println(e.getMessage());
-			}
+			addIconToSysTray();
 		} else {
 			GUILogger.log(Level.INFO, "Systray Unsupported");
 		}
+	}
+
+	private void setUpTrayIcon() {
+		_trayIcon = new TrayIcon(_trayImage, TO_DO, _menu);
+		_trayIcon.setImageAutoSize(true);
+
+		_trayIcon.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				_frmTodo.setVisible(true);
+			}
+		});
+	}
+
+	private void addIconToSysTray() {
+		try {
+			_systemTray.add(_trayIcon);
+		} catch (AWTException e) {
+			GUILogger.log(Level.SEVERE,
+					LOG_SYSTRAY_ENABLE_FAILED_FOR_UNKNOWN_REASON);
+			GUILogger.log(Level.WARNING, e.getMessage());
+		}
+	}
+
+	private void populateSysTrayMenu() {
+		addPullUpOption();
+		addExitOption();
+	}
+
+	private void addExitOption() {
+		MenuItem exitItem = new MenuItem(MENU_OPTION_EXIT);
+		exitItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+		_menu.add(exitItem);
+	}
+
+	private void addPullUpOption() {
+		MenuItem pullUpItem = new MenuItem(MENU_OPTION_PULL_UP);
+		pullUpItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				_frmTodo.setVisible(true);
+			}
+		});
+		_menu.add(pullUpItem);
 	}
 
 	private void initUserInputArea() {
@@ -749,7 +817,7 @@ public class GUI implements ActionListener {
 		_promptSymbol.setFont(new Font("Courier New", Font.PLAIN, 20));
 		_promptSymbol.setColumns(1);
 		_promptSymbol.setBorder(null);
-		_promptSymbol.setBackground(Color.BLACK);
+		_promptSymbol.setBackground(GUI_BACKGROUND_COLOR);
 		_promptSymbol.setText(">");
 	}
 
@@ -777,7 +845,7 @@ public class GUI implements ActionListener {
 		_floatingTaskView.setEditable(false);
 		_floatingTaskView.setForeground(Color.WHITE);
 		_floatingTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
-		_floatingTaskView.setBackground(Color.BLACK);
+		_floatingTaskView.setBackground(GUI_BACKGROUND_COLOR);
 		_floatingTaskView.setAutoscrolls(false);
 	}
 
@@ -786,7 +854,7 @@ public class GUI implements ActionListener {
 		_deadlineTaskView.setEditable(false);
 		_deadlineTaskView.setForeground(Color.WHITE);
 		_deadlineTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
-		_deadlineTaskView.setBackground(Color.BLACK);
+		_deadlineTaskView.setBackground(GUI_BACKGROUND_COLOR);
 		_deadlineTaskView.setAutoscrolls(false);
 
 	}
@@ -837,7 +905,7 @@ public class GUI implements ActionListener {
 		_frmTodo.getContentPane().setForeground(new Color(0, 0, 0));
 		_frmTodo.getContentPane().setBackground(new Color(0, 0, 0));
 		_frmTodo.getContentPane().setLayout(new BorderLayout(0, 0));
-		_frmTodo.setTitle("ToDo");
+		_frmTodo.setTitle(TO_DO);
 		_frmTodo.setBounds(1100, 0, 800, 850);
 		_frmTodo.setLocationRelativeTo(null);
 		// frmTodo.setLocationByPlatform(true);
@@ -866,7 +934,7 @@ public class GUI implements ActionListener {
 	private SimpleAttributeSet getHeadingAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, Color.BLUE);
-		StyleConstants.setBackground(attributes, Color.BLACK);
+		StyleConstants.setBackground(attributes, GUI_BACKGROUND_COLOR);
 		StyleConstants.setFontFamily(attributes, FONT_NAME);
 		return attributes;
 	}
@@ -874,7 +942,7 @@ public class GUI implements ActionListener {
 	private SimpleAttributeSet getEmptyAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, Color.GRAY);
-		StyleConstants.setBackground(attributes, Color.BLACK);
+		StyleConstants.setBackground(attributes, GUI_BACKGROUND_COLOR);
 		StyleConstants.setFontFamily(attributes, FONT_NAME);
 		return attributes;
 	}
@@ -882,7 +950,7 @@ public class GUI implements ActionListener {
 	private SimpleAttributeSet getBodyAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, Color.WHITE);
-		StyleConstants.setBackground(attributes, Color.BLACK);
+		StyleConstants.setBackground(attributes, GUI_BACKGROUND_COLOR);
 		StyleConstants.setFontFamily(attributes, FONT_NAME);
 		return attributes;
 	}
@@ -890,7 +958,7 @@ public class GUI implements ActionListener {
 	private SimpleAttributeSet getTagAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, Color.YELLOW);
-		StyleConstants.setBackground(attributes, Color.BLACK);
+		StyleConstants.setBackground(attributes, GUI_BACKGROUND_COLOR);
 		StyleConstants.setFontFamily(attributes, FONT_NAME);
 		return attributes;
 	}
@@ -898,7 +966,7 @@ public class GUI implements ActionListener {
 	private SimpleAttributeSet getFeedbackAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, Color.YELLOW);
-		StyleConstants.setBackground(attributes, Color.BLACK);
+		StyleConstants.setBackground(attributes, GUI_BACKGROUND_COLOR);
 		StyleConstants.setFontFamily(attributes, FONT_NAME);
 		return attributes;
 	}
@@ -906,7 +974,7 @@ public class GUI implements ActionListener {
 	private SimpleAttributeSet getExpiredAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, Color.RED);
-		StyleConstants.setBackground(attributes, Color.BLACK);
+		StyleConstants.setBackground(attributes, GUI_BACKGROUND_COLOR);
 		StyleConstants.setFontFamily(attributes, FONT_NAME);
 		return attributes;
 	}
@@ -914,7 +982,7 @@ public class GUI implements ActionListener {
 	private SimpleAttributeSet getCompletedAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, Color.GREEN);
-		StyleConstants.setBackground(attributes, Color.BLACK);
+		StyleConstants.setBackground(attributes, GUI_BACKGROUND_COLOR);
 		StyleConstants.setFontFamily(attributes, FONT_NAME);
 		return attributes;
 	}
@@ -933,139 +1001,149 @@ public class GUI implements ActionListener {
 	private void updateTimedTaskField() {
 		if (!_displayState.getTimedTasks().isEmpty()) {
 
-			_timedTaskView.setText("");
+			_timedTaskView.setText(EMPTY_STRING);
 
-			appendToPane(_timedTaskView, "Events :\n\n", _headerAttributes);
-			String timedTaskText = "";
-			String taskTags = "";
-			String taskStart = "";
-			String taskEnd = "";
-			String taskNum = "";
+			appendToPane(_timedTaskView, EVENTS_HEADER, _headerAttributes);
+			
+			
 			int index = 0;
 			for (TimedTask task : _displayState.getTimedTasks()) {
-				taskTags = "";
-				timedTaskText = "";
-				taskNum = "\t" + ++index + ". ";
-				timedTaskText += task.getTaskDescription() + "\t";
-
-				taskTags = task.getTagString() + "\n";
-				taskStart = task.getStartString();
-				taskEnd = task.getEndString();
-
-				appendToPane(_timedTaskView, taskNum, _bodyAttributes);
-
-				if (task.isEmpty()) {
-					appendToPane(_timedTaskView, timedTaskText,
-							_emptyAttributes);
-				} else if (task.isComplete()) {
-					appendToPane(_timedTaskView, timedTaskText,
-							completedAttributes);
-				} else if (task.isExpired()) {
-					appendToPane(_timedTaskView, timedTaskText,
-							expiredAttributes);
-				} else {
-					appendToPane(_timedTaskView, timedTaskText, _bodyAttributes);
-				}
-
-				appendToPane(_timedTaskView, taskTags, _tagAttributes);
-
-				appendToPane(_timedTaskView, "\t\tfrom: ", _tagAttributes);
-				appendToPane(_timedTaskView, taskStart + "\n", _bodyAttributes);
-
-				appendToPane(_timedTaskView, "\t\tto:   ", _tagAttributes);
-				appendToPane(_timedTaskView, taskEnd + "\n", _bodyAttributes);
+				index = addTimedTaskToPane(index, task);
 			}
 
 			_mainViewArea.add(_timedTaskView);
 		} else if (_displayState.getTimedTasks().isEmpty()) {
-			GUILogger.log(Level.INFO, "Timed Tasks are empty");
-			_timedTaskView.setText("");
+			GUILogger.log(Level.INFO, LOG_TIMED_TASKS_ARE_EMPTY);
+			_timedTaskView.setText(EMPTY_STRING);
 			_mainViewArea.remove(_timedTaskView);
 		}
+	}
+
+	private int addTimedTaskToPane(int index, TimedTask task) {
+		String taskTags = "";
+		String timedTaskText = "";
+		String taskNum = "\t" + ++index + ". ";
+		timedTaskText += task.getTaskDescription() + "\t";
+
+		taskTags = task.getTagString() + "\n";
+		String taskStart = task.getStartString();
+		String taskEnd = task.getEndString();
+
+		appendToPane(_timedTaskView, taskNum, _bodyAttributes);
+
+		if (task.isEmpty()) {
+			appendToPane(_timedTaskView, timedTaskText,
+					_emptyAttributes);
+		} else if (task.isComplete()) {
+			appendToPane(_timedTaskView, timedTaskText,
+					completedAttributes);
+		} else if (task.isExpired()) {
+			appendToPane(_timedTaskView, timedTaskText,
+					expiredAttributes);
+		} else {
+			appendToPane(_timedTaskView, timedTaskText, _bodyAttributes);
+		}
+
+		appendToPane(_timedTaskView, taskTags, _tagAttributes);
+
+		appendToPane(_timedTaskView, "\t\tfrom: ", _tagAttributes);
+		appendToPane(_timedTaskView, taskStart + "\n", _bodyAttributes);
+
+		appendToPane(_timedTaskView, "\t\tto:   ", _tagAttributes);
+		appendToPane(_timedTaskView, taskEnd + "\n", _bodyAttributes);
+		return index;
 	}
 
 	private void updateDeadlineTaskField() {
 		if (!_displayState.getDeadlineTasks().isEmpty()) {
 
-			_deadlineTaskView.setText("");
+			_deadlineTaskView.setText(EMPTY_STRING);
 
-			appendToPane(_deadlineTaskView, "Deadlines :\n\n",
+			appendToPane(_deadlineTaskView, DEADLINES_HEADER,
 					_headerAttributes);
-			String deadlineTaskText = "";
-			String taskTags = "";
-			String taskDeadline = "";
-			String taskNum = "";
 
 			int index = 0;
+			
 			for (DeadlineTask task : _displayState.getDeadlineTasks()) {
-				taskTags = "";
-				deadlineTaskText = "";
-				taskNum = "\t" + (++index) + ". ";
-				taskTags = task.getTagString() + "\n";
-				taskDeadline = task.getDeadlineString();
-
-				deadlineTaskText += task.getTaskDescription() + "\t";
-				appendToPane(_deadlineTaskView, taskNum, _bodyAttributes);
-
-				if (task.isComplete()) {
-					appendToPane(_deadlineTaskView, deadlineTaskText,
-							completedAttributes);
-				} else if (task.isExpired()) {
-					appendToPane(_deadlineTaskView, deadlineTaskText,
-							expiredAttributes);
-				} else {
-					appendToPane(_deadlineTaskView, deadlineTaskText,
-							_bodyAttributes);
-				}
-
-				appendToPane(_deadlineTaskView, taskTags, _tagAttributes);
-
-				appendToPane(_deadlineTaskView, "\t\tby:   ", _tagAttributes);
-				appendToPane(_deadlineTaskView, taskDeadline + "\n",
-						_bodyAttributes);
+				index = addDeadlineTaskToPane(index, task);
 			}
 
 			_mainViewArea.add(_deadlineTaskView);
 		} else if (_displayState.getDeadlineTasks().isEmpty()) {
-			GUILogger.log(Level.INFO, "Deadline Tasks are empty");
-			_deadlineTaskView.setText("");
+			GUILogger.log(Level.INFO, LOG_DEADLINE_TASKS_ARE_EMPTY);
+			_deadlineTaskView.setText(EMPTY_STRING);
 			_mainViewArea.remove(_deadlineTaskView);
 		}
 	}
 
+	private int addDeadlineTaskToPane(int index, DeadlineTask task) {
+		String taskTags = "";
+		String deadlineTaskText = "";
+		String taskNum = "\t" + (++index) + ". ";
+		taskTags = task.getTagString() + "\n";
+		String taskDeadline = task.getDeadlineString();
+
+		deadlineTaskText += task.getTaskDescription() + "\t";
+		appendToPane(_deadlineTaskView, taskNum, _bodyAttributes);
+
+		if (task.isComplete()) {
+			appendToPane(_deadlineTaskView, deadlineTaskText,
+					completedAttributes);
+		} else if (task.isExpired()) {
+			appendToPane(_deadlineTaskView, deadlineTaskText,
+					expiredAttributes);
+		} else {
+			appendToPane(_deadlineTaskView, deadlineTaskText,
+					_bodyAttributes);
+		}
+
+		appendToPane(_deadlineTaskView, taskTags, _tagAttributes);
+
+		appendToPane(_deadlineTaskView, "\t\tby:   ", _tagAttributes);
+		appendToPane(_deadlineTaskView, taskDeadline + "\n",
+				_bodyAttributes);
+		return index;
+	}
+
 	private void updateFloatingTaskField() {
 		if (!_displayState.getFloatingTasks().isEmpty()) {
-			_floatingTaskView.setText("");
+			_floatingTaskView.setText(EMPTY_STRING);
 
-			appendToPane(_floatingTaskView, "Flexible Tasks :\n\n",
+			appendToPane(_floatingTaskView, FLEXIBLE_HEADER,
 					_headerAttributes);
-			String floatingTaskText = "";
-			String taskTags = "";
-			String taskNum = "";
+
 			int index = 0;
 			for (FloatingTask task : _displayState.getFloatingTasks()) {
-				taskTags = "";
-				floatingTaskText = "";
-				taskNum = "\t" + (++index) + ". ";
-				floatingTaskText += task.getTaskDescription() + "\t";
-				appendToPane(_floatingTaskView, taskNum, _bodyAttributes);
-				if (task.isComplete()) {
-					appendToPane(_floatingTaskView, floatingTaskText,
-							completedAttributes);
-				} else {
-					appendToPane(_floatingTaskView, floatingTaskText,
-							_bodyAttributes);
-				}
-				taskTags = task.getTagString() + "\n";
-				appendToPane(_floatingTaskView, taskTags, _tagAttributes);
+				index = addTasksToFloatingPane(index, task);
 			}
 
 			_mainViewArea.add(_floatingTaskView);
 		} else if (_displayState.getFloatingTasks().isEmpty()) {
-			GUILogger.log(Level.INFO, "Floating Tasks are empty");
-			_floatingTaskView.setText("");
+			GUILogger.log(Level.INFO, LOG_FLOATING_TASKS_ARE_EMPTY);
+			_floatingTaskView.setText(EMPTY_STRING);
 			_mainViewArea.remove(_floatingTaskView);
 		}
+	}
+
+	private int addTasksToFloatingPane(int index, FloatingTask task) {
+		String floatingTaskText;
+		String taskTags;
+		String taskNum;
+		taskTags = "";
+		floatingTaskText = "";
+		taskNum = "\t" + (++index) + ". ";
+		floatingTaskText += task.getTaskDescription() + "\t";
+		appendToPane(_floatingTaskView, taskNum, _bodyAttributes);
+		if (task.isComplete()) {
+			appendToPane(_floatingTaskView, floatingTaskText,
+					completedAttributes);
+		} else {
+			appendToPane(_floatingTaskView, floatingTaskText,
+					_bodyAttributes);
+		}
+		taskTags = task.getTagString() + "\n";
+		appendToPane(_floatingTaskView, taskTags, _tagAttributes);
+		return index;
 	}
 
 	private static String getCurrentDisplayTime() {
