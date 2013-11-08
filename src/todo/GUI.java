@@ -70,9 +70,11 @@ import com.melloware.jintellitype.JIntellitype;
 
 public class GUI implements ActionListener {
 
+	private static final String FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL = "./lib/windows/JIntellitype64.dll";
+	private static final String LOG_SHORTCUT_TRIGERRED = "Shortcut Trigerred";
 	private static final String FONT_NAME = "Consolas";
 	private static final String HELP_TEXT_1 = "Command List:\n\n";
-	private static final String HELP_TEXT_2 = "add\ndelete\nview\nundo/redo\n\nchange\nreschedule\nmark/unmark\ntag/untag\nmute/unmute\nexit";
+	private static final String HELP_TEXT_2 = "add\ndelete\nview\nundo\nredo\nchange\nreschedule\nmark/unmark\ntag/untag\nmute/unmute\nexit";
 	private static final String HELP_TEXT_3 = "\n\nPress ";
 	private static final String HELP_TEXT_4 = "tab ";
 	private static final String HELP_TEXT_5 = "to \nauto-complete\n\nPress ";
@@ -87,6 +89,10 @@ public class GUI implements ActionListener {
 
 	private static class CustomScrollBar extends MetalScrollBarUI {
 
+		private static final Color SCROLL_BAR_COLOR = Color.blue;
+		private static final Color SCROLL_BAR_TRACK_IMAGE = Color.white;
+		private static final Color SCROLL_BAR_THUMB_IMAGE = SCROLL_BAR_COLOR.darker();
+		private static final int SCROLL_IMAGE_DIMENSION = 32;
 		private Image imageThumb, imageTrack;
 		private JButton b = new JButton() {
 
@@ -98,13 +104,13 @@ public class GUI implements ActionListener {
 		};
 
 		CustomScrollBar() {
-			imageThumb = ScrollImage.create(32, 32, Color.blue.darker());
-			imageTrack = ScrollImage.create(32, 32, Color.white);
+			imageThumb = ScrollImage.create(SCROLL_IMAGE_DIMENSION, SCROLL_IMAGE_DIMENSION, SCROLL_BAR_THUMB_IMAGE);
+			imageTrack = ScrollImage.create(SCROLL_IMAGE_DIMENSION, SCROLL_IMAGE_DIMENSION, SCROLL_BAR_TRACK_IMAGE);
 		}
 
 		@Override
 		protected void paintThumb(Graphics g, JComponent c, Rectangle r) {
-			g.setColor(Color.blue);
+			g.setColor(SCROLL_BAR_COLOR);
 			((Graphics2D) g).drawImage(imageThumb, r.x, r.y, r.width, r.height,
 					null);
 		}
@@ -499,14 +505,14 @@ public class GUI implements ActionListener {
 				System.out.println("Error: " + e.getMessage()
 						+ "\nAttempting Resolution..");
 				JIntellitype
-						.setLibraryLocation("./lib/windows/JIntellitype64.dll");
+						.setLibraryLocation(FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL);
 			}
 		}
 		_shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
 		JHotKeyListener hotkeyListener = new JHotKeyListener() {
 			@Override
 			public void onHotKey(int id) {
-				GUILogger.log(Level.INFO, "Shortcut Trigerred");
+				GUILogger.log(Level.INFO, LOG_SHORTCUT_TRIGERRED);
 				if (id == 0) {
 					toggleGUI();
 				}

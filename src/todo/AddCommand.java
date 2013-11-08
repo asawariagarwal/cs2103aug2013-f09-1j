@@ -102,6 +102,9 @@ public class AddCommand extends Command {
 	protected State execute(State state) throws Exception {
 		assert(this.isValid());
 		State s = new State(state);
+		if(task.isExpired()) {
+			task.expire();
+		}
 		s.addTask(task);
 		String desc = task.getTaskDescription();
 		logger.log(Level.INFO, LOG_MESSAGE);
