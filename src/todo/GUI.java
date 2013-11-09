@@ -951,6 +951,7 @@ public class GUI implements ActionListener {
 				.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		TaskScrollPane.setViewportView(_mainViewArea);
 		TaskScrollPane.getVerticalScrollBar().setUI(new CustomScrollBar());
+		TaskScrollPane.getHorizontalScrollBar().setUI(new CustomScrollBar());
 
 		_frmTodo.getContentPane().add(TaskScrollPane, BorderLayout.CENTER);
 		_mainViewArea.setLayout(new GridLayout(0, 1, 0, 0));
