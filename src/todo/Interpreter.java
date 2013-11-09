@@ -101,10 +101,14 @@ public class Interpreter {
 	 * @param inputString
 	 */
 
-	private void setInput(String inputString) {
+	public void setInput(String inputString) {
 		_userInput = inputString;
 	}
-
+    
+	public String  getInput(){
+		return _userInput;
+	}
+	
 	/**
 	 * This function does the main parsing but is at a high level of abstraction
 	 * This function is called from the CommandHandler and returns a Command object
@@ -211,14 +215,21 @@ public class Interpreter {
 			case TAG:
 				ModifyCommand tagObj;
 				tagObj = parseTag();
-				return tagObj;
+				if(tagObj!=null){
+					interpreterLogger.log(Level.INFO,"Interpretation Complete:TAG");
+				}else{
+					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");
+				}return tagObj;
 
 			case UNTAG:
 				ModifyCommand untagObj;
 				untagObj = parseUntag();
-				return untagObj;
+				if(untagObj!=null){
+					interpreterLogger.log(Level.INFO,"Interpretation Complete:UNTAG");
+				}else{
+					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");	
+				}return untagObj;
 	
-
 			case UNDO:
 				UndoCommand undoObj;
 				undoObj = parseUndo();
@@ -273,7 +284,7 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	private AddCommand parseAdd() throws Exception {
+	    AddCommand parseAdd() throws Exception {
 		AddCommand command;
 		String copyInput;
 		copyInput=_userInput;
@@ -302,7 +313,7 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	private AddCommand parseDeadlineTask()throws Exception  {
+	    AddCommand parseDeadlineTask()throws Exception  {
 
 		ArrayList<String> hashtags = new ArrayList<String>();
 		String TaskDes = getDeadlineTaskDescription();
@@ -337,7 +348,7 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	private AddCommand parseTimedTask()throws Exception {
+	     AddCommand parseTimedTask()throws Exception {
 
 		ArrayList<String> hashtags = new ArrayList<String>();
 		String date1, date2, day;
@@ -387,7 +398,7 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	private AddCommand parseFloatingTask() throws Exception{
+	    AddCommand parseFloatingTask() throws Exception{
 
 		ArrayList<String> hashtags = new ArrayList<String>();
 		String TaskDes = extractTillHashtagOrEnd();
@@ -412,7 +423,7 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	private ViewCommand parseView() throws Exception  {
+	    ViewCommand parseView() throws Exception  {
 		ViewCommand command;
 		Calendar calendar[] = new Calendar[1];
 		calendar[0] = null;
@@ -451,7 +462,7 @@ public class Interpreter {
 	 * 
 	 */
 
-	private DeleteCommand parseDelete() throws Exception {
+	    DeleteCommand parseDelete() throws Exception {
 		String regex="-[edf]\\d{1,}";
 		char taskType;
 		int index;
@@ -462,17 +473,14 @@ public class Interpreter {
 			if(taskType=='e'){
 			command = new DeleteCommand(index,DeleteCommand.INDEX_TIMED);
 			return command;
-			}
-			else if(taskType=='d'){
+			}else if(taskType=='d'){
 			command = new DeleteCommand(index,DeleteCommand.INDEX_DEADLINE);
 			return command;
-			}
-			else if(taskType=='f'){
+			}else if(taskType=='f'){
 		    command = new DeleteCommand(index,DeleteCommand.INDEX_FLOATING);
 		    return command;
 			}	
-		}
-		else if(!_userInput.equals("")) {
+		}else if(!_userInput.equals("")) {
 			DeleteCommand command = new DeleteCommand(_userInput);
 			return command;
 		} 
@@ -488,7 +496,7 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	private ClearCommand parseClear() throws Exception {
+	    ClearCommand parseClear() throws Exception {
 		ClearCommand command;
 		_userInput=_userInput.trim();
 		if(_userInput.equals("")){
@@ -503,8 +511,7 @@ public class Interpreter {
 			command = new ClearCommand(ClearCommand.MODE_CLEAR_TIMED);
 		}else if(isClearCommandFloating()){
 			command = new ClearCommand(ClearCommand.MODE_CLEAR_FLOATING);
-		}
-		else{
+		}else{
 			return null;
 		}
 		return command;
@@ -521,7 +528,7 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	private ModifyCommand parseChange()throws Exception {
+	    ModifyCommand parseChange()throws Exception {
 		String regex="-[edf]\\d{1,} {1,}to {1,}.*";
 		char taskType;
 		int index;
@@ -558,7 +565,7 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	private ModifyCommand parseReschedule()throws Exception{
+	    ModifyCommand parseReschedule()throws Exception{
 		ModifyCommand command;
 		String copyInput; 
 		copyInput=_userInput;
@@ -609,7 +616,7 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	private ModifyCommand parseRescheduleTimed()throws Exception  {
+	     ModifyCommand parseRescheduleTimed()throws Exception  {
 		String taskName ;
 		String startDate, endDate;
 		taskName= getModifyTaskDescription().trim();
@@ -640,7 +647,7 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	private ModifyCommand parseRescheduleDeadline()throws Exception {
+	    ModifyCommand parseRescheduleDeadline()throws Exception {
 		String taskName ;
 		String deadline;
 
@@ -667,7 +674,7 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	private SearchCommand parseSearch()throws Exception{
+	    SearchCommand parseSearch()throws Exception{
 		if(!_userInput.equals("")){
 			SearchCommand command = new SearchCommand(_userInput.trim());
 			return command;
@@ -684,7 +691,7 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	private ModifyCommand parseMark()throws Exception{
+	    ModifyCommand parseMark()throws Exception{
 		ModifyCommand command;
 		String regex="-[edf]\\d{1,}";
 		char taskType;
@@ -719,7 +726,7 @@ public class Interpreter {
 	 * 
 	 */
 
-	private ModifyCommand parseUnmark()throws Exception{
+	    ModifyCommand parseUnmark()throws Exception{
 		ModifyCommand command;
 		String regex="-[edf]\\d{1,}";
 		char taskType;
@@ -755,7 +762,7 @@ public class Interpreter {
 	 * 
 	 */
 
-	private ModifyCommand parseTag() throws Exception {
+	    ModifyCommand parseTag() throws Exception {
 		ModifyCommand command;
 		String regex="-[edf]\\d{1,} {1,}.*";
 		char taskType;
@@ -807,7 +814,7 @@ public class Interpreter {
 	 * @return ModifyCommand type object or null
 	 * 
 	 */
-	private ModifyCommand parseUntag() throws Exception {
+	    ModifyCommand parseUntag() throws Exception {
 		ModifyCommand command;
 		String regex="-[edf]\\d{1,} {1,}.*";
 		char taskType;
@@ -862,7 +869,7 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	private UndoCommand parseUndo()throws Exception{
+	    UndoCommand parseUndo()throws Exception{
 		UndoCommand command;
 		_userInput=_userInput.trim();
 		if(_userInput.equals("")){
@@ -882,7 +889,7 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	private UndoCommand parseRedo()throws Exception{
+	    UndoCommand parseRedo()throws Exception{
 		UndoCommand command;
 		_userInput=_userInput.trim();
 		if(_userInput.equals("")){
@@ -1097,7 +1104,7 @@ public class Interpreter {
 	 *@throws Exception
 	 */
 
-	private String getCommandType() throws Exception{
+	   String getCommandType() throws Exception{
 		String commandType;
 		int locationOfSpace = _userInput.indexOf(" ");
 		if(locationOfSpace==-1)
@@ -1131,7 +1138,7 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	private String getDeadlineTaskDescription()throws Exception {
+	    String getDeadlineTaskDescription()throws Exception {
 		String TaskDes = extractTillKeyword(PREFIX_DEADLINE);
 		while (_userInput.contains(PREFIX_DEADLINE)) {
 			TaskDes= TaskDes.concat(PREFIX_DEADLINE);
@@ -1146,7 +1153,7 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	private String getTimedTaskDescription()throws Exception {
+	    String getTimedTaskDescription()throws Exception {
 		String TaskDes = extractTillKeyword(PREFIX_START_TIME);
 		while (_userInput.contains(PREFIX_START_TIME)) {
 			TaskDes=TaskDes.concat(PREFIX_START_TIME);
@@ -1161,7 +1168,7 @@ public class Interpreter {
 	 * @throws Exception 
 	 */
 
-	private String getModifyTaskDescription()throws Exception {
+	    String getModifyTaskDescription()throws Exception {
 		String TaskDes = extractTillKeyword(PREFIX_END_TIME);
 		while (_userInput.contains(PREFIX_END_TIME)) {
 			TaskDes=TaskDes.concat(PREFIX_END_TIME);
@@ -1204,7 +1211,7 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	private Calendar isValid(String Date_str)throws Exception {
+	public Calendar isValid(String Date_str)throws Exception {
 		try{
 			Date_str=manipulateDate(Date_str);
 			interpreterLogger.log(Level.INFO,Date_str);
@@ -1237,7 +1244,7 @@ public class Interpreter {
 	 * @return String
 	 * @throws Exception
 	 */
-	private String manipulateDate(String dateStr)throws Exception{
+	    String manipulateDate(String dateStr)throws Exception{
 		int slash, dash;
 		String dd , mm, newdate;
 		char d , m ;
@@ -1284,28 +1291,28 @@ public class Interpreter {
 			slash =dateStr.indexOf("/");
 			dd=dateStr.substring(slash-2,slash);
 			mm=dateStr.substring(slash+1,slash+3);
-			newdate=mm+"-"+dd;
+			newdate=mm+"/"+dd;
 			dateStr=dateStr.replaceFirst("\\d{2}/\\d{2}", newdate);	
 		}
 		else if (dateStr.matches(sregex21)){
 			slash =dateStr.indexOf("/");
 			dd=dateStr.substring(slash-2,slash);
 			m=dateStr.charAt(slash+1);
-			newdate=m+"-"+dd;
+			newdate=m+"/"+dd;
 			dateStr=dateStr.replaceFirst("\\d{2}/\\d{1}", newdate);	
 		}
 		else if (dateStr.matches(sregex12)){
 			slash =dateStr.indexOf("/");
 			d=dateStr.charAt(slash-1);
 			mm=dateStr.substring(slash+1,slash+3);
-			newdate=mm+"-"+d;
+			newdate=mm+"/"+d;
 			dateStr=dateStr.replaceFirst("\\d{1}/\\d{2}", newdate);	
 		}
 		else if (dateStr.matches(sregex11)){
-			slash =dateStr.indexOf("-");
+			slash =dateStr.indexOf("/");
 			d=dateStr.charAt(slash-1);
 			m=dateStr.charAt(slash+1);
-			newdate=m+"-"+d;
+			newdate=m+"/"+d;
 			dateStr=dateStr.replaceFirst("\\d{1}/\\d{1}", newdate);	
 		}		
 		return dateStr;
@@ -1378,8 +1385,7 @@ public class Interpreter {
 					return "";
 				}
 				return hashtag;
-			}
-			else{
+			}else{
 				return "";
 			}
 		}
