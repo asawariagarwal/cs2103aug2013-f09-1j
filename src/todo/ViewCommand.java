@@ -321,8 +321,6 @@ public class ViewCommand extends Command {
 
 				TimedTask blankTask = createEmptyTask(previousEndTime,
 						nextStartTime);
-				System.out.println(previousEndTime);
-				System.out.println(nextStartTime);
 
 				if (previousEndTime.getTimeInMillis() < cur.getEndDate()
 						.getTimeInMillis()) {
@@ -340,10 +338,13 @@ public class ViewCommand extends Command {
 		if(previousEndTime.get(Calendar.DATE) == dd) {
 			Calendar last = Calendar.getInstance();
 			last.clear();
-			last.setTimeInMillis(previousEndTime.getTimeInMillis());
+			last.set(Calendar.DATE, dd);
+			last.set(Calendar.MONTH, mm);
+			last.set(Calendar.YEAR, yy);
 			last.set(Calendar.HOUR, 23);
 			last.set(Calendar.MINUTE, 59);
 			last.set(Calendar.SECOND, 59);
+			last.set(Calendar.MILLISECOND, 999);
 			TimedTask lastEmptyTask = createEmptyTask(previousEndTime, last);
 			s.addTask(lastEmptyTask);
 		}
@@ -367,7 +368,6 @@ public class ViewCommand extends Command {
 		if (previousEndTime.getTimeInMillis() >= nextStartTime
 				.getTimeInMillis())
 			return null;
-		System.out.println("Here");
 		
 		Calendar start = Calendar.getInstance();
 		start.clear();
