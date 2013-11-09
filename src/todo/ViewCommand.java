@@ -14,6 +14,8 @@ import todo.Feedback;
  * 
  */
 public class ViewCommand extends Command {
+	private static final String TASK_DESCRIPTION_EMPTY = "[EMPTY]";
+	
 	public static final int MODE_VIEW_ALL = 0;
 	public static final int MODE_VIEW_FLOATING = 1;
 	public static final int MODE_VIEW_TIMED = 2;
@@ -278,9 +280,7 @@ public class ViewCommand extends Command {
 		TreeSet<DeadlineTask> deadline = state.getDeadlineTasks();
 		TreeSet<TimedTask> timed = state.getTimedTasks();
 		for (DeadlineTask cur : deadline) {
-			if (dd == cur.getDeadline().get(Calendar.DATE)
-					&& mm == cur.getDeadline().get(Calendar.MONTH)
-					&& yy == cur.getDeadline().get(Calendar.YEAR)) {
+			if (isSameDate(dd, mm, yy, cur)) {
 				s.addTask(cur);
 			}
 		}
@@ -292,6 +292,7 @@ public class ViewCommand extends Command {
 			startOfDay.clear();
 			previousEndTime.clear();
 			nextStartTime.clear();
+			
 			startOfDay.set(Calendar.YEAR, yy);
 			startOfDay.set(Calendar.MONTH, mm);
 			startOfDay.set(Calendar.DATE, dd);
@@ -319,10 +320,8 @@ public class ViewCommand extends Command {
 				nextStartTime.setTimeInMillis(cur.getStartDate()
 						.getTimeInMillis());
 
-				TimedTask blankTask = createEmptyTask(previousEndTime,
+				TimedTask blankTask = getEmptyTask(previousEndTime,
 						nextStartTime);
-				System.out.println(previousEndTime);
-				System.out.println(nextStartTime);
 
 				if (previousEndTime.getTimeInMillis() < cur.getEndDate()
 						.getTimeInMillis()) {
@@ -340,11 +339,14 @@ public class ViewCommand extends Command {
 		if(previousEndTime.get(Calendar.DATE) == dd) {
 			Calendar last = Calendar.getInstance();
 			last.clear();
-			last.setTimeInMillis(previousEndTime.getTimeInMillis());
+			last.set(Calendar.DATE, dd);
+			last.set(Calendar.MONTH, mm);
+			last.set(Calendar.YEAR, yy);
 			last.set(Calendar.HOUR, 23);
 			last.set(Calendar.MINUTE, 59);
 			last.set(Calendar.SECOND, 59);
-			TimedTask lastEmptyTask = createEmptyTask(previousEndTime, last);
+			last.set(Calendar.MILLISECOND, 999);
+			TimedTask lastEmptyTask = getEmptyTask(previousEndTime, last);
 			s.addTask(lastEmptyTask);
 		}
 		
@@ -362,12 +364,33 @@ public class ViewCommand extends Command {
 		return s;
 	}
 
-	private TimedTask createEmptyTask(Calendar previousEndTime,
+	/**
+	 * Routine to check whether the date equality with a deadline task
+	 * 
+	 * @param dd	Date viewed
+	 * @param mm	Month viewed
+	 * @param yy	Year viewed
+	 * @param cur	Current Deadline task
+	 * @return	whether the view date matches a deadline
+	 */
+	private boolean isSameDate(int dd, int mm, int yy, DeadlineTask cur) {
+		return dd == cur.getDeadline().get(Calendar.DATE)
+				&& mm == cur.getDeadline().get(Calendar.MONTH)
+				&& yy == cur.getDeadline().get(Calendar.YEAR);
+	}
+
+	/** 
+	 * Routine that creates and return an empty timed task to be added to current state
+	 * 
+	 * @param previousEndTime	The end time of the previous timed task
+	 * @param nextStartTime		The start time of the next timed task
+	 * @return	a new blank timed task if possible, else null
+	 */
+	private TimedTask getEmptyTask(Calendar previousEndTime,
 			Calendar nextStartTime) {
 		if (previousEndTime.getTimeInMillis() >= nextStartTime
 				.getTimeInMillis())
 			return null;
-		System.out.println("Here");
 		
 		Calendar start = Calendar.getInstance();
 		start.clear();
@@ -377,16 +400,35 @@ public class ViewCommand extends Command {
 		end.clear();
 		end.setTimeInMillis(nextStartTime.getTimeInMillis());
 		
-		TimedTask blankTask = new TimedTask("[EMPTY]", new ArrayList<String>(), start, end);
+		TimedTask blankTask = new TimedTask(TASK_DESCRIPTION_EMPTY, new ArrayList<String>(), start, end);
 		return blankTask;
 	}
 
+	/**
+	 * Checks whether the ending Day for a timed task is the same as what need to be viewed
+	 * 
+	 * @param dd 	Date Viewed
+	 * @param mm	Month Viewed
+	 * @param yy	Year Viewed
+	 * @param cur	Current Timed Task
+	 * @return	equality of end date
+	 */
 	private boolean endDayMatches(int dd, int mm, int yy, TimedTask cur) {
 		return dd == cur.getEndDate().get(Calendar.DATE)
 				&& mm == cur.getEndDate().get(Calendar.MONTH)
 				&& yy == cur.getEndDate().get(Calendar.YEAR);
 	}
-
+	
+	
+	/**
+	 * Checks whether the starting Day for a timed task is the same as what needs to be viewed
+	 * 
+	 * @param dd	Date viewed
+	 * @param mm	Month viewed
+	 * @param yy	Year viewed
+	 * @param cur	Current Timed Task
+	 * @return	equality of start date
+	 */
 	private boolean startDayMatches(int dd, int mm, int yy, TimedTask cur) {
 		return dd == cur.getStartDate().get(Calendar.DATE)
 				&& mm == cur.getStartDate().get(Calendar.MONTH)
