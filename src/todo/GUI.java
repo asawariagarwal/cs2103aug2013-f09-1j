@@ -68,37 +68,69 @@ import com.dstjacques.jhotkeys.JHotKeys;
 import com.dstjacques.jhotkeys.JHotKeyListener;
 import com.melloware.jintellitype.JIntellitype;
 
+/**
+ * Principal GUI class designed for user interaction with the application.
+ * 
+ * Contains GUI state variables and methods to manipulate them, as well as a
+ * nested input processor class and audio class to communicate with the rest of
+ * the architecture and give audio feedback.
+ * 
+ * @author Karan
+ * 
+ */
 public class GUI implements ActionListener {
-	
-	private static final String LOG_FLOATING_TASKS_ARE_EMPTY = "Floating Tasks are empty";
-	private static final String FLEXIBLE_HEADER = "Flexible Tasks :\n\n";
-	private static final String LOG_DEADLINE_TASKS_ARE_EMPTY = "Deadline Tasks are empty";
-	private static final String DEADLINES_HEADER = "Deadlines :\n\n";
-	private static final String LOG_TIMED_TASKS_ARE_EMPTY = "Timed Tasks are empty";
-	private static final String EVENTS_HEADER = "Events :\n\n";
-	private static final String EMPTY_STRING = "";
-	private static final String LOG_SYSTRAY_ENABLE_FAILED_FOR_UNKNOWN_REASON = "Systray enable failed for unknown reason";
+
 	private static final String TO_DO = "ToDo";
+
+	private static final String FLEXIBLE_HEADER = "Flexible Tasks :\n\n";
+	private static final String DEADLINES_HEADER = "Deadlines :\n\n";
+	private static final String EVENTS_HEADER = "Events :\n\n";
+
+	private static final String EMPTY_STRING = "";
+	
+	/**
+	 * Constants for logging
+	 */
+	private static final String LOG_FLOATING_TASKS_ARE_EMPTY = "Floating Tasks are empty";
+	private static final String LOG_DEADLINE_TASKS_ARE_EMPTY = "Deadline Tasks are empty";
+	private static final String LOG_TIMED_TASKS_ARE_EMPTY = "Timed Tasks are empty";
+	private static final String LOG_SYSTRAY_ENABLE_FAILED_FOR_UNKNOWN_REASON = "Systray enable failed for unknown reason";
+	private static final String LOG_ATTEMPTING_TO_ENABLE_SYSTRAY_SUPPORT = "Attempting to enable systray support";
+	private static final String LOG_ATTEMPTING_RESOLUTION = "\nAttempting Resolution..";
+	private static final String LOG_ERROR = "Error: ";
+	private static final String LOG_ATTEMPTING_TO_USE_64_BIT_DLL_AS_32_BIT_FAILED = "Attempting to use 64 bit dll as 32 bit failed.";
+	private static final String LOG_WINDOWS_DETECTED = "Windows Detected";
+	private static final String LOG_SHORTCUT_KEY_BEING_INITIALIZED = "Shortcut Key Being Initialized";
+	private static final String LOG_PREVIOUS_STATE_WAS_CORRUPTED_NEW_STATE_CALLED = "Previous State was corrupted. New State called";
+	private static final String LOG_GUI_SETTING_UP = "GUI Setting Up";
+	private static final String LOG_SHORTCUT_TRIGERRED = "Shortcut Trigerred";
+
+	/**
+	 * System tray menu options
+	 */
 	private static final String MENU_OPTION_EXIT = "Exit";
 	private static final String MENU_OPTION_PULL_UP = "Pull Up";
+
+	/**
+	 * Important filepaths
+	 */
 	private static final String PATH_TO_SYSTRAY_IMAGE = "./src/img/Two.jpg";
-	private static final String LOG_ATTEMPTING_TO_ENABLE_SYSTRAY_SUPPORT = "Attempting to enable systray support";
-	private static final String ATTEMPTING_RESOLUTION = "\nAttempting Resolution..";
-	private static final String ERROR = "Error: ";
-	private static final String LOG_ATTEMPTING_TO_USE_64_BIT_DLL_AS_32_BIT_FAILED = "Attempting to use 64 bit dll as 32 bit failed.";
 	private static final String LIB_PATH_WINDOWS_J_INTELLITYPE_DLL = "./lib/windows/JIntellitype.dll";
-	private static final String LOG_WINDOWS_DETECTED = "Windows Detected";
+	private static final String LIB_PATH_JHOTKEYS = "./lib";
+	private static final String FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL = "./lib/windows/JIntellitype64.dll";
+
 	private static final String OS_NAME_WINDOWS = "Windows";
 	private static final String OS_NAME = "os.name";
-	private static final String LIB_PATH_JHOTKEYS = "./lib";
-	private static final String LOG_SHORTCUT_KEY_BEING_INITIALIZED = "Shortcut Key Being Initialized";
+
 	private static final Color GUI_BACKGROUND_COLOR = Color.BLACK;
-	private static final String LOG_PREVIOUS_STATE_WAS_CORRUPTED_NEW_STATE_CALLED = "Previous State was corrupted. New State called";
+
 	private static final String FEEDBACK_CORRUPTED_PREVIOUS_STATE = "Corrupted Previous State";
-	private static final String LOG_GUI_SETTING_UP = "GUI Setting Up";
-	private static final String FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL = "./lib/windows/JIntellitype64.dll";
-	private static final String LOG_SHORTCUT_TRIGERRED = "Shortcut Trigerred";
+
 	private static final String FONT_NAME = "Consolas";
+	
+	/**
+	 * Help Strings
+	 */
 	private static final String HELP_TEXT_1 = "Command List:\n\n";
 	private static final String HELP_TEXT_2 = "add\ndelete\nview\nundo\nredo\nchange\nreschedule\nmark/unmark\ntag/untag\nmute/unmute\nexit";
 	private static final String HELP_TEXT_3 = "\n\nPress ";
@@ -110,9 +142,17 @@ public class GUI implements ActionListener {
 	private static final String HELP_TEXT_9 = "to minimize\nto/maximize from the\nSystem Tray\n\nPress ";
 	private static final String HELP_TEXT_10 = "Alt+Enter ";
 	private static final String HELP_TEXT_11 = "to \nswitch between Min \nand Full Modes";
-
+	
+	/**
+	 * Audio feedback class
+	 */
 	private static AudioFeedBack audio;
-
+	
+	/**
+	 * Class for custom scroll bar implementation
+	 * @author Karan
+	 *
+	 */
 	private static class CustomScrollBar extends MetalScrollBarUI {
 
 		private static final Color SCROLL_BAR_COLOR = Color.blue;
@@ -173,7 +213,13 @@ public class GUI implements ActionListener {
 			return bi;
 		}
 	}
-
+	
+	/**
+	 * Nested class for Audio feedback
+	 * 
+	 * @author Karan
+	 *
+	 */
 	private final static class AudioFeedBack {
 		/**
 		 * Log messages
@@ -280,7 +326,13 @@ public class GUI implements ActionListener {
 			AUDIO_ENABLED = false;
 		}
 	}
-
+	
+	/**
+	 * Nested class to handle user input
+	 * 
+	 * @author Karan
+	 *
+	 */
 	private final class InputProcessor extends KeyAdapter {
 
 		private static final String EMPTY_STRING = "";
@@ -450,7 +502,10 @@ public class GUI implements ActionListener {
 		_frmTodo.setExtendedState(Frame.MAXIMIZED_BOTH);
 		_frmTodo.setVisible(true);
 	}
-
+	
+	/**
+	 * GUI state constants
+	 */
 	private JFrame _frmTodo;
 	private static JTextPane _currentDateTimeArea;
 	private static JTextPane _helpPane;
@@ -487,7 +542,10 @@ public class GUI implements ActionListener {
 	private String HELP_PROMPT = "\nFeeling Lost?\nTry keying in 'help'";
 	private SimpleAttributeSet completedAttributes;
 	private SimpleAttributeSet expiredAttributes;
-
+	
+	/**
+	 * Logger for the GUI
+	 */
 	protected static Logger GUILogger = Logger.getLogger("GUILogger");
 
 	/**
@@ -647,8 +705,8 @@ public class GUI implements ActionListener {
 		} catch (Exception e) {
 			GUILogger.log(Level.INFO,
 					LOG_ATTEMPTING_TO_USE_64_BIT_DLL_AS_32_BIT_FAILED);
-			GUILogger.log(Level.WARNING, ERROR + e.getMessage()
-					+ ATTEMPTING_RESOLUTION);
+			GUILogger.log(Level.WARNING, LOG_ERROR + e.getMessage()
+					+ LOG_ATTEMPTING_RESOLUTION);
 			JIntellitype
 					.setLibraryLocation(FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL);
 		}
@@ -1004,8 +1062,7 @@ public class GUI implements ActionListener {
 			_timedTaskView.setText(EMPTY_STRING);
 
 			appendToPane(_timedTaskView, EVENTS_HEADER, _headerAttributes);
-			
-			
+
 			int index = 0;
 			for (TimedTask task : _displayState.getTimedTasks()) {
 				index = addTimedTaskToPane(index, task);
@@ -1032,14 +1089,11 @@ public class GUI implements ActionListener {
 		appendToPane(_timedTaskView, taskNum, _bodyAttributes);
 
 		if (task.isEmpty()) {
-			appendToPane(_timedTaskView, timedTaskText,
-					_emptyAttributes);
+			appendToPane(_timedTaskView, timedTaskText, _emptyAttributes);
 		} else if (task.isComplete()) {
-			appendToPane(_timedTaskView, timedTaskText,
-					completedAttributes);
+			appendToPane(_timedTaskView, timedTaskText, completedAttributes);
 		} else if (task.isExpired()) {
-			appendToPane(_timedTaskView, timedTaskText,
-					expiredAttributes);
+			appendToPane(_timedTaskView, timedTaskText, expiredAttributes);
 		} else {
 			appendToPane(_timedTaskView, timedTaskText, _bodyAttributes);
 		}
@@ -1059,11 +1113,10 @@ public class GUI implements ActionListener {
 
 			_deadlineTaskView.setText(EMPTY_STRING);
 
-			appendToPane(_deadlineTaskView, DEADLINES_HEADER,
-					_headerAttributes);
+			appendToPane(_deadlineTaskView, DEADLINES_HEADER, _headerAttributes);
 
 			int index = 0;
-			
+
 			for (DeadlineTask task : _displayState.getDeadlineTasks()) {
 				index = addDeadlineTaskToPane(index, task);
 			}
@@ -1090,18 +1143,15 @@ public class GUI implements ActionListener {
 			appendToPane(_deadlineTaskView, deadlineTaskText,
 					completedAttributes);
 		} else if (task.isExpired()) {
-			appendToPane(_deadlineTaskView, deadlineTaskText,
-					expiredAttributes);
+			appendToPane(_deadlineTaskView, deadlineTaskText, expiredAttributes);
 		} else {
-			appendToPane(_deadlineTaskView, deadlineTaskText,
-					_bodyAttributes);
+			appendToPane(_deadlineTaskView, deadlineTaskText, _bodyAttributes);
 		}
 
 		appendToPane(_deadlineTaskView, taskTags, _tagAttributes);
 
 		appendToPane(_deadlineTaskView, "\t\tby:   ", _tagAttributes);
-		appendToPane(_deadlineTaskView, taskDeadline + "\n",
-				_bodyAttributes);
+		appendToPane(_deadlineTaskView, taskDeadline + "\n", _bodyAttributes);
 		return index;
 	}
 
@@ -1109,8 +1159,7 @@ public class GUI implements ActionListener {
 		if (!_displayState.getFloatingTasks().isEmpty()) {
 			_floatingTaskView.setText(EMPTY_STRING);
 
-			appendToPane(_floatingTaskView, FLEXIBLE_HEADER,
-					_headerAttributes);
+			appendToPane(_floatingTaskView, FLEXIBLE_HEADER, _headerAttributes);
 
 			int index = 0;
 			for (FloatingTask task : _displayState.getFloatingTasks()) {
@@ -1138,8 +1187,7 @@ public class GUI implements ActionListener {
 			appendToPane(_floatingTaskView, floatingTaskText,
 					completedAttributes);
 		} else {
-			appendToPane(_floatingTaskView, floatingTaskText,
-					_bodyAttributes);
+			appendToPane(_floatingTaskView, floatingTaskText, _bodyAttributes);
 		}
 		taskTags = task.getTagString() + "\n";
 		appendToPane(_floatingTaskView, taskTags, _tagAttributes);
