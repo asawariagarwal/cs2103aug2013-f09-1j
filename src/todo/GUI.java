@@ -82,15 +82,28 @@ public class GUI implements ActionListener {
 
 	private static final String TO_DO = "ToDo";
 
+	private static final String CLOCK_DISPLAY_FORMAT = "hh:mm:ss aa\nEEEEEEEEE\ndd MMMMMMMMMMM, yyyy";
+	private static final int TIMER_INTERVAL = 1000;
+
 	private static final String FLEXIBLE_HEADER = "Flexible Tasks :\n\n";
 	private static final String DEADLINES_HEADER = "Deadlines :\n\n";
 	private static final String EVENTS_HEADER = "Events :\n\n";
 
 	private static final String EMPTY_STRING = "";
-	
+	private static final String PROMPT_SYMBOL = ">";
+	private static final int PROMPT_COLUMNS = 1;
+
+	private static final String STRING_START_TYPING_HERE = "Start Typing Here....";
+	private static final String STRING_FETCHING_SYSTEM_TIME = "Fetching System Time...\n\n";
+
 	/**
 	 * Constants for logging
 	 */
+	private static final String GUI_LOGGER = "GUILogger";
+
+	private static final String LOG_SYSTRAY_UNSUPPORTED = "Systray Unsupported";
+	private static final String LOG_DEACTIVATING_MIN_MODE = "Deactivating MinMode";
+	private static final String LOG_ACTIVATING_MIN_MODE = "Activating MinMode";
 	private static final String LOG_FLOATING_TASKS_ARE_EMPTY = "Floating Tasks are empty";
 	private static final String LOG_DEADLINE_TASKS_ARE_EMPTY = "Deadline Tasks are empty";
 	private static final String LOG_TIMED_TASKS_ARE_EMPTY = "Timed Tasks are empty";
@@ -123,11 +136,13 @@ public class GUI implements ActionListener {
 	private static final String OS_NAME = "os.name";
 
 	private static final Color GUI_BACKGROUND_COLOR = Color.BLACK;
+	private static final Color FOREGROUND_COLOR_WHITE = Color.WHITE;
 
 	private static final String FEEDBACK_CORRUPTED_PREVIOUS_STATE = "Corrupted Previous State";
 
 	private static final String FONT_NAME = "Consolas";
-	
+	private static final String FONT_TIME_AND_DATE_PANE = "Courier New";
+
 	/**
 	 * Help Strings
 	 */
@@ -142,16 +157,17 @@ public class GUI implements ActionListener {
 	private static final String HELP_TEXT_9 = "to minimize\nto/maximize from the\nSystem Tray\n\nPress ";
 	private static final String HELP_TEXT_10 = "Alt+Enter ";
 	private static final String HELP_TEXT_11 = "to \nswitch between Min \nand Full Modes";
-	
+
 	/**
 	 * Audio feedback class
 	 */
 	private static AudioFeedBack audio;
-	
+
 	/**
 	 * Class for custom scroll bar implementation
+	 * 
 	 * @author Karan
-	 *
+	 * 
 	 */
 	private static class CustomScrollBar extends MetalScrollBarUI {
 
@@ -213,12 +229,12 @@ public class GUI implements ActionListener {
 			return bi;
 		}
 	}
-	
+
 	/**
 	 * Nested class for Audio feedback
 	 * 
 	 * @author Karan
-	 *
+	 * 
 	 */
 	private final static class AudioFeedBack {
 		/**
@@ -326,15 +342,16 @@ public class GUI implements ActionListener {
 			AUDIO_ENABLED = false;
 		}
 	}
-	
+
 	/**
 	 * Nested class to handle user input
 	 * 
 	 * @author Karan
-	 *
+	 * 
 	 */
 	private final class InputProcessor extends KeyAdapter {
 
+		private static final String LOG_ALT_KEY_RELEASED = "Alt key released";
 		private static final String EMPTY_STRING = "";
 		private static final String FEEDBACK_SOUND_TURNED_ON = "Sound turned on";
 		private static final String FEEDBACK_SOUND_TURNED_OFF = "Sound turned off";
@@ -478,16 +495,16 @@ public class GUI implements ActionListener {
 		@Override
 		public void keyReleased(KeyEvent e) {
 			if (isAltKeyPress(e)) {
-				GUILogger.log(Level.INFO, "Alt key released");
+				GUILogger.log(Level.INFO, LOG_ALT_KEY_RELEASED);
 				altPressed = false;
 			}
 		}
 	}
 
 	private void activateMinMode() {
-		GUILogger.log(Level.INFO, "Activating MinMode");
+		GUILogger.log(Level.INFO, LOG_ACTIVATING_MIN_MODE);
 		_frmTodo.getContentPane().remove(_notificationsArea);
-		_frmTodo.getContentPane().remove(TaskScrollPane);
+		_frmTodo.getContentPane().remove(_taskScrollPane);
 		_frmTodo.setPreferredSize(new Dimension(700, 100));
 		_frmTodo.pack();
 		_frmTodo.setVisible(true);
@@ -495,14 +512,14 @@ public class GUI implements ActionListener {
 	}
 
 	private void deactivateMinMode() {
-		GUILogger.log(Level.INFO, "Deactivating MinMode");
+		GUILogger.log(Level.INFO, LOG_DEACTIVATING_MIN_MODE);
 		_frmTodo.getContentPane().add(_notificationsArea, BorderLayout.EAST);
-		_frmTodo.getContentPane().add(TaskScrollPane, BorderLayout.CENTER);
+		_frmTodo.getContentPane().add(_taskScrollPane, BorderLayout.CENTER);
 		_frmTodo.setBounds(1100, 0, 800, 850);
 		_frmTodo.setExtendedState(Frame.MAXIMIZED_BOTH);
 		_frmTodo.setVisible(true);
 	}
-	
+
 	/**
 	 * GUI state constants
 	 */
@@ -520,7 +537,7 @@ public class GUI implements ActionListener {
 	private JTextPane _floatingTaskView;
 	private JTextPane _feedbackPane;
 	private JPanel _mainViewArea;
-	private JScrollPane TaskScrollPane;
+	private static JScrollPane _taskScrollPane;
 	private ArrayList<String> _previousInputs;
 	private SystemTray _systemTray;
 	private Image _trayImage;
@@ -542,11 +559,11 @@ public class GUI implements ActionListener {
 	private String HELP_PROMPT = "\nFeeling Lost?\nTry keying in 'help'";
 	private SimpleAttributeSet completedAttributes;
 	private SimpleAttributeSet expiredAttributes;
-	
+
 	/**
 	 * Logger for the GUI
 	 */
-	protected static Logger GUILogger = Logger.getLogger("GUILogger");
+	protected static Logger GUILogger = Logger.getLogger(GUI_LOGGER);
 
 	/**
 	 * Launch the application.
@@ -592,7 +609,7 @@ public class GUI implements ActionListener {
 	}
 
 	private void initTimer() {
-		_timer = new Timer(1000, this);
+		_timer = new Timer(TIMER_INTERVAL, this);
 		_timer.start();
 	}
 
@@ -635,6 +652,7 @@ public class GUI implements ActionListener {
 		activateMinMode();
 
 		initAudioFeedBack();
+
 	}
 
 	private void initAudioFeedBack() {
@@ -734,7 +752,7 @@ public class GUI implements ActionListener {
 	}
 
 	private void updateFeedbackPane() {
-		_feedbackPane.setText("");
+		_feedbackPane.setText(EMPTY_STRING);
 		String feedbackText = _displayState.getFeedback().getDisplay();
 		if (isPositiveFeedback()) {
 			appendToPane(_feedbackPane, feedbackText, completedAttributes);
@@ -774,7 +792,7 @@ public class GUI implements ActionListener {
 
 			addIconToSysTray();
 		} else {
-			GUILogger.log(Level.INFO, "Systray Unsupported");
+			GUILogger.log(Level.WARNING, LOG_SYSTRAY_UNSUPPORTED);
 		}
 	}
 
@@ -846,21 +864,21 @@ public class GUI implements ActionListener {
 	private void initPromptInputField() {
 		_userInputField = new JTextField();
 		_userInputField.addKeyListener(new InputProcessor());
-		_userInputField.setCaretColor(Color.WHITE);
+		_userInputField.setCaretColor(FOREGROUND_COLOR_WHITE);
 		_userInputField.setFocusTraversalKeysEnabled(false);
 		_userInputField.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
-				_userInputField.setText("");
+				_userInputField.setText(EMPTY_STRING);
 			}
 		});
 		_userPromptArea.add(_userInputField, BorderLayout.CENTER);
 		_userInputField.setCursor(Cursor
 				.getPredefinedCursor(Cursor.TEXT_CURSOR));
 		_userInputField.setBorder(null);
-		_userInputField.setForeground(Color.WHITE);
+		_userInputField.setForeground(FOREGROUND_COLOR_WHITE);
 		_userInputField.setBackground(new Color(0, 0, 0));
-		_userInputField.setText("Start Typing Here....");
+		_userInputField.setText(STRING_START_TYPING_HERE);
 		_userInputField.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
 		_userInputField.setSize(20, 1);
 		_userInputField.requestFocusInWindow();
@@ -870,13 +888,14 @@ public class GUI implements ActionListener {
 		_promptSymbol = new JTextField();
 		_userPromptArea.add(_promptSymbol, BorderLayout.WEST);
 		_promptSymbol.setEditable(false);
-		_promptSymbol.setText(">");
-		_promptSymbol.setForeground(Color.WHITE);
-		_promptSymbol.setFont(new Font("Courier New", Font.PLAIN, 20));
-		_promptSymbol.setColumns(1);
+		_promptSymbol.setText(PROMPT_SYMBOL);
+		_promptSymbol.setForeground(FOREGROUND_COLOR_WHITE);
+		_promptSymbol
+				.setFont(new Font(FONT_TIME_AND_DATE_PANE, Font.PLAIN, 20));
+		_promptSymbol.setColumns(PROMPT_COLUMNS);
 		_promptSymbol.setBorder(null);
 		_promptSymbol.setBackground(GUI_BACKGROUND_COLOR);
-		_promptSymbol.setText(">");
+		_promptSymbol.setText(PROMPT_SYMBOL);
 	}
 
 	private void initNotificationsArea() {
@@ -888,9 +907,10 @@ public class GUI implements ActionListener {
 
 	private void initDateTimeArea() {
 		_currentDateTimeArea = new JTextPane();
-		_currentDateTimeArea.setFont(new Font("Courier New", Font.BOLD, 17));
-		_currentDateTimeArea.setForeground(Color.WHITE);
-		_currentDateTimeArea.setText("Fetching System Time...\n\n");
+		_currentDateTimeArea.setFont(new Font(FONT_TIME_AND_DATE_PANE,
+				Font.BOLD, 17));
+		_currentDateTimeArea.setForeground(FOREGROUND_COLOR_WHITE);
+		_currentDateTimeArea.setText(STRING_FETCHING_SYSTEM_TIME);
 		_currentDateTimeArea.setBackground(new Color(0, 0, 0));
 
 		_currentDateTimeArea.setEditable(false);
@@ -901,7 +921,7 @@ public class GUI implements ActionListener {
 	private void initFloatingTaskView() {
 		_floatingTaskView = new JTextPane();
 		_floatingTaskView.setEditable(false);
-		_floatingTaskView.setForeground(Color.WHITE);
+		_floatingTaskView.setForeground(FOREGROUND_COLOR_WHITE);
 		_floatingTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
 		_floatingTaskView.setBackground(GUI_BACKGROUND_COLOR);
 		_floatingTaskView.setAutoscrolls(false);
@@ -910,7 +930,7 @@ public class GUI implements ActionListener {
 	private void initDeadlineTaskView() {
 		_deadlineTaskView = new JTextPane();
 		_deadlineTaskView.setEditable(false);
-		_deadlineTaskView.setForeground(Color.WHITE);
+		_deadlineTaskView.setForeground(FOREGROUND_COLOR_WHITE);
 		_deadlineTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
 		_deadlineTaskView.setBackground(GUI_BACKGROUND_COLOR);
 		_deadlineTaskView.setAutoscrolls(false);
@@ -921,7 +941,7 @@ public class GUI implements ActionListener {
 		_timedTaskView = new JTextPane();
 		_timedTaskView.setEditable(false);
 		_timedTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
-		_timedTaskView.setForeground(Color.WHITE);
+		_timedTaskView.setForeground(FOREGROUND_COLOR_WHITE);
 		_timedTaskView.setBackground(new Color(0, 0, 0));
 		_timedTaskView.setAutoscrolls(false);
 	}
@@ -944,16 +964,16 @@ public class GUI implements ActionListener {
 		_mainViewArea.setForeground(Color.GREEN);
 		_mainViewArea.setBackground(new Color(0, 0, 0));
 
-		TaskScrollPane = new JScrollPane(_mainViewArea);
-		TaskScrollPane.setBorder(null);
-		TaskScrollPane.setViewportBorder(null);
-		TaskScrollPane
+		_taskScrollPane = new JScrollPane(_mainViewArea);
+		_taskScrollPane.setBorder(null);
+		_taskScrollPane.setViewportBorder(null);
+		_taskScrollPane
 				.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-		TaskScrollPane.setViewportView(_mainViewArea);
-		TaskScrollPane.getVerticalScrollBar().setUI(new CustomScrollBar());
-		TaskScrollPane.getHorizontalScrollBar().setUI(new CustomScrollBar());
+		_taskScrollPane.setViewportView(_mainViewArea);
+		_taskScrollPane.getVerticalScrollBar().setUI(new CustomScrollBar());
+		_taskScrollPane.getHorizontalScrollBar().setUI(new CustomScrollBar());
 
-		_frmTodo.getContentPane().add(TaskScrollPane, BorderLayout.CENTER);
+		_frmTodo.getContentPane().add(_taskScrollPane, BorderLayout.CENTER);
 		_mainViewArea.setLayout(new GridLayout(0, 1, 0, 0));
 	}
 
@@ -1008,7 +1028,7 @@ public class GUI implements ActionListener {
 
 	private SimpleAttributeSet getBodyAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
-		StyleConstants.setForeground(attributes, Color.WHITE);
+		StyleConstants.setForeground(attributes, FOREGROUND_COLOR_WHITE);
 		StyleConstants.setBackground(attributes, GUI_BACKGROUND_COLOR);
 		StyleConstants.setFontFamily(attributes, FONT_NAME);
 		return attributes;
@@ -1179,7 +1199,7 @@ public class GUI implements ActionListener {
 		String floatingTaskText;
 		String taskTags;
 		String taskNum;
-		taskTags = "";
+		taskTags = EMPTY_STRING;
 		floatingTaskText = "";
 		taskNum = "\t" + (++index) + ". ";
 		floatingTaskText += task.getTaskDescription() + "\t";
@@ -1197,7 +1217,7 @@ public class GUI implements ActionListener {
 
 	private static String getCurrentDisplayTime() {
 		SimpleDateFormat dateTimeFormat = new SimpleDateFormat(
-				"hh:mm:ss aa\nEEEEEEEEE\ndd MMMMMMMMMMM, yyyy");
+				CLOCK_DISPLAY_FORMAT);
 		Calendar currTime = Calendar.getInstance();
 		return dateTimeFormat.format(currTime.getTime());
 
@@ -1206,5 +1226,9 @@ public class GUI implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		_currentDateTimeArea.setText(getCurrentDisplayTime());
+	}
+
+	private static void scrollToTop() {
+		_taskScrollPane.getVerticalScrollBar().setValue(0);
 	}
 }
