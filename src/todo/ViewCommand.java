@@ -24,6 +24,7 @@ public class ViewCommand extends Command {
 	public static final int MODE_VIEW_TAG = 5;
 	public static final int MODE_VIEW_EXPIRED = 6;
 	public static final int MODE_VIEW_DONE = 7;
+	public static final int MODE_VIEW_INTERVAL = 8;
 
 	private static final String FEEDBACK_VIEW_ALL = "viewing all tasks";
 	private static final String FEEDBACK_VIEW_FLOATING = "viewing flexible tasks";
@@ -34,6 +35,7 @@ public class ViewCommand extends Command {
 	private static final String FEEDBACK_VIEW_DATE_NOT_FOUND = "no tasks found for %1$s";
 	private static final String FEEDBACK_VIEW_EXPIRED = "viewing expired tasks";
 	private static final String FEEDBACK_VIEW_DONE = "viewing completed tasks";
+	private static final String FEEDBACK_VIEW_INTERVAL = "viewing from %1$s to %2$s";
 
 	private static final String LOG_ERROR = "error executing view";
 	private static final String LOG_VIEW_ALL = "executing view all";
@@ -44,11 +46,14 @@ public class ViewCommand extends Command {
 	private static final String LOG_VIEW_TAG = "executing view tag";
 	private static final String LOG_VIEW_EXPIRED = "executing view expired";
 	private static final String LOG_VIEW_DONE = "executing view done";
+	private static final String LOG_VIEW_INTERVAL = "executing view interval";
 
 	private static final String DATE_FORMAT = "%1$s/%2$s/%3$s";
 	private static final int MONTH_OFFSET = 1;
 
 	private Calendar date;
+	private Calendar startDate;
+	private Calendar endDate;
 	private String tag;
 	private int mode;
 
@@ -89,6 +94,20 @@ public class ViewCommand extends Command {
 		this.date = date;
 		this.mode = MODE_VIEW_DATE;
 	}
+	
+	/**
+	 * Constructor for ViewCommand
+	 * 
+	 * @param date
+	 *            date to view tasks by
+	 * 
+	 */
+	ViewCommand(Calendar startDate, Calendar endDate) {
+		this();
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.mode = MODE_VIEW_INTERVAL;
+	}
 
 	/**
 	 * Constructor for ViewCommand
@@ -107,7 +126,7 @@ public class ViewCommand extends Command {
 	protected boolean isValid() {
 		return (isViewAll() || isViewFloating() || isViewDeadline()
 				|| isViewTimed() || isViewDate() || isViewTag()
-				|| isViewExpired() || isViewDone());
+				|| isViewExpired() || isViewDone() || isViewInterval());
 	}
 
 	/**
@@ -173,6 +192,14 @@ public class ViewCommand extends Command {
 	private boolean isViewDone() {
 		return mode == MODE_VIEW_DONE;
 	}
+	
+	/**
+	 * Checks if command is a "view interval" command
+	 * 
+	 */
+	private boolean isViewInterval() {
+		return mode == MODE_VIEW_INTERVAL && startDate != null && endDate != null;
+	}
 
 	@Override
 	protected State execute(State state) throws Exception {
@@ -201,7 +228,10 @@ public class ViewCommand extends Command {
 		} else if (isViewDone()) {
 			logger.log(Level.INFO, LOG_VIEW_DONE);
 			return executeViewDone(state);
-		} else {
+		} else if (isViewInterval()) {
+			logger.log(Level.INFO, LOG_VIEW_INTERVAL);
+			return executeViewInterval(state);
+		}  else {
 			logger.log(Level.WARNING, LOG_ERROR);
 			throw new Exception();
 		}
@@ -501,6 +531,49 @@ public class ViewCommand extends Command {
 			}
 		}
 		s.setFeedback(new Feedback(FEEDBACK_VIEW_DONE, true));
+		return s;
+	}
+	
+	/**
+	 * Executes view interval command
+	 * 
+	 * @param state
+	 *            current state of program
+	 * @return state after executing command
+	 */
+	private State executeViewInterval(State state) {
+		State s = new State();
+		TreeSet<DeadlineTask> deadline = state.getDeadlineTasks();
+		TreeSet<TimedTask> timed = state.getTimedTasks();
+		for (DeadlineTask cur : deadline) {
+			if (startDate.compareTo(cur.getDeadline()) <= 0 &&
+					endDate.compareTo(cur.getDeadline()) >= 0) {
+				s.addTask(cur);
+			}
+		}
+
+		for (TimedTask cur : timed) {
+			if ((startDate.compareTo(cur.getStartDate()) <= 0 &&
+					endDate.compareTo(cur.getStartDate()) >= 0) ||
+					(startDate.compareTo(cur.getEndDate()) <= 0 &&
+					endDate.compareTo(cur.getEndDate()) >= 0)) {
+				s.addTask(cur);
+			}
+		}
+		
+		String startDateStr = String.format(DATE_FORMAT,
+				String.valueOf(startDate.get(Calendar.DATE)),
+				String.valueOf(startDate.get(Calendar.MONTH) + MONTH_OFFSET),
+				String.valueOf(startDate.get(Calendar.YEAR)));
+		
+		String endDateStr = String.format(DATE_FORMAT,
+				String.valueOf(endDate.get(Calendar.DATE)),
+				String.valueOf(endDate.get(Calendar.MONTH) + MONTH_OFFSET),
+				String.valueOf(endDate.get(Calendar.YEAR)));
+		
+		s.setFeedback(new Feedback(String.format(FEEDBACK_VIEW_INTERVAL, startDateStr, endDateStr),
+				true));
+
 		return s;
 	}
 }
