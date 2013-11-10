@@ -18,7 +18,9 @@ public class StateTest {
 
 	private State s;
 	private boolean cleared;
-
+	FloatingTask ftask;
+	DeadlineTask dtask;
+	TimedTask etask;
 	/**
 	 * Sets up sample state
 	 * 
@@ -33,14 +35,14 @@ public class StateTest {
 		Feedback f = new Feedback("added tasks", true);
 		s.setFeedback(f);
 
-		FloatingTask ftask = new FloatingTask("study hard",
+		ftask = new FloatingTask("study hard",
 				new ArrayList<String>());
 		s.addTask(ftask);
 
 		ArrayList<String> dtags = new ArrayList<String>();
 		dtags.add("EE2020");
 		Calendar deadline = Calendar.getInstance();
-		DeadlineTask dtask = new DeadlineTask("complete report 1", dtags,
+		dtask = new DeadlineTask("complete assignment 1", dtags,
 				deadline);
 		s.addTask(dtask);
 
@@ -49,7 +51,7 @@ public class StateTest {
 		etags.add("priority");
 		Calendar start = Calendar.getInstance();
 		Calendar end = Calendar.getInstance();
-		TimedTask etask = new TimedTask("complete report", etags, start, end);
+		etask = new TimedTask("complete report", etags, start, end);
 		s.addTask(etask);
 	}
 
@@ -134,6 +136,32 @@ public class StateTest {
 			assertFalse(s.hasDateTasks());
 		}
 	}
+	
+	/**
+	 * Routine to test for removeTask
+	 */
+	@Test
+	public void removeTaskTest() {
+		if(!cleared) {
+			assertTrue(s.hasTask("study"));
+			s.removeTask(ftask);
+			assertFalse(s.hasTask("study hard"));
+			
+			assertTrue(s.hasTask("assignment"));
+			s.removeTask(dtask);
+			assertFalse(s.hasTask("assignment"));
+			
+			assertTrue(s.hasTask("report"));
+			s.removeTask(etask);
+			assertFalse(s.hasTask("report"));
+			
+			s.addTask(etask);
+			s.addTask(dtask);
+			s.addTask(ftask);
+		} else {
+			assertFalse(s.hasDateTasks());
+		}
+	}
 
 	/**
 	 * Routine to test for next and previous functionality and clear the state for testing 
@@ -145,7 +173,7 @@ public class StateTest {
 		newState.setPrevious(s);
 		assertTrue(s.hasNext());
 		assertTrue(newState.hasPrevious());
-
+		
 		s = s.getNext();
 		cleared = true;
 	}
