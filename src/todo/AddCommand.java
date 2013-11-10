@@ -12,9 +12,11 @@ public class AddCommand extends Command {
 	private static final String FEEDBACK_TIMED = "added new timed task: %1$s";
 	private static final String FEEDBACK_DEADLINE = "added new deadline task: %1$s";
 	private static final String FEEDBACK_FLOATING = "added new floating task: %1$s";
+	private static final String FEEDBACK_DUPLICATE = "failed to add: a similar task already exists";
 	
 	private static final String LOG_ERROR = "error executing add";
 	private static final String LOG_MESSAGE = "executing add";
+	private static final String LOG_DUPLICATE = "duplicate found in add";
 	
 	private Task task;
 	
@@ -102,9 +104,13 @@ public class AddCommand extends Command {
 	protected State execute(State state) throws Exception {
 		assert(this.isValid());
 		State s = new State(state);
-		if(task.isExpired()) {
-			task.expire();
+		
+		if (hasDuplicateTask(state, task)) {
+			Feedback f = new Feedback(FEEDBACK_DUPLICATE, false);
+			s.setFeedback(f);
+			return s;
 		}
+		
 		s.addTask(task);
 		String desc = task.getTaskDescription();
 		logger.log(Level.INFO, LOG_MESSAGE);
@@ -124,5 +130,20 @@ public class AddCommand extends Command {
 			logger.log(Level.WARNING, LOG_ERROR);
 			throw new Exception();
 		}
+	}
+	
+	/**
+	 * Checks if state has duplicate task
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @param task
+	 * 			task to be searched in state
+	 * 
+	 * @return true if duplicate is found, false otherwise
+	 */
+	private boolean hasDuplicateTask(State state, Task task) {
+		return (state.getAllTasks().contains(task)) ;
 	}
 }

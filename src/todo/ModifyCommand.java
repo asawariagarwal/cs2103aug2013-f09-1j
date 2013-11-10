@@ -37,6 +37,7 @@ public class ModifyCommand extends Command {
 	private static final String FEEDBACK_UNTAG_SUCCESS = "removed tags: %1$s from %2$s";
 	private static final String FEEDBACK_UNTAG_FAILURE = "%1$s does not have tag(s): %2$s";
 	private static final String FEEDBACK_BAD_INDEX = "invalid index";
+	private static final String FEEDBACK_DUPLICATE = "failed: a similar task already exists";
 	
 	private String taskString;
 	private String newTaskString;
@@ -45,7 +46,7 @@ public class ModifyCommand extends Command {
 	private Calendar newEndDate;
 	private boolean mark;
 	private boolean tag;
-	private ArrayList<String> tags;
+	private TreeSet<String> tags;
 	private int mode;
 	private boolean isByIndex;
 	private int indexPos;
@@ -239,7 +240,7 @@ public class ModifyCommand extends Command {
 	ModifyCommand(String taskString, ArrayList<String> tags, boolean tag) {
 		super(true);
 		this.taskString = taskString;
-		this.tags = tags;
+		this.tags = new TreeSet<String>(tags);
 		this.tag = tag;
 		this.mode = MODE_TAG;
 		isByIndex = false;
@@ -266,7 +267,7 @@ public class ModifyCommand extends Command {
 		super(true);
 		this.indexPos = indexPos;
 		this.indexType = indexType;
-		this.tags = tags;
+		this.tags = new TreeSet<String>(tags);
 		this.tag = tag;
 		this.mode = MODE_TAG;
 		isByIndex = true;
@@ -435,6 +436,43 @@ public class ModifyCommand extends Command {
 	 * @return state after execution of command
 	 */
 	private State executeByIndex(State state, State displayState) throws Exception {
+		State newState = new State(state);
+		Task t = getTaskByIndex(displayState);
+		if (t == null) {
+			return makeErrorState(displayState, new Feedback(FEEDBACK_BAD_INDEX, false));
+		}
+		Task cloned = t.clone();
+		if (isChange()) {
+			newState.removeTask(t);
+			return executeChange(newState, cloned);
+		} else if (isRescheduleDeadline()) {
+			if (t instanceof DeadlineTask) {
+				newState.removeTask(t);
+				return executeRescheduleDeadline(newState, (DeadlineTask) cloned);
+			} else {
+				return makeErrorState(displayState,
+									  new Feedback(String.format(FEEDBACK_NOT_DEADLINE, t.getTaskDescription()),false));
+			}
+		} else if (isRescheduleTimed()) {
+			if (t instanceof TimedTask) {
+				newState.removeTask(t);
+				return executeRescheduleTimed(newState, (TimedTask) cloned);
+			} else {
+				return makeErrorState(displayState,
+									  new Feedback(String.format(FEEDBACK_NOT_TIMED, t.getTaskDescription()),false));
+			}
+		} else if (isMark()) {
+			newState.removeTask(t);
+			return executeMark(newState, cloned);
+		} else if (isTag()) {
+			newState.removeTask(t);
+			return executeTag(newState, cloned);
+		} else {
+			throw new Exception();
+		}		
+	}
+	
+	private Task getTaskByIndex(State displayState) throws Exception {
 		TreeSet<? extends Task> tasks;
 		if (indexType == INDEX_FLOATING) {
 			tasks = displayState.getFloatingTasks();
@@ -447,56 +485,15 @@ public class ModifyCommand extends Command {
 		}
 		
 		int i = 1;
-		boolean isFound = false;
-		Task t = null;
-		State newState = new State(state);
 		for (Task task : tasks) {
 			if (i > indexPos) {
-				break;
+				return null;
 			} else if (i == indexPos) {
-				isFound = true;
-				t = task;
-				break;
+				return task;
 			}
 			i++;
 		}
-		if (!isFound) {
-			return makeErrorState(displayState, new Feedback(FEEDBACK_BAD_INDEX, false));
-		}
-		Task cloned = t.clone();
-		if (isChange()) {
-			newState.removeTask(t);
-			newState.addTask(cloned);
-			return executeChange(newState, cloned);
-		} else if (isRescheduleDeadline()) {
-			if (t instanceof DeadlineTask) {
-				newState.removeTask(t);
-				newState.addTask(cloned);
-				return executeRescheduleDeadline(newState, (DeadlineTask) cloned);
-			} else {
-				return makeErrorState(displayState,
-									  new Feedback(String.format(FEEDBACK_NOT_DEADLINE, t.getTaskDescription()),false));
-			}
-		} else if (isRescheduleTimed()) {
-			if (t instanceof TimedTask) {
-				newState.removeTask(t);
-				newState.addTask(cloned);
-				return executeRescheduleTimed(newState, (TimedTask) cloned);
-			} else {
-				return makeErrorState(displayState,
-									  new Feedback(String.format(FEEDBACK_NOT_TIMED, t.getTaskDescription()),false));
-			}
-		} else if (isMark()) {
-			newState.removeTask(t);
-			newState.addTask(cloned);
-			return executeMark(newState, cloned);
-		} else if (isTag()) {
-			newState.removeTask(t);
-			newState.addTask(cloned);
-			return executeTag(newState, cloned);
-		} else {
-			throw new Exception();
-		}		
+		return null;
 	}
 	
 	/**
@@ -524,12 +521,10 @@ public class ModifyCommand extends Command {
 		Task cloned = t.clone();
 		if (isChange()) {
 			newState.removeTask(t);
-			newState.addTask(cloned);
 			return executeChange(newState, cloned);
 		} else if (isRescheduleDeadline()) {
 			if (t instanceof DeadlineTask) {
 				newState.removeTask(t);
-				newState.addTask(cloned);
 				return executeRescheduleDeadline(newState, (DeadlineTask) cloned);
 			} else {
 				return makeErrorState(displayState,
@@ -538,7 +533,6 @@ public class ModifyCommand extends Command {
 		} else if (isRescheduleTimed()) {
 			if (t instanceof TimedTask) {
 				newState.removeTask(t);
-				newState.addTask(cloned);
 				return executeRescheduleTimed(newState, (TimedTask) cloned);
 			} else {
 				return makeErrorState(displayState,
@@ -546,11 +540,9 @@ public class ModifyCommand extends Command {
 			}
 		} else if (isMark()) {
 			newState.removeTask(t);
-			newState.addTask(cloned);
 			return executeMark(newState, cloned);
 		} else if (isTag()) {
 			newState.removeTask(t);
-			newState.addTask(cloned);
 			return executeTag(newState, cloned);
 		} else {
 			throw new Exception();
@@ -569,8 +561,15 @@ public class ModifyCommand extends Command {
 	 * @return state after executing command
 	 */
 	private State executeChange(State state, Task task) {
+		state.removeTask(task);
+		Task cloned = task.clone();
 		String old = task.getTaskDescription();
-		task.setTaskDescription(newTaskString);
+		cloned.setTaskDescription(newTaskString);
+		if (hasDuplicateTask(state, cloned)) {
+			state.addTask(task);
+			return executeDuplicateTask(state);
+		}
+		state.addTask(cloned);
 		state.setFeedback(new Feedback (String.format(FEEDBACK_CHANGED, old, newTaskString), true));
 		return state;
 	}
@@ -587,8 +586,16 @@ public class ModifyCommand extends Command {
 	 * @return state after executing command
 	 */
 	private State executeRescheduleDeadline(State state, DeadlineTask task) {
-		task.setDeadline(newDeadline);
-		state.setFeedback(new Feedback(String.format(FEEDBACK_RESCHEDULE_DEADLINE, task.getTaskDescription()),true));
+		state.removeTask(task);
+		DeadlineTask cloned = task.clone();
+		cloned.setDeadline(newDeadline);
+		if (hasDuplicateTask(state, cloned)) {
+			state.addTask(task);
+			return executeDuplicateTask(state);
+		}
+		state.addTask(cloned);
+		state.setFeedback(new Feedback(String.format(FEEDBACK_RESCHEDULE_DEADLINE,
+				cloned.getTaskDescription()),true));
 		return state;
 	}
 	
@@ -604,9 +611,16 @@ public class ModifyCommand extends Command {
 	 * @return state after executing command
 	 */
 	private State executeRescheduleTimed(State state, TimedTask task) {
-		task.setStartDate(newStartDate);
-		task.setEndDate(newEndDate);
-		state.setFeedback(new Feedback(String.format(FEEDBACK_RESCHEDULE_TIMED, task.getTaskDescription()), true));
+		state.removeTask(task);
+		TimedTask cloned = task.clone();
+		cloned.setStartDate(newStartDate);
+		cloned.setEndDate(newEndDate);
+		if (hasDuplicateTask(state, cloned)) {
+			state.addTask(task);
+			return executeDuplicateTask(state);
+		}
+		state.addTask(cloned);
+		state.setFeedback(new Feedback(String.format(FEEDBACK_RESCHEDULE_TIMED, cloned.getTaskDescription()), true));
 		return state;
 	}
 	
@@ -622,21 +636,28 @@ public class ModifyCommand extends Command {
 	 * @return state after executing command
 	 */
 	private State executeMark(State state, Task task) {
+		state.removeTask(task);
+		Task cloned = task.clone();
 		if (mark) {
-			if (task.isComplete()) {
-				state.setFeedback(new Feedback(String.format(FEEDBACK_ALREADY_MARKED, task.getTaskDescription()),false));
+			if (cloned.isComplete()) {
+				state.setFeedback(new Feedback(String.format(FEEDBACK_ALREADY_MARKED, cloned.getTaskDescription()),false));
 			} else {
-				task.markAsDone();
-				state.setFeedback(new Feedback(String.format(FEEDBACK_MARK_SUCCESS, task.getTaskDescription()),true));
+				cloned.markAsDone();
+				state.setFeedback(new Feedback(String.format(FEEDBACK_MARK_SUCCESS, cloned.getTaskDescription()),true));
 			}
 		} else {
-			if (!task.isComplete()) {
-				state.setFeedback(new Feedback(String.format(FEEDBACK_ALREADY_UNMARKED, task.getTaskDescription()),false));
+			if (!cloned.isComplete()) {
+				state.setFeedback(new Feedback(String.format(FEEDBACK_ALREADY_UNMARKED, cloned.getTaskDescription()),false));
 			} else {
-				task.markAsPending();
-				state.setFeedback(new Feedback(String.format(FEEDBACK_UNMARK_SUCCESS, task.getTaskDescription()), true));
+				cloned.markAsPending();
+				state.setFeedback(new Feedback(String.format(FEEDBACK_UNMARK_SUCCESS, cloned.getTaskDescription()), true));
 			}
 		}
+		if (hasDuplicateTask(state, cloned)) {
+			state.addTask(task);
+			return executeDuplicateTask(state);
+		}
+		state.addTask(cloned);
 		return state;
 	}
 	
@@ -652,20 +673,22 @@ public class ModifyCommand extends Command {
 	 * @return state after executing command
 	 */
 	private State executeTag(State state, Task task) {
+		state.removeTask(task);
+		Task cloned = task.clone();
 		String feedback = "";
-		ArrayList<String> success = new ArrayList<String>();
-		ArrayList<String> failure = new ArrayList<String>();
+		TreeSet<String> success = new TreeSet<String>();
+		TreeSet<String> failure = new TreeSet<String>();
 		for (String t : tags) {
-			if (task.hasTag(t)) {
+			if (cloned.hasTag(t)) {
 				if (tag) {
 					addTagToList(failure, t);
 				} else {
-					task.removeTag(t);
+					cloned.removeTag(t);
 					addTagToList(success, t);
 				}
 			} else {
 				if (tag) {
-					task.addTag(t);
+					cloned.addTag(t);
 					addTagToList(success, t);
 				} else {
 					addTagToList(failure, t);
@@ -681,7 +704,7 @@ public class ModifyCommand extends Command {
 			}
 			feedback += String.format(msg,
 					getTagString(success),
-					task.getTaskDescription());
+					cloned.getTaskDescription());
 			state.setFeedback(new Feedback(feedback, true));
 		}
 		if (!failure.isEmpty()) {
@@ -695,11 +718,15 @@ public class ModifyCommand extends Command {
 				msg = FEEDBACK_UNTAG_FAILURE;
 			}
 			feedback += String.format(msg,
-					task.getTaskDescription(),
+					cloned.getTaskDescription(),
 					getTagString(failure));
 			state.setFeedback(new Feedback(feedback, false));
 		}
-		
+		if (hasDuplicateTask(state, cloned)) {
+			state.addTask(task);
+			return executeDuplicateTask(state);
+		}
+		state.addTask(cloned);
 		return state;
 	}
 	
@@ -714,7 +741,7 @@ public class ModifyCommand extends Command {
 	 * 
 	 * @return string of tags
 	 */
-	private void addTagToList(ArrayList<String> tagList, String tagStr) {
+	private void addTagToList(TreeSet<String> tagList, String tagStr) {
 		if (tagList == null) {
 			return;
 		} else {
@@ -730,12 +757,31 @@ public class ModifyCommand extends Command {
 	 * 
 	 * @return string of tags
 	 */
-	private String getTagString(ArrayList<String> tagList) {
+	private String getTagString(TreeSet<String> tagList) {
 		if (tagList == null || tagList.isEmpty()) {
 			return "";
 		} else {
 			String tagStr = tagList.toString();
 			return tagStr.substring(1, tagStr.length()-1);
 		}
+	}
+	
+	/**
+	 * Checks if state has duplicate task
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @param task
+	 * 			task to be searched in state
+	 * 
+	 * @return true if duplicate is found, false otherwise
+	 */
+	private boolean hasDuplicateTask(State state, Task task) {
+		return (state.getAllTasks().contains(task)) ;
+	}
+	
+	private State executeDuplicateTask(State state) {
+		return makeErrorState(state, new Feedback(FEEDBACK_DUPLICATE, false));
 	}
 }
