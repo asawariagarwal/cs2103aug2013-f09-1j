@@ -3,6 +3,7 @@ package todo;
 import static org.junit.Assert.*;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -85,16 +86,160 @@ public class InterpreterTest {
 	
 	@Test
 	public void viewCommandTest() throws Exception{
+		
+		//Positive tests
+		ViewCommand viewComm1;
 		interpreter.setInput("view all");
 		assertEquals("view",interpreter.getCommandType());
+		viewComm1 = interpreter.parseView();
+		assertFalse(viewComm1==null);
 		
+		interpreter.setInput("view flexible");
+		assertEquals("view",interpreter.getCommandType());
+		viewComm1 = interpreter.parseView();
+		assertFalse(viewComm1==null);
 		
+		interpreter.setInput("view events");
+		assertEquals("view",interpreter.getCommandType());
+		viewComm1 = interpreter.parseView();
+		assertFalse(viewComm1==null);
 		
+		interpreter.setInput("view deadlines");
+		assertEquals("view",interpreter.getCommandType());
+		viewComm1 = interpreter.parseView();
+		assertFalse(viewComm1==null);
 		
+		interpreter.setInput("view today");
+		assertEquals("view",interpreter.getCommandType());
+		viewComm1 = interpreter.parseView();
+		assertFalse(viewComm1==null);
 		
+		interpreter.setInput("view #cs2103");
+		assertEquals("view",interpreter.getCommandType());
+		viewComm1 = interpreter.parseView();
+		assertFalse(viewComm1==null);
+		
+		interpreter.setInput("view from today to tomorrow");
+		assertEquals("view",interpreter.getCommandType());
+		viewComm1 = interpreter.parseView();
+		assertFalse(viewComm1==null);
+		
+		//Negative tests
+		interpreter.setInput("view ");
+		assertEquals("view",interpreter.getCommandType());
+		viewComm1 = interpreter.parseView();
+		assertTrue(viewComm1==null);
+		
+		interpreter.setInput("view fliahd");
+		assertEquals("view",interpreter.getCommandType());
+		viewComm1 = interpreter.parseView();
+		assertTrue(viewComm1==null);	
+	}
+	
+	@Test
+	public void DeleteTest()throws Exception{
+		DeleteCommand delComm1;
+		interpreter.setInput("delete -d1");
+		assertEquals("delete",interpreter.getCommandType());
+		delComm1 = interpreter.parseDelete();
+		assertFalse(delComm1==null);
+		
+		interpreter.setInput("delete any string");
+		assertEquals("delete",interpreter.getCommandType());
+		delComm1 = interpreter.parseDelete();
+		assertFalse(delComm1==null);
+		
+		//Invalid command format
+		interpreter.setInput("delete ");
+		assertEquals("delete",interpreter.getCommandType());
+		delComm1 = interpreter.parseDelete();
+		assertTrue(delComm1==null);
 		
 	}
 	
+	@Test
+	public void clearCommandTest() throws Exception{
+		
+		//Positive tests
+		ClearCommand clearComm1;
+		interpreter.setInput("clear");
+		assertEquals("clear",interpreter.getCommandType());
+		clearComm1 = interpreter.parseClear();
+		assertFalse(clearComm1==null);
+		
+		interpreter.setInput("clear flexible");
+		assertEquals("clear",interpreter.getCommandType());
+		clearComm1 = interpreter.parseClear();
+		assertFalse(clearComm1==null);
+		
+		interpreter.setInput("clear events");
+		assertEquals("clear",interpreter.getCommandType());
+		clearComm1 = interpreter.parseClear();
+		assertFalse(clearComm1==null);
+		
+		interpreter.setInput("clear deadlines");
+		assertEquals("clear",interpreter.getCommandType());
+		clearComm1 = interpreter.parseClear();
+		assertFalse(clearComm1==null);
+		
+		interpreter.setInput("clear done");
+		assertEquals("clear",interpreter.getCommandType());
+		clearComm1 = interpreter.parseClear();
+		assertFalse(clearComm1==null);
+		
+		interpreter.setInput("clear expired");
+		assertEquals("clear",interpreter.getCommandType());
+		clearComm1 = interpreter.parseClear();
+		assertFalse(clearComm1==null);
+			
+		//Negative tests
+		
+		interpreter.setInput("clear fliahd");
+		assertEquals("clear",interpreter.getCommandType());
+		clearComm1 = interpreter.parseClear();
+		assertTrue(clearComm1==null);	
+	}
+	
+	@Test
+	public void UndoRedoTest()throws Exception{
+		
+		UndoCommand undoComm;
+		interpreter.setInput("undo");
+		assertEquals("undo",interpreter.getCommandType());
+		undoComm = interpreter.parseUndo();
+		assertFalse(undoComm==null);
+		
+		interpreter.setInput("undo 1");
+		assertEquals("undo",interpreter.getCommandType());
+		undoComm = interpreter.parseUndo();
+		assertFalse(undoComm==null);
+		
+		interpreter.setInput("redo 1");
+		assertEquals("redo",interpreter.getCommandType());
+		undoComm = interpreter.parseUndo();
+		assertFalse(undoComm==null);
+		
+		interpreter.setInput("redo");
+		assertEquals("redo",interpreter.getCommandType());
+		undoComm = interpreter.parseRedo();
+		assertFalse(undoComm==null);
+			
+	}
+		
+	@Test
+	public void populatingHashtags()throws Exception{
+		ArrayList<String> hashtags = new ArrayList<String>();
+		interpreter.setInput("#cs2103 #ee2020");
+		int tags = interpreter.populateHashtags(hashtags);
+		assertEquals("cs2103",hashtags.get(0));
+		assertEquals("ee2020",hashtags.get(1));
+		assertTrue(tags==1);
+		
+		interpreter.setInput("#cs2103 #ee20 20");
+		tags = interpreter.populateHashtags(hashtags);
+		assertTrue(tags==0);	
+			
+	}
 	
 	@Test
 	public void dateManipulationTest() throws Exception{
