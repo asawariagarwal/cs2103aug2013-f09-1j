@@ -12,22 +12,22 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/JHotKeys.jar"/>
 	<classpathentry kind="lib" path="lib/windows/jintellitype.jar"/>
 	<classpathentry kind="lib" path="lib/unix/lib/JXGrabKey.jar"/>
-	<classpathentry kind="lib" path="lib/antlr-2.7.7.jar"/>
-	<classpathentry kind="lib" path="lib/antlr-runtime-3.2.jar" sourcepath="lib/antlr-runtime-3.2-sources.jar"/>
-	<classpathentry kind="lib" path="lib/gunit-3.2.jar"/>
-	<classpathentry kind="lib" path="lib/ical4j-1.0.2.jar" sourcepath="lib/ical4j-1.0.2-sources.jar"/>
-	<classpathentry kind="lib" path="lib/junit-4.1.jar"/>
-	<classpathentry kind="lib" path="lib/natty-0.8.jar" sourcepath="lib/natty-master"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jintellitype">
 		<attributes>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="ToDo/lib/windows"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/json-simple-1.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/commons-io-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/general/antlr-2.7.7.jar"/>
+	<classpathentry kind="lib" path="lib/general/antlr-runtime-3.2.jar"/>
+	<classpathentry kind="lib" path="lib/general/gunit-3.2.jar"/>
+	<classpathentry kind="lib" path="lib/general/ical4j-1.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/general/JHotKeys.jar"/>
+	<classpathentry kind="lib" path="lib/general/json-simple-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/general/junit-4.1.jar"/>
+	<classpathentry kind="lib" path="lib/general/natty-0.8.jar"/>
+	<classpathentry kind="lib" path="lib/general/commons-io-1.4.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
