@@ -442,17 +442,26 @@ public class GUI implements ActionListener {
 	 */
 	private final class InputProcessor extends KeyAdapter {
 
-		private static final String LOG_ALT_KEY_RELEASED = "Alt key released";
+		private static final int INITIAL_UP_KEYPRESS_COUNT = 1;
+
 		private static final String EMPTY_STRING = "";
+		
 		private static final String FEEDBACK_SOUND_TURNED_ON = "Sound turned on";
 		private static final String FEEDBACK_SOUND_TURNED_OFF = "Sound turned off";
+		
 		private static final String UNMUTE_INPUT = "unmute";
 		private static final String MUTE_INPUT = "mute";
 		private static final String HELP_INPUT = "help";
 		private static final String EXIT_INPUT = "exit";
+		
+		/**
+		 * Log constants
+		 */
+		private static final String LOG_ALT_KEY_RELEASED = "Alt key released";
 		private static final String LOG_ENTER_KEY_PRESSED = "Enter key pressed";
 		private static final String LOG_TAB_KEY_PRESSED = "Tab key pressed";
 		private static final String LOG_UP_KEY_PRESSED = "Up key pressed";
+		
 		boolean altPressed = false;
 
 		@Override
@@ -474,19 +483,39 @@ public class GUI implements ActionListener {
 			}
 		}
 
+		/**
+		 * Checks whether keypress is alt
+		 * 
+		 * @param e Key Event generated
+		 * 
+		 * @return whether keypress was alt
+		 */
 		private boolean isAltKeyPress(KeyEvent e) {
 			return e.getKeyCode() == KeyEvent.VK_ALT;
 		}
 
+		/**
+		 * Autocompletes current input 
+		 */
 		private void autocompleteCurrentInput() {
 			String current = _userInputField.getText();
 			_userInputField.setText(_autoComplete.getSuggestion(current));
 		}
 
+		/**
+		 * Checks whether keypress is tab
+		 * 
+		 * @param e Key Event generated
+		 * 
+		 * @return whether keypress is tab
+		 */
 		private boolean isTabKeyPress(KeyEvent e) {
 			return e.getKeyCode() == KeyEvent.VK_TAB;
 		}
 
+		/**
+		 *	Handles an event when the user hits enter 
+		 */
 		private void handleEnterKeyPress() {
 			GUILogger.log(Level.INFO, LOG_ENTER_KEY_PRESSED);
 			if (altPressed) {
@@ -496,23 +525,35 @@ public class GUI implements ActionListener {
 			}
 		}
 
+		/**
+		 *	Prompts with recent values from session 
+		 */
 		private void executePrompt() {
 			if (_previousInputs.size() - UP_KEYPRESS_COUNTER >= 0) {
 				_userInputField.setText(_previousInputs.get(_previousInputs
 						.size()
 						- UP_KEYPRESS_COUNTER++));
 			} else {
-				UP_KEYPRESS_COUNTER = 1;
+				UP_KEYPRESS_COUNTER = INITIAL_UP_KEYPRESS_COUNT;
 				_userInputField.setText(_previousInputs.get(_previousInputs
 						.size()
 						- UP_KEYPRESS_COUNTER++));
 			}
 		}
 
+		/**
+		 * Determines whether the keypress is the up arrow
+		 * 
+		 * @param e	Key event
+		 * @return	whether the keypress is up
+		 */
 		private boolean isUpKeyPress(KeyEvent e) {
 			return e.getKeyCode() == KeyEvent.VK_UP;
 		}
 
+		/**
+		 *	Handles the user entered input 
+		 */
 		private void handleEnteredInput() {
 			String input = _userInputField.getText();
 			if (isExit(input)) {
@@ -538,37 +579,75 @@ public class GUI implements ActionListener {
 			}
 		}
 
+		/**
+		 *	Clears the help pane 
+		 */
 		private void clearHelpPane() {
 			_helpPane.setText(EMPTY_STRING);
 			appendToPane(_helpPane, HELP_PROMPT, _headerAttributes);
 		}
 
+		/**
+		 * Updates the UI on input submission
+		 * 
+		 * @param input Input submitted
+		 */
 		private void updateUI(String input) {
 			_userInputField.setText(EMPTY_STRING);
 			_autoComplete.updateState(_handler.getCurrentState());
 			_previousInputs.add(input);
-			UP_KEYPRESS_COUNTER = 1;
+			UP_KEYPRESS_COUNTER = INITIAL_UP_KEYPRESS_COUNT;
 			updateTaskFields();
 			updateFeedbackPane();
 			playAudioFeedback();
 		}
 
+		/**
+		 * Checks whether input is unmute command
+		 * 
+		 * @param input User Input
+		 * 
+		 * @return	whether the user input is unmute
+		 */
 		private boolean isUnmute(String input) {
 			return input.trim().equals(UNMUTE_INPUT);
 		}
 
+		/**
+		 * Checks whether the input command is mute
+		 * 
+		 * @param input User input
+		 * 
+		 * @return whether user input is mute command
+		 */
 		private boolean isMute(String input) {
 			return input.trim().equals(MUTE_INPUT);
 		}
 
+		/**
+		 * Checks whether user input is help command
+		 * 
+		 * @param input User input
+		 * @return	whether user input is help command
+		 */
 		private boolean isHelp(String input) {
 			return input.trim().equals(HELP_INPUT);
 		}
 
+		/**
+		 * Checks whether user input is exit command
+		 * 
+		 * @param input User input
+		 * 
+		 * @return whether user input is exit command
+		 */
 		private boolean isExit(String input) {
 			return input.equals(EXIT_INPUT);
 		}
 
+		/**
+		 *	Toggles to and from min mode
+		 */
 		private void toggleMinMode() {
 			if (min) {
 				deactivateMinMode();
@@ -579,6 +658,12 @@ public class GUI implements ActionListener {
 			}
 		}
 
+		/**
+		 * Determines whether keypress is enter
+		 * @param e Key event generated
+		 * 
+		 * @return whether keypress is enter
+		 */
 		private boolean isEnterKeyPress(KeyEvent e) {
 			return e.getKeyCode() == KeyEvent.VK_ENTER;
 		}
