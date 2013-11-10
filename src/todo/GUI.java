@@ -79,6 +79,7 @@ import com.melloware.jintellitype.JIntellitype;
  * 
  */
 public class GUI implements ActionListener {
+	private static boolean scrolledTop;
 
 	private static final String DEADLINE_PREFIX = "\t\tby:   ";
 
@@ -831,6 +832,8 @@ public class GUI implements ActionListener {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		scrolledTop = false;
+		
 		initMainWindow();
 
 		setUpAttributes();
@@ -1316,6 +1319,7 @@ public class GUI implements ActionListener {
 		updateDeadlineTaskField();
 		updateFloatingTaskField();
 		_mainViewArea.repaint();
+		scrolledTop = false;
 	}
 
 	/**
@@ -1633,6 +1637,10 @@ public class GUI implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		_currentDateTimeArea.setText(getCurrentDisplayTime());
+		if(!scrolledTop) {
+			scrollToTop();
+			scrolledTop = true;
+		}
 	}
 
 	private static void scrollToTop() {
