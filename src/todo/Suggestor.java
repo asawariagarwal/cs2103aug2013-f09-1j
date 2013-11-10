@@ -50,7 +50,7 @@ public class Suggestor {
 		typeSuggestions.add("flexible");
 		typeSuggestions.add("events");
 		typeSuggestions.add("deadlines");
-		typeSuggestions.add("completed");
+		typeSuggestions.add("done");
 		typeSuggestions.add("expired");
 		typeSuggestions.add("pending");
 		

@@ -1,7 +1,10 @@
 package todo;
 
 import static org.junit.Assert.*;
+
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -81,6 +84,19 @@ public class InterpreterTest {
 	}
 	
 	@Test
+	public void viewCommandTest() throws Exception{
+		interpreter.setInput("view all");
+		assertEquals("view",interpreter.getCommandType());
+		
+		
+		
+		
+		
+		
+	}
+	
+	
+	@Test
 	public void dateManipulationTest() throws Exception{
 		
 		assertEquals("12/20/2013",interpreter.manipulateDate("20/12/2013"));
@@ -110,9 +126,12 @@ public class InterpreterTest {
 		Calendar calendar ;
 		//Different date and time formats Natty is expected to recognize
 		
-		calendar = interpreter.isValid("today afternoon");
+		calendar = interpreter.isValid("today");
 		assertFalse(calendar==null);
+
 		
+		//For relative time intervals It just tests if Natty recognizes it as a valid input
+		//and parses i into a calendar object
 		calendar = interpreter.isValid("tomorrow noon");
 		assertFalse(calendar==null);
 		
@@ -152,23 +171,65 @@ public class InterpreterTest {
 		calendar = interpreter.isValid("three weeks ago");
 		assertFalse(calendar==null);
 		
-		calendar = interpreter.isValid("The 31st of April in the year 2008");
-		assertFalse(calendar==null);
 		
-		calendar = interpreter.isValid("Fri, 21 Nov 1997");
-		assertFalse(calendar==null);
+		//For specific times , it checks if the calendar object returned by Natty 
+		//is the same as expected
 		
-		calendar = interpreter.isValid("Jan 21, '97");
+		calendar = interpreter.isValid("The 30th of April in the year 2008 4pm");
 		assertFalse(calendar==null);
+		SimpleDateFormat curFormater = new SimpleDateFormat(
+				"dd/MM/yyyy ha");
+		Date dateObj = curFormater.parse("30/04/2008 4pm");
+		Calendar calendar2 = Calendar.getInstance();
+		calendar2.setTime(dateObj);
+		assertTrue(calendar.equals(calendar2));
 		
-		calendar = interpreter.isValid("Sun, Nov 21");
+		calendar = interpreter.isValid("Fri, 21 Nov 1997 6pm");
 		assertFalse(calendar==null);
+		curFormater = new SimpleDateFormat(
+				"dd/MM/yyyy ha");
+		dateObj = curFormater.parse("21/11/1997 6pm");
+		calendar2 = Calendar.getInstance();
+		calendar2.setTime(dateObj);
+		assertTrue(calendar.equals(calendar2));
 		
-		calendar = interpreter.isValid("jan 1st");
+		
+		calendar = interpreter.isValid("Jan 21, '97 6pm");
 		assertFalse(calendar==null);
+		curFormater = new SimpleDateFormat(
+				"dd/MM/yyyy ha");
+		dateObj = curFormater.parse("21/01/1997 6pm");
+		calendar2 = Calendar.getInstance();
+		calendar2.setTime(dateObj);
+		assertTrue(calendar.equals(calendar2));
+		
+		
+		calendar = interpreter.isValid("jan 1st 6pm");
+		assertFalse(calendar==null);
+		curFormater = new SimpleDateFormat(
+				"dd/MM/yyyy ha");
+		dateObj = curFormater.parse("01/01/2013 6pm");
+		calendar2 = Calendar.getInstance();
+		calendar2.setTime(dateObj);
+		assertTrue(calendar.equals(calendar2));
+		
 	
-		calendar = interpreter.isValid("february twenty-eighth");
+		calendar = interpreter.isValid("february twenty-eighth 8am");
 		assertFalse(calendar==null);
+		curFormater = new SimpleDateFormat(
+				"dd/MM/yyyy ha");
+		dateObj = curFormater.parse("28/02/2013 8am");
+		calendar2 = Calendar.getInstance();
+		calendar2.setTime(dateObj);
+		assertTrue(calendar.equals(calendar2));
+		
+		//Exceptions
+		//Natty recognizes numbers from 0 t0 23 as hours of the day
+		calendar = interpreter.isValid("2");
+		assertTrue(calendar!=null);
+		
+		calendar = interpreter.isValid("24");
+		assertTrue(calendar==null);
 	
 		//Boundary case
 		calendar = interpreter.isValid("");
