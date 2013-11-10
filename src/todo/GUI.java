@@ -80,6 +80,18 @@ import com.melloware.jintellitype.JIntellitype;
  */
 public class GUI implements ActionListener {
 
+	private static final String DEADLINE_PREFIX = "\t\tby:   ";
+
+	private static final String EVENTS_TO_PREFIX = "\t\tto:   ";
+
+	private static final String EVENTS_FROM_PREFIX = "\t\tfrom: ";
+
+	private static final String NEW_LINE = "\n";
+
+	private static final String INDEX_SUFFIX = ". ";
+
+	private static final String TAB_SPACE = "\t";
+
 	private static final int MIN_MODE_HEIGHT = 100;
 
 	private static final int MIN_MODE_WIDTH = 700;
@@ -386,7 +398,7 @@ public class GUI implements ActionListener {
 		}
 
 		/**
-		 *	Sets up the audio clips 
+		 * Sets up the audio clips
 		 */
 		private void setUpAudioClips() {
 			try {
@@ -449,15 +461,15 @@ public class GUI implements ActionListener {
 		private static final int INITIAL_UP_KEYPRESS_COUNT = 1;
 
 		private static final String EMPTY_STRING = "";
-		
+
 		private static final String FEEDBACK_SOUND_TURNED_ON = "Sound turned on";
 		private static final String FEEDBACK_SOUND_TURNED_OFF = "Sound turned off";
-		
+
 		private static final String UNMUTE_INPUT = "unmute";
 		private static final String MUTE_INPUT = "mute";
 		private static final String HELP_INPUT = "help";
 		private static final String EXIT_INPUT = "exit";
-		
+
 		/**
 		 * Log constants
 		 */
@@ -465,7 +477,7 @@ public class GUI implements ActionListener {
 		private static final String LOG_ENTER_KEY_PRESSED = "Enter key pressed";
 		private static final String LOG_TAB_KEY_PRESSED = "Tab key pressed";
 		private static final String LOG_UP_KEY_PRESSED = "Up key pressed";
-		
+
 		boolean altPressed = false;
 
 		@Override
@@ -490,7 +502,8 @@ public class GUI implements ActionListener {
 		/**
 		 * Checks whether keypress is alt
 		 * 
-		 * @param e Key Event generated
+		 * @param e
+		 *            Key Event generated
 		 * 
 		 * @return whether keypress was alt
 		 */
@@ -499,7 +512,7 @@ public class GUI implements ActionListener {
 		}
 
 		/**
-		 * Autocompletes current input 
+		 * Autocompletes current input
 		 */
 		private void autocompleteCurrentInput() {
 			String current = _userInputField.getText();
@@ -509,7 +522,8 @@ public class GUI implements ActionListener {
 		/**
 		 * Checks whether keypress is tab
 		 * 
-		 * @param e Key Event generated
+		 * @param e
+		 *            Key Event generated
 		 * 
 		 * @return whether keypress is tab
 		 */
@@ -518,7 +532,7 @@ public class GUI implements ActionListener {
 		}
 
 		/**
-		 *	Handles an event when the user hits enter 
+		 * Handles an event when the user hits enter
 		 */
 		private void handleEnterKeyPress() {
 			GUILogger.log(Level.INFO, LOG_ENTER_KEY_PRESSED);
@@ -530,7 +544,7 @@ public class GUI implements ActionListener {
 		}
 
 		/**
-		 *	Prompts with recent values from session 
+		 * Prompts with recent values from session
 		 */
 		private void executePrompt() {
 			if (_previousInputs.size() - UP_KEYPRESS_COUNTER >= 0) {
@@ -548,15 +562,16 @@ public class GUI implements ActionListener {
 		/**
 		 * Determines whether the keypress is the up arrow
 		 * 
-		 * @param e	Key event
-		 * @return	whether the keypress is up
+		 * @param e
+		 *            Key event
+		 * @return whether the keypress is up
 		 */
 		private boolean isUpKeyPress(KeyEvent e) {
 			return e.getKeyCode() == KeyEvent.VK_UP;
 		}
 
 		/**
-		 *	Handles the user entered input 
+		 * Handles the user entered input
 		 */
 		private void handleEnteredInput() {
 			String input = _userInputField.getText();
@@ -584,7 +599,7 @@ public class GUI implements ActionListener {
 		}
 
 		/**
-		 *	Clears the help pane 
+		 * Clears the help pane
 		 */
 		private void clearHelpPane() {
 			_helpPane.setText(EMPTY_STRING);
@@ -594,7 +609,8 @@ public class GUI implements ActionListener {
 		/**
 		 * Updates the UI on input submission
 		 * 
-		 * @param input Input submitted
+		 * @param input
+		 *            Input submitted
 		 */
 		private void updateUI(String input) {
 			_userInputField.setText(EMPTY_STRING);
@@ -609,9 +625,10 @@ public class GUI implements ActionListener {
 		/**
 		 * Checks whether input is unmute command
 		 * 
-		 * @param input User Input
+		 * @param input
+		 *            User Input
 		 * 
-		 * @return	whether the user input is unmute
+		 * @return whether the user input is unmute
 		 */
 		private boolean isUnmute(String input) {
 			return input.trim().equals(UNMUTE_INPUT);
@@ -620,7 +637,8 @@ public class GUI implements ActionListener {
 		/**
 		 * Checks whether the input command is mute
 		 * 
-		 * @param input User input
+		 * @param input
+		 *            User input
 		 * 
 		 * @return whether user input is mute command
 		 */
@@ -631,8 +649,9 @@ public class GUI implements ActionListener {
 		/**
 		 * Checks whether user input is help command
 		 * 
-		 * @param input User input
-		 * @return	whether user input is help command
+		 * @param input
+		 *            User input
+		 * @return whether user input is help command
 		 */
 		private boolean isHelp(String input) {
 			return input.trim().equals(HELP_INPUT);
@@ -641,7 +660,8 @@ public class GUI implements ActionListener {
 		/**
 		 * Checks whether user input is exit command
 		 * 
-		 * @param input User input
+		 * @param input
+		 *            User input
 		 * 
 		 * @return whether user input is exit command
 		 */
@@ -650,7 +670,7 @@ public class GUI implements ActionListener {
 		}
 
 		/**
-		 *	Toggles to and from min mode
+		 * Toggles to and from min mode
 		 */
 		private void toggleMinMode() {
 			if (min) {
@@ -664,7 +684,9 @@ public class GUI implements ActionListener {
 
 		/**
 		 * Determines whether keypress is enter
-		 * @param e Key event generated
+		 * 
+		 * @param e
+		 *            Key event generated
 		 * 
 		 * @return whether keypress is enter
 		 */
@@ -682,7 +704,7 @@ public class GUI implements ActionListener {
 	}
 
 	/**
-	 *	Triggers the min mode 
+	 * Triggers the min mode
 	 */
 	private void activateMinMode() {
 		GUILogger.log(Level.INFO, LOG_ACTIVATING_MIN_MODE);
@@ -693,7 +715,7 @@ public class GUI implements ActionListener {
 		_frmTodo.setVisible(true);
 		_frmTodo.setExtendedState(Frame.NORMAL);
 	}
-	
+
 	/**
 	 * Escapes from min mode
 	 */
@@ -740,7 +762,7 @@ public class GUI implements ActionListener {
 	private SimpleAttributeSet _emptyAttributes;
 
 	/**
-	 *	Stores whether in min or max mode 
+	 * Stores whether in min or max mode
 	 */
 	private static boolean min = true;
 
@@ -797,7 +819,7 @@ public class GUI implements ActionListener {
 	}
 
 	/**
-	 *	Starts the timer 
+	 * Starts the timer
 	 */
 	private void initTimer() {
 		_timer = new Timer(TIMER_INTERVAL, this);
@@ -847,14 +869,14 @@ public class GUI implements ActionListener {
 	}
 
 	/**
-	 *	Sets up the audio feedback 
+	 * Sets up the audio feedback
 	 */
 	private void initAudioFeedBack() {
 		audio = new AudioFeedBack();
 	}
 
 	/**
-	 * Plays the audio feedback 
+	 * Plays the audio feedback
 	 */
 	private void playAudioFeedback() {
 		if (isUndefinedAudio()) {
@@ -870,6 +892,7 @@ public class GUI implements ActionListener {
 
 	/**
 	 * Checks whether the feedback is positive
+	 * 
 	 * @return whether the feedback is positive
 	 */
 	private boolean isPositiveFeedback() {
@@ -878,6 +901,7 @@ public class GUI implements ActionListener {
 
 	/**
 	 * Checks whether the audio is undefined
+	 * 
 	 * @return whether the audio is undefined
 	 */
 	private boolean isUndefinedAudio() {
@@ -885,7 +909,7 @@ public class GUI implements ActionListener {
 	}
 
 	/**
-	 *Initializes the help pane 
+	 * Initializes the help pane
 	 */
 	private void initHelpPane() {
 		createHelpPane();
@@ -894,7 +918,7 @@ public class GUI implements ActionListener {
 	}
 
 	/**
-	 *	Creates teh help pane 
+	 * Creates teh help pane
 	 */
 	private void createHelpPane() {
 		_helpPane = new JTextPane();
@@ -904,7 +928,7 @@ public class GUI implements ActionListener {
 	}
 
 	/**
-	 *	Sets up the shortcut key 
+	 * Sets up the shortcut key
 	 */
 	private void setUpShortcutKey() {
 		GUILogger.log(Level.INFO, LOG_SHORTCUT_KEY_BEING_INITIALIZED);
@@ -917,7 +941,7 @@ public class GUI implements ActionListener {
 	}
 
 	/**
-	 *	Assigns a handler to the shortcut 
+	 * Assigns a handler to the shortcut
 	 */
 	private void assignShortcutHotKeyFunctionality() {
 		_shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
@@ -934,7 +958,7 @@ public class GUI implements ActionListener {
 	}
 
 	/**
-	 *	Sets up JIntellitype 
+	 * Sets up JIntellitype
 	 */
 	private void setUpJIntellitype() {
 		JIntellitype.setLibraryLocation(LIB_PATH_WINDOWS_J_INTELLITYPE_DLL);
@@ -960,7 +984,7 @@ public class GUI implements ActionListener {
 	}
 
 	/**
-	 *	 Toggles the GUI
+	 * Toggles the GUI
 	 */
 	private void toggleGUI() {
 		if (_frmTodo.isShowing()) {
@@ -971,7 +995,7 @@ public class GUI implements ActionListener {
 	}
 
 	/**
-	 *	Assigns the default focus to the input field 
+	 * Assigns the default focus to the input field
 	 */
 	private void assignFocusToInput() {
 		_frmTodo.addWindowFocusListener(new WindowAdapter() {
@@ -983,7 +1007,7 @@ public class GUI implements ActionListener {
 	}
 
 	/**
-	 *	Updates the Feedback Pane 
+	 * Updates the Feedback Pane
 	 */
 	private void updateFeedbackPane() {
 		_feedbackPane.setText(EMPTY_STRING);
@@ -997,7 +1021,7 @@ public class GUI implements ActionListener {
 	}
 
 	/**
-	 *	Updates the Help Pane 
+	 * Updates the Help Pane
 	 */
 	private void updateHelpPane() {
 		appendToPane(_helpPane, HELP_TEXT_1, _headerAttributes);
@@ -1014,7 +1038,7 @@ public class GUI implements ActionListener {
 	}
 
 	/**
-	 *	Updates the System Tray 
+	 * Updates the System Tray
 	 */
 	private void updateSystemTray() {
 		GUILogger.log(Level.INFO, LOG_ATTEMPTING_TO_ENABLE_SYSTRAY_SUPPORT);
@@ -1036,6 +1060,9 @@ public class GUI implements ActionListener {
 		}
 	}
 
+	/**
+	 * Sets up tray icon
+	 */
 	private void setUpTrayIcon() {
 		_trayIcon = new TrayIcon(_trayImage, TO_DO, _menu);
 		_trayIcon.setImageAutoSize(true);
@@ -1048,6 +1075,9 @@ public class GUI implements ActionListener {
 		});
 	}
 
+	/**
+	 * Adds an icon to System Tray
+	 */
 	private void addIconToSysTray() {
 		try {
 			_systemTray.add(_trayIcon);
@@ -1058,11 +1088,17 @@ public class GUI implements ActionListener {
 		}
 	}
 
+	/**
+	 * Populates the System tray Menu
+	 */
 	private void populateSysTrayMenu() {
 		addPullUpOption();
 		addExitOption();
 	}
 
+	/**
+	 * Adds the exit option to the systray menu
+	 */
 	private void addExitOption() {
 		MenuItem exitItem = new MenuItem(MENU_OPTION_EXIT);
 		exitItem.addActionListener(new ActionListener() {
@@ -1074,6 +1110,9 @@ public class GUI implements ActionListener {
 		_menu.add(exitItem);
 	}
 
+	/**
+	 * Adds the pull up option to the systray menu
+	 */
 	private void addPullUpOption() {
 		MenuItem pullUpItem = new MenuItem(MENU_OPTION_PULL_UP);
 		pullUpItem.addActionListener(new ActionListener() {
@@ -1085,6 +1124,9 @@ public class GUI implements ActionListener {
 		_menu.add(pullUpItem);
 	}
 
+	/**
+	 * Initializes the user input area
+	 */
 	private void initUserInputArea() {
 		_userInputArea = new JPanel();
 		_frmTodo.getContentPane().add(_userInputArea, BorderLayout.SOUTH);
@@ -1094,6 +1136,9 @@ public class GUI implements ActionListener {
 		initPromptInputField();
 	}
 
+	/**
+	 * Initializes the user prompt area
+	 */
 	private void initUserPromptArea() {
 		_userPromptArea = new JPanel();
 		_userPromptArea.setLayout(new BorderLayout(0, 0));
@@ -1101,6 +1146,9 @@ public class GUI implements ActionListener {
 
 	}
 
+	/**
+	 * Sets up the Prompt for the Input Field
+	 */
 	private void initPromptInputField() {
 		_userInputField = new JTextField();
 		_userInputField.addKeyListener(new InputProcessor());
@@ -1124,6 +1172,9 @@ public class GUI implements ActionListener {
 		_userInputField.requestFocusInWindow();
 	}
 
+	/**
+	 * Sets up prompt symbol
+	 */
 	private void initPromptSymbol() {
 		_promptSymbol = new JTextField();
 		_userPromptArea.add(_promptSymbol, BorderLayout.WEST);
@@ -1138,6 +1189,9 @@ public class GUI implements ActionListener {
 		_promptSymbol.setText(PROMPT_SYMBOL);
 	}
 
+	/**
+	 * Sets up the notifications area
+	 */
 	private void initNotificationsArea() {
 		_notificationsArea = new JPanel();
 		_notificationsArea.setBackground(new Color(0, 0, 0));
@@ -1145,6 +1199,9 @@ public class GUI implements ActionListener {
 		_notificationsArea.setLayout(new BorderLayout(0, 0));
 	}
 
+	/**
+	 * Sets up the Date Time Area
+	 */
 	private void initDateTimeArea() {
 		_currentDateTimeArea = new JTextPane();
 		_currentDateTimeArea.setFont(new Font(FONT_TIME_AND_DATE_PANE,
@@ -1158,6 +1215,9 @@ public class GUI implements ActionListener {
 		_notificationsArea.add(_currentDateTimeArea, BorderLayout.NORTH);
 	}
 
+	/**
+	 * Sets up the pane for floating tasks
+	 */
 	private void initFloatingTaskView() {
 		_floatingTaskView = new JTextPane();
 		_floatingTaskView.setEditable(false);
@@ -1167,6 +1227,9 @@ public class GUI implements ActionListener {
 		_floatingTaskView.setAutoscrolls(false);
 	}
 
+	/**
+	 * Sets up the pane for deadline tasks
+	 */
 	private void initDeadlineTaskView() {
 		_deadlineTaskView = new JTextPane();
 		_deadlineTaskView.setEditable(false);
@@ -1177,6 +1240,9 @@ public class GUI implements ActionListener {
 
 	}
 
+	/**
+	 * Sets up the pane for timed tasks
+	 */
 	private void initTimedTaskView() {
 		_timedTaskView = new JTextPane();
 		_timedTaskView.setEditable(false);
@@ -1186,6 +1252,9 @@ public class GUI implements ActionListener {
 		_timedTaskView.setAutoscrolls(false);
 	}
 
+	/**
+	 * Sets up the pane for feedback
+	 */
 	private void initFeedbackPane() {
 		_feedbackPane = new JTextPane();
 		_feedbackPane.setForeground(Color.YELLOW);
@@ -1199,6 +1268,9 @@ public class GUI implements ActionListener {
 		_userInputArea.add(_feedbackPane, BorderLayout.CENTER);
 	}
 
+	/**
+	 * Sets up the main view area
+	 */
 	private void initMainViewArea() {
 		_mainViewArea = new JPanel();
 		_mainViewArea.setForeground(Color.GREEN);
@@ -1217,6 +1289,9 @@ public class GUI implements ActionListener {
 		_mainViewArea.setLayout(new GridLayout(0, 1, 0, 0));
 	}
 
+	/**
+	 * Sets up the main window
+	 */
 	private void initMainWindow() {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		_frmTodo = new JFrame();
@@ -1232,6 +1307,9 @@ public class GUI implements ActionListener {
 		_frmTodo.setExtendedState(Frame.MAXIMIZED_BOTH);
 	}
 
+	/**
+	 * Updates the task fields
+	 */
 	private void updateTaskFields() {
 		updateTimedTaskField();
 		updateDeadlineTaskField();
@@ -1239,6 +1317,16 @@ public class GUI implements ActionListener {
 		_mainViewArea.repaint();
 	}
 
+	/**
+	 * Appends text to a JTextPane
+	 * 
+	 * @param textPane
+	 *            Pane to append to
+	 * @param text
+	 *            text to append
+	 * @param attributes
+	 *            attributes to assign to appended text
+	 */
 	private void appendToPane(JTextPane textPane, String text,
 			SimpleAttributeSet attributes) {
 		StyledDocument document = textPane.getStyledDocument();
@@ -1250,6 +1338,11 @@ public class GUI implements ActionListener {
 		}
 	}
 
+	/**
+	 * Routine to get the attributes for heading text
+	 * 
+	 * @return attributes for heading text
+	 */
 	private SimpleAttributeSet getHeadingAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, Color.BLUE);
@@ -1258,6 +1351,11 @@ public class GUI implements ActionListener {
 		return attributes;
 	}
 
+	/**
+	 * Routine to get attributes for empty task text
+	 * 
+	 * @return attributes for empty task text
+	 */
 	private SimpleAttributeSet getEmptyAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, Color.GRAY);
@@ -1266,6 +1364,11 @@ public class GUI implements ActionListener {
 		return attributes;
 	}
 
+	/**
+	 * Routine to get attributes for standard body text
+	 * 
+	 * @return attributes for standard body text
+	 */
 	private SimpleAttributeSet getBodyAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, FOREGROUND_COLOR_WHITE);
@@ -1274,6 +1377,11 @@ public class GUI implements ActionListener {
 		return attributes;
 	}
 
+	/**
+	 * Routine to get attributes for tag text
+	 * 
+	 * @return attributes for tag text
+	 */
 	private SimpleAttributeSet getTagAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, Color.YELLOW);
@@ -1282,6 +1390,11 @@ public class GUI implements ActionListener {
 		return attributes;
 	}
 
+	/**
+	 * Routine to get attributes for feedback text
+	 * 
+	 * @return attributes for feedback text
+	 */
 	private SimpleAttributeSet getFeedbackAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, Color.YELLOW);
@@ -1290,6 +1403,11 @@ public class GUI implements ActionListener {
 		return attributes;
 	}
 
+	/**
+	 * Routine to get attributes for expired task text
+	 * 
+	 * @return attributes for expired task text
+	 */
 	private SimpleAttributeSet getExpiredAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, Color.RED);
@@ -1298,6 +1416,11 @@ public class GUI implements ActionListener {
 		return attributes;
 	}
 
+	/**
+	 * Routine to get attributes for completed task text
+	 * 
+	 * @return attributes for completed task text
+	 */
 	private SimpleAttributeSet getCompletedAttributeSet() {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		StyleConstants.setForeground(attributes, Color.GREEN);
@@ -1306,6 +1429,9 @@ public class GUI implements ActionListener {
 		return attributes;
 	}
 
+	/**
+	 * Routine to set up attributes
+	 */
 	private void setUpAttributes() {
 
 		_headerAttributes = getHeadingAttributeSet();
@@ -1317,6 +1443,9 @@ public class GUI implements ActionListener {
 		expiredAttributes = getExpiredAttributeSet();
 	}
 
+	/**
+	 * Routine to update field for timed tasks
+	 */
 	private void updateTimedTaskField() {
 		if (!_displayState.getTimedTasks().isEmpty()) {
 
@@ -1337,13 +1466,22 @@ public class GUI implements ActionListener {
 		}
 	}
 
+	/**
+	 * Routine to add a timed task to the GUI
+	 * 
+	 * @param index
+	 *            The index of the task to be added
+	 * @param task
+	 *            The task to be added
+	 * @return the index of the next task
+	 */
 	private int addTimedTaskToPane(int index, TimedTask task) {
-		String taskTags = "";
-		String timedTaskText = "";
-		String taskNum = "\t" + ++index + ". ";
-		timedTaskText += task.getTaskDescription() + "\t";
+		String taskTags = EMPTY_STRING;
+		String timedTaskText = EMPTY_STRING;
+		String taskNum = TAB_SPACE + ++index + INDEX_SUFFIX;
+		timedTaskText += task.getTaskDescription() + TAB_SPACE;
 
-		taskTags = task.getTagString() + "\n";
+		taskTags = task.getTagString() + NEW_LINE;
 		String taskStart = task.getStartString();
 		String taskEnd = task.getEndString();
 
@@ -1360,15 +1498,16 @@ public class GUI implements ActionListener {
 		}
 
 		appendToPane(_timedTaskView, taskTags, _tagAttributes);
-
-		appendToPane(_timedTaskView, "\t\tfrom: ", _tagAttributes);
-		appendToPane(_timedTaskView, taskStart + "\n", _bodyAttributes);
-
-		appendToPane(_timedTaskView, "\t\tto:   ", _tagAttributes);
-		appendToPane(_timedTaskView, taskEnd + "\n", _bodyAttributes);
+		appendToPane(_timedTaskView, EVENTS_FROM_PREFIX, _tagAttributes);
+		appendToPane(_timedTaskView, taskStart + NEW_LINE, _bodyAttributes);
+		appendToPane(_timedTaskView, EVENTS_TO_PREFIX, _tagAttributes);
+		appendToPane(_timedTaskView, taskEnd + NEW_LINE, _bodyAttributes);
 		return index;
 	}
 
+	/**
+	 * Routine to update the deadline task field
+	 */
 	private void updateDeadlineTaskField() {
 		if (!_displayState.getDeadlineTasks().isEmpty()) {
 
@@ -1390,14 +1529,23 @@ public class GUI implements ActionListener {
 		}
 	}
 
+	/**
+	 * Routine to add the deadline task to the GUI
+	 * 
+	 * @param index
+	 *            Index of the task to be added
+	 * @param task
+	 *            The task to be added
+	 * @return The index of the next task
+	 */
 	private int addDeadlineTaskToPane(int index, DeadlineTask task) {
-		String taskTags = "";
-		String deadlineTaskText = "";
-		String taskNum = "\t" + (++index) + ". ";
-		taskTags = task.getTagString() + "\n";
+		String taskTags = EMPTY_STRING;
+		String deadlineTaskText = EMPTY_STRING;
+		String taskNum = TAB_SPACE + (++index) + INDEX_SUFFIX;
+		taskTags = task.getTagString() + NEW_LINE;
 		String taskDeadline = task.getDeadlineString();
 
-		deadlineTaskText += task.getTaskDescription() + "\t";
+		deadlineTaskText += task.getTaskDescription() + TAB_SPACE;
 		appendToPane(_deadlineTaskView, taskNum, _bodyAttributes);
 
 		if (task.isComplete()) {
@@ -1411,11 +1559,15 @@ public class GUI implements ActionListener {
 
 		appendToPane(_deadlineTaskView, taskTags, _tagAttributes);
 
-		appendToPane(_deadlineTaskView, "\t\tby:   ", _tagAttributes);
-		appendToPane(_deadlineTaskView, taskDeadline + "\n", _bodyAttributes);
+		appendToPane(_deadlineTaskView, DEADLINE_PREFIX, _tagAttributes);
+		appendToPane(_deadlineTaskView, taskDeadline + NEW_LINE,
+				_bodyAttributes);
 		return index;
 	}
 
+	/**
+	 * Routine to update the floating tasks field
+	 */
 	private void updateFloatingTaskField() {
 		if (!_displayState.getFloatingTasks().isEmpty()) {
 			_floatingTaskView.setText(EMPTY_STRING);
@@ -1435,14 +1587,23 @@ public class GUI implements ActionListener {
 		}
 	}
 
+	/**
+	 * Routine to add floating tasks to the GUI
+	 * 
+	 * @param Index
+	 *            Index of the task to be added
+	 * @param Task
+	 *            the task to be added
+	 * @return The index of the next task
+	 */
 	private int addTasksToFloatingPane(int index, FloatingTask task) {
 		String floatingTaskText;
 		String taskTags;
 		String taskNum;
 		taskTags = EMPTY_STRING;
-		floatingTaskText = "";
-		taskNum = "\t" + (++index) + ". ";
-		floatingTaskText += task.getTaskDescription() + "\t";
+		floatingTaskText = EMPTY_STRING;
+		taskNum = TAB_SPACE + (++index) + INDEX_SUFFIX;
+		floatingTaskText += task.getTaskDescription() + TAB_SPACE;
 		appendToPane(_floatingTaskView, taskNum, _bodyAttributes);
 		if (task.isComplete()) {
 			appendToPane(_floatingTaskView, floatingTaskText,
@@ -1450,11 +1611,16 @@ public class GUI implements ActionListener {
 		} else {
 			appendToPane(_floatingTaskView, floatingTaskText, _bodyAttributes);
 		}
-		taskTags = task.getTagString() + "\n";
+		taskTags = task.getTagString() + NEW_LINE;
 		appendToPane(_floatingTaskView, taskTags, _tagAttributes);
 		return index;
 	}
 
+	/**
+	 * Routine to get the current time to be displayed
+	 * 
+	 * @return Current time to be displayed as a string
+	 */
 	private static String getCurrentDisplayTime() {
 		SimpleDateFormat dateTimeFormat = new SimpleDateFormat(
 				CLOCK_DISPLAY_FORMAT);
