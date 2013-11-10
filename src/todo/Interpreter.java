@@ -185,7 +185,7 @@ public class Interpreter {
 					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");	
 				}return resObj;
 
-			case SEARCH:
+			/**TODO case SEARCH:
 				SearchCommand searchObj;
 				searchObj = parseSearch();
 				if(searchObj!=null){
@@ -193,7 +193,7 @@ public class Interpreter {
 				}else{
 					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");	
 				}return searchObj;
-
+*/
 			case MARK:
 				ModifyCommand markObj;
 				markObj = parseMark();
@@ -669,23 +669,56 @@ public class Interpreter {
 		return null;
 	}
 
-	/**
+	/**TODO
 	 * This function performs the parsing of a search type command and
 	 * creates a search command type object
 	 * 
 	 * @return SearchCommand type object or null
 	 * @throws Exception
 	 */
-
-	SearchCommand parseSearch()throws Exception{
-		if(!_userInput.equals("")){
-			SearchCommand command = new SearchCommand(_userInput.trim());
-			return command;
-		}else{
-			return null;
+/**
+	    SearchCommand parseSearch()throws Exception{
+		SearchCommand command;
+		
+		ArrayList <String> wordsInclude = new ArrayList<>();
+		ArrayList <String> wordsExclude = new ArrayList<>();
+		ArrayList <String> tagsInclude = new ArrayList<>();
+		ArrayList <String> tagsExclude = new ArrayList<>();
+		
+		String searchString;
+		String copyInput=_userInput;
+		Calendar calendar[]= new Calendar[2];
+		calendar[0]=null;
+		calendar[1]=null;
+		
+		searchString=SearchInInterval(calendar);
+		if(searchString!=""){
+	    splitIntoDifferentArrays(searchString,wordsInclude,wordsExclude,tagsInclude,tagsExclude);
+		command = new SearchCommand(wordsInclude,wordsExclude,tagsInclude,tagsExclude,calendar[0],calendar[1]);
+		return command;
 		}
+		
+		calendar[0]=null;
+		calendar[1]=null;
+		_userInput=copyInput;
+		searchString=SearchOnDate(calendar);
+		if(searchString!=""){
+			splitIntoDifferentArrays(searchString,wordsInclude,wordsExclude,tagsInclude,tagsExclude);
+			command = new SearchCommand(wordsInclude,wordsExclude,tagsInclude,tagsExclude,calendar[0]);
+			return command;	
+		}
+	
+		_userInput=copyInput;
+		if(!_userInput.equals("")){
+			splitIntoDifferentArrays(_userInput,wordsInclude,wordsExclude,tagsInclude,tagsExclude);
+			command = new SearchCommand(wordsInclude,wordsExclude,tagsInclude,tagsExclude);
+			return command;
+		}
+			return null;
+			
 	}
-
+*/
+	
 	/**
 	 * This function performs the actual parsing of a mark type command and
 	 * creates a ModifyCommand type object
@@ -1125,7 +1158,82 @@ public class Interpreter {
 		return false;
 	}
 
-
+	/**
+	 * This function checks is search is called in a particular interval
+	 *  
+	 * @param calendar
+	 * @return String
+	 * @throws Exception
+	 */
+    private String SearchInInterval(Calendar[] calendar) throws Exception{
+    	String searchString =getTimedTaskDescription();
+    	String startDate,endDate;
+			startDate=extractTillKeyword(" to ");
+			calendar[0] =isValid(startDate);
+			endDate=extractTillHashtagOrEnd();
+			calendar[1] =isValid(endDate);
+			if((calendar[0]!=(null))&&(calendar[1]!=(null))&&(searchString!="")){
+				return searchString;
+			}else {
+				return "";
+			}
+		}	
+	/**
+	 * This function checks if search is called on a particular date
+	 * 
+	 * @param calendar
+	 * @return String
+	 * @throws Exception
+	 */
+    
+    
+	private String SearchOnDate(Calendar[] calendar) throws Exception{
+		String searchString =getSearchKeywords();
+		String date;
+		date = extractTillHashtagOrEnd();
+		calendar[0]=isValid(date);
+		if(calendar[0]!=(null)&&(searchString!="")){
+			return searchString;
+		}else{
+			return "";
+		}
+	}
+  /**
+   * This function splits the search string into different ketwords the
+   * user wants to include/exclude in the search
+   *   
+   * @param searchString
+   * @param wordsInclude
+   * @param wordsExclude
+   * @param tagsInclude
+   * @param tagsExclude
+   * @throws Exception
+   */
+	
+	private void splitIntoDifferentArrays( String searchString, ArrayList<String> wordsInclude, ArrayList<String> wordsExclude, ArrayList<String> tagsInclude,ArrayList<String> tagsExclude)throws Exception{
+		
+		String[] keywords = searchString.split(" +");
+		for (int i=0; i<keywords.length; i++){
+			if (keywords[i].charAt(0) == '#' && keywords[i].length() > 1) {
+				String tag = keywords[i].substring(1);
+				tagsInclude.add(tag);
+			}else if (keywords[i].charAt(0) == '-' && keywords[i].length() > 1) {
+				if (keywords[i].charAt(1) == '#') {
+					if (keywords[i].length() > 2) {
+						String tag = keywords[i].substring(2);
+						tagsExclude.add(tag);
+				}
+				} else {
+					String word = keywords[i].substring(1);
+					wordsExclude.add(word);
+				}
+			}else {
+				String word = keywords[i].substring(1);
+				wordsInclude.add(word);
+			}	
+		}
+	}
+    
 	/**
 	 * This function returns the command type part of the user input and also
 	 * truncates the user input
@@ -1207,6 +1315,17 @@ public class Interpreter {
 		return TaskDes;
 	}
 
+	
+	String getSearchKeywords()throws Exception {
+		String TaskDes = extractTillKeyword(PREFIX_DAY);
+		while (_userInput.contains(PREFIX_DAY)) {
+			TaskDes=TaskDes.concat(PREFIX_DAY);
+			TaskDes=TaskDes.concat(extractTillKeyword(PREFIX_DAY));
+		}
+		return TaskDes;
+	}
+	
+	
 
 	/**
 	 * This function checks if there are any hash tags in the input
