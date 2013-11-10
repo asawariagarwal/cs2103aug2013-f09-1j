@@ -80,6 +80,10 @@ import com.melloware.jintellitype.JIntellitype;
  */
 public class GUI implements ActionListener {
 
+	private static final int MIN_MODE_HEIGHT = 100;
+
+	private static final int MIN_MODE_WIDTH = 700;
+
 	private static final String TO_DO = "ToDo";
 
 	private static final String CLOCK_DISPLAY_FORMAT = "hh:mm:ss aa\nEEEEEEEEE\ndd MMMMMMMMMMM, yyyy";
@@ -677,21 +681,26 @@ public class GUI implements ActionListener {
 		}
 	}
 
+	/**
+	 *	Triggers the min mode 
+	 */
 	private void activateMinMode() {
 		GUILogger.log(Level.INFO, LOG_ACTIVATING_MIN_MODE);
 		_frmTodo.getContentPane().remove(_notificationsArea);
 		_frmTodo.getContentPane().remove(_taskScrollPane);
-		_frmTodo.setPreferredSize(new Dimension(700, 100));
+		_frmTodo.setPreferredSize(new Dimension(MIN_MODE_WIDTH, MIN_MODE_HEIGHT));
 		_frmTodo.pack();
 		_frmTodo.setVisible(true);
 		_frmTodo.setExtendedState(Frame.NORMAL);
 	}
-
+	
+	/**
+	 * Escapes from min mode
+	 */
 	private void deactivateMinMode() {
 		GUILogger.log(Level.INFO, LOG_DEACTIVATING_MIN_MODE);
 		_frmTodo.getContentPane().add(_notificationsArea, BorderLayout.EAST);
 		_frmTodo.getContentPane().add(_taskScrollPane, BorderLayout.CENTER);
-		_frmTodo.setBounds(1100, 0, 800, 850);
 		_frmTodo.setExtendedState(Frame.MAXIMIZED_BOTH);
 		_frmTodo.setVisible(true);
 	}
@@ -730,6 +739,9 @@ public class GUI implements ActionListener {
 	private SimpleAttributeSet _feedbackTextAttributes;
 	private SimpleAttributeSet _emptyAttributes;
 
+	/**
+	 *	Stores whether in min or max mode 
+	 */
 	private static boolean min = true;
 
 	private String HELP_PROMPT = "\nFeeling Lost?\nTry keying in 'help'";
@@ -784,6 +796,9 @@ public class GUI implements ActionListener {
 		}
 	}
 
+	/**
+	 *	Starts the timer 
+	 */
 	private void initTimer() {
 		_timer = new Timer(TIMER_INTERVAL, this);
 		_timer.start();
@@ -831,10 +846,16 @@ public class GUI implements ActionListener {
 
 	}
 
+	/**
+	 *	Sets up the audio feedback 
+	 */
 	private void initAudioFeedBack() {
 		audio = new AudioFeedBack();
 	}
 
+	/**
+	 * Plays the audio feedback 
+	 */
 	private void playAudioFeedback() {
 		if (isUndefinedAudio()) {
 			return;
@@ -847,20 +868,34 @@ public class GUI implements ActionListener {
 		}
 	}
 
+	/**
+	 * Checks whether the feedback is positive
+	 * @return whether the feedback is positive
+	 */
 	private boolean isPositiveFeedback() {
 		return _displayState.getFeedback().isPositive();
 	}
 
+	/**
+	 * Checks whether the audio is undefined
+	 * @return whether the audio is undefined
+	 */
 	private boolean isUndefinedAudio() {
 		return audio == null;
 	}
 
+	/**
+	 *Initializes the help pane 
+	 */
 	private void initHelpPane() {
 		createHelpPane();
 		appendToPane(_helpPane, HELP_PROMPT, _headerAttributes);
 		_notificationsArea.add(_helpPane, BorderLayout.CENTER);
 	}
 
+	/**
+	 *	Creates teh help pane 
+	 */
 	private void createHelpPane() {
 		_helpPane = new JTextPane();
 		_helpPane.setBackground(GUI_BACKGROUND_COLOR);
@@ -868,6 +903,9 @@ public class GUI implements ActionListener {
 		_helpPane.setEditable(false);
 	}
 
+	/**
+	 *	Sets up the shortcut key 
+	 */
 	private void setUpShortcutKey() {
 		GUILogger.log(Level.INFO, LOG_SHORTCUT_KEY_BEING_INITIALIZED);
 		_shortcutKey = new JHotKeys(LIB_PATH_JHOTKEYS);
@@ -878,6 +916,9 @@ public class GUI implements ActionListener {
 		assignShortcutHotKeyFunctionality();
 	}
 
+	/**
+	 *	Assigns a handler to the shortcut 
+	 */
 	private void assignShortcutHotKeyFunctionality() {
 		_shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
 		JHotKeyListener hotkeyListener = new JHotKeyListener() {
@@ -892,6 +933,9 @@ public class GUI implements ActionListener {
 		_shortcutKey.addHotKeyListener(hotkeyListener);
 	}
 
+	/**
+	 *	Sets up JIntellitype 
+	 */
 	private void setUpJIntellitype() {
 		JIntellitype.setLibraryLocation(LIB_PATH_WINDOWS_J_INTELLITYPE_DLL);
 		try {
@@ -906,18 +950,29 @@ public class GUI implements ActionListener {
 		}
 	}
 
+	/**
+	 * Checks whether the OS is Windows
+	 * 
+	 * @return whether the OS is Windows
+	 */
 	private boolean isWindows() {
 		return System.getProperty(OS_NAME).contains(OS_NAME_WINDOWS);
 	}
 
+	/**
+	 *	 Toggles the GUI
+	 */
 	private void toggleGUI() {
-		if (_frmTodo.isShowing() == true) {
+		if (_frmTodo.isShowing()) {
 			_frmTodo.dispose();
 		} else {
 			_frmTodo.setVisible(true);
 		}
 	}
 
+	/**
+	 *	Assigns the default focus to the input field 
+	 */
 	private void assignFocusToInput() {
 		_frmTodo.addWindowFocusListener(new WindowAdapter() {
 			@Override
@@ -927,6 +982,9 @@ public class GUI implements ActionListener {
 		});
 	}
 
+	/**
+	 *	Updates the Feedback Pane 
+	 */
 	private void updateFeedbackPane() {
 		_feedbackPane.setText(EMPTY_STRING);
 		String feedbackText = _displayState.getFeedback().getDisplay();
@@ -938,6 +996,9 @@ public class GUI implements ActionListener {
 		_userInputArea.add(_feedbackPane);
 	}
 
+	/**
+	 *	Updates the Help Pane 
+	 */
 	private void updateHelpPane() {
 		appendToPane(_helpPane, HELP_TEXT_1, _headerAttributes);
 		appendToPane(_helpPane, HELP_TEXT_2, _feedbackTextAttributes);
@@ -952,6 +1013,9 @@ public class GUI implements ActionListener {
 		appendToPane(_helpPane, HELP_TEXT_11, _headerAttributes);
 	}
 
+	/**
+	 *	Updates the System Tray 
+	 */
 	private void updateSystemTray() {
 		GUILogger.log(Level.INFO, LOG_ATTEMPTING_TO_ENABLE_SYSTRAY_SUPPORT);
 		if (SystemTray.isSupported()) {
