@@ -14,6 +14,7 @@ import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
 
+import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -30,7 +31,12 @@ import java.awt.Color;
 import javax.swing.JPanel;
 
 import java.awt.BorderLayout;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -62,7 +68,18 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+
 import java.awt.GridLayout;
+
+
+
+
+
+
+
+
 
 import com.dstjacques.jhotkeys.JHotKeys;
 import com.dstjacques.jhotkeys.JHotKeyListener;
@@ -144,10 +161,11 @@ public class GUI implements ActionListener {
 	/**
 	 * Important filepaths
 	 */
-	private static final String PATH_TO_SYSTRAY_IMAGE = "./src/img/Two.jpg";
-	private static final String LIB_PATH_WINDOWS_J_INTELLITYPE_DLL = "./lib/windows/JIntellitype.dll";
+	private static final String PATH_TO_SYSTRAY_IMAGE = "Two.jpg";
+	private static final String LIB_PATH_WINDOWS_J_INTELLITYPE_DLL = "JIntellitype.dll";
 	private static final String LIB_PATH_JHOTKEYS = "./lib";
-	private static final String FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL = "./lib/windows/JIntellitype64.dll";
+	private static final String FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL = "JIntellitype64.dll";
+	private static final String DISK_LOCATION = "C:/Todo/";
 
 	private static final String OS_NAME_WINDOWS = "Windows";
 	private static final String OS_NAME = "os.name";
@@ -279,16 +297,16 @@ public class GUI implements ActionListener {
 		private static final String LOG_AUDIO_FAILED_TO_STREAM = "Audio failed to stream";
 		private static final String LOG_AUDIO_SET_UP_HAS_FAILED = "Audio Set Up has failed";
 		private static final String LOG_AUDIO_SET_UP_IS_SUCCESSFUL = "Audio Set Up is successful";
-		private static final String FILE_SRC_SOUND_FAILURE_WAV = "file:./src/sound/beep2.wav";
-		private static final String FILE_SRC_SOUND_SUCCESS_WAV = "file:./src/sound/beep1.wav";
+		private static final String FILE_SRC_SOUND_FAILURE_WAV = "beep2.wav";
+		private static final String FILE_SRC_SOUND_SUCCESS_WAV = "beep1.wav";
 
 		/**
 		 * To store clips and URL's to them
 		 */
 		private static Clip _successClip;
 		private static Clip _failureClip;
-		private static URL _urlSuccess;
-		private static URL _urlFailure;
+		private static BufferedInputStream _urlSuccess;
+		private static BufferedInputStream _urlFailure;
 		/**
 		 * To store whether audio is enabled
 		 */
@@ -404,12 +422,16 @@ public class GUI implements ActionListener {
 		 */
 		private void setUpAudioClips() {
 			try {
-				_urlSuccess = new URL(FILE_SRC_SOUND_SUCCESS_WAV);
+				_urlSuccess =
+						new BufferedInputStream 
+						(GUI.class.getResourceAsStream(FILE_SRC_SOUND_SUCCESS_WAV));
+				_urlFailure =
+						new BufferedInputStream 
+						(GUI.class.getResourceAsStream(FILE_SRC_SOUND_FAILURE_WAV));
 				_successClip = AudioSystem.getClip();
-				_urlFailure = new URL(FILE_SRC_SOUND_FAILURE_WAV);
 				_failureClip = AudioSystem.getClip();
 				GUILogger.log(Level.INFO, LOG_AUDIO_SET_UP_IS_SUCCESSFUL);
-			} catch (MalformedURLException | LineUnavailableException e) {
+			} catch (LineUnavailableException e) {
 				GUILogger.log(Level.WARNING, LOG_AUDIO_SET_UP_HAS_FAILED);
 				e.printStackTrace();
 			}
@@ -964,12 +986,31 @@ public class GUI implements ActionListener {
 		};
 		_shortcutKey.addHotKeyListener(hotkeyListener);
 	}
+	
+	private void writeDllToDisk(String name) {
+	    InputStream in = GUI.class.getResourceAsStream(name);
+	    
+	    File fileOut = new File(DISK_LOCATION + name);
 
-	/**
-	 * Sets up JIntellitype
-	 */
+        OutputStream out;
+		try {
+			out = FileUtils.openOutputStream(fileOut);
+	        IOUtils.copy(in, out);
+	        in.close();
+	        out.close();
+		    
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			GUILogger.log(Level.WARNING,"Unable to write DLL to disk");
+		}
+
+	}
+
 	private void setUpJIntellitype() {
-		JIntellitype.setLibraryLocation(LIB_PATH_WINDOWS_J_INTELLITYPE_DLL);
+		writeDllToDisk(LIB_PATH_WINDOWS_J_INTELLITYPE_DLL);
+		writeDllToDisk(FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL);
+		JIntellitype.setLibraryLocation(DISK_LOCATION + LIB_PATH_WINDOWS_J_INTELLITYPE_DLL);
 		try {
 			_shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
 		} catch (Exception e) {
@@ -978,7 +1019,7 @@ public class GUI implements ActionListener {
 			GUILogger.log(Level.WARNING, LOG_ERROR + e.getMessage()
 					+ LOG_ATTEMPTING_RESOLUTION);
 			JIntellitype
-					.setLibraryLocation(FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL);
+					.setLibraryLocation(DISK_LOCATION + FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL);
 		}
 	}
 
@@ -1052,10 +1093,18 @@ public class GUI implements ActionListener {
 		GUILogger.log(Level.INFO, LOG_ATTEMPTING_TO_ENABLE_SYSTRAY_SUPPORT);
 		if (SystemTray.isSupported()) {
 			_systemTray = SystemTray.getSystemTray();
-
-			_trayImage = Toolkit.getDefaultToolkit().getImage(
-					PATH_TO_SYSTRAY_IMAGE);
-
+			InputStream picStream = GUI.class.getResourceAsStream(PATH_TO_SYSTRAY_IMAGE);
+			BufferedInputStream in = new BufferedInputStream(picStream);
+			try {
+				_trayImage = ImageIO.read(in);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				GUILogger.log(Level.WARNING,"Image could not be loaded");
+				e.printStackTrace();
+			}
+			//_trayImage = Toolkit.getDefaultToolkit().getImage(
+					//GUI.class.getRe);
+			
 			_menu = new PopupMenu();
 
 			populateSysTrayMenu();
