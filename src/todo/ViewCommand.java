@@ -107,6 +107,8 @@ public class ViewCommand extends Command {
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.mode = MODE_VIEW_INTERVAL;
+		setTime(this.startDate, 0, 0, 0, 0);
+		setTime(this.endDate, 23, 59, 59, 999);
 	}
 
 	/**
@@ -575,5 +577,26 @@ public class ViewCommand extends Command {
 				true));
 
 		return s;
+	}
+	
+	/**
+	 * Sets the time parameters of a Calendar object
+	 * 
+	 * @param calObj
+	 * 			Calendar object which time is being set
+	 * @param h
+	 * 			hour to set to (0 to 23)
+	 * @param m
+	 * 			minute to set to (0 to 59)
+	 * @param s
+	 * 			second to set to (0 to 59)
+	 * @param ms
+	 * 			milliseconds to set to (0 to 999)
+	 */
+	private void setTime(Calendar calObj, int h, int m, int s, int ms) {
+		calObj.set(Calendar.HOUR_OF_DAY, h);
+		calObj.set(Calendar.MINUTE, m);
+		calObj.set(Calendar.SECOND, s);
+		calObj.set(Calendar.MILLISECOND, ms);
 	}
 }
