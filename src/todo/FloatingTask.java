@@ -1,6 +1,7 @@
 package todo;
 
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 /**
  * Subclass to encapsulate floating tasks
@@ -18,6 +19,18 @@ class FloatingTask extends Task implements Comparable<FloatingTask> {
 	 *            tags for this task
 	 */
 	FloatingTask(String description, ArrayList<String> tags) {
+		super(description, tags);
+	}
+	
+	/**
+	 * Constructor to set up FloatingTasks object
+	 * 
+	 * @param description
+	 *            Task description
+	 * @param tags
+	 *            tags for this task
+	 */
+	FloatingTask(String description, TreeSet<String> tags) {
 		super(description, tags);
 	}
 

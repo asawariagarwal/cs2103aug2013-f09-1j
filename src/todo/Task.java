@@ -1,6 +1,7 @@
 package todo;
 
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 /**
  * This class encapsulates the Tasks of particular types and provides routines
@@ -17,7 +18,7 @@ class Task {
 	 * private members
 	 */
 	private String _description;
-	private ArrayList<String> _tags;
+	private TreeSet<String> _tags;
 	private boolean _expired;
 	private boolean _done;
 
@@ -26,7 +27,7 @@ class Task {
 	 */
 	Task() {
 		_description = "";
-		_tags = new ArrayList<String>();
+		_tags = new TreeSet<String>();
 		_expired = false;
 		_done = false;
 	}
@@ -41,6 +42,22 @@ class Task {
 	 *            Task tags
 	 */
 	Task(String description, ArrayList<String> tags) {
+		_description = description;
+		_tags = new TreeSet<String>(tags);;
+		_expired = false;
+		_done = false;
+	}
+	
+	/**
+	 * Constructor for Tasks
+	 * 
+	 * @param description
+	 *            Description of task
+	 * 
+	 * @param tags
+	 *            Task tags
+	 */
+	Task(String description, TreeSet<String> tags) {
 		_description = description;
 		_tags = tags;
 		_expired = false;
@@ -110,7 +127,7 @@ class Task {
 	 * 
 	 * @return tags list for a task
 	 */
-	protected ArrayList<String> getTags() {
+	protected TreeSet<String> getTags() {
 		return _tags;
 	}
 

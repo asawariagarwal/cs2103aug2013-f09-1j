@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.TreeSet;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +15,7 @@ public class TestTask {
 	String description;
 	String tag1;
 	String tag2;
-	ArrayList<String> tags;
+	TreeSet<String> tags;
 	Calendar cal1;
 	Calendar cal2;
 	TimedTask timedtask;
@@ -29,7 +30,7 @@ public class TestTask {
 		cal1 = Calendar.getInstance();
 		cal2 = Calendar.getInstance();
 		cal2.setTimeInMillis(cal1.getTimeInMillis()+1000000);;
-		tags = new ArrayList<String>();
+		tags = new TreeSet<String>();
 		tags.add(tag1);
 		tags.add(tag2);
 	}

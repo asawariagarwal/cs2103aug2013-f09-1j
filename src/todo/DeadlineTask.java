@@ -3,6 +3,7 @@ package todo;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.TreeSet;
 
 /**
 	 * Subclass to encapsulate Deadline based tasks
@@ -27,6 +28,22 @@ import java.util.Calendar;
 		 *            Task deadline
 		 */
 		DeadlineTask(String description, ArrayList<String> tags,
+				Calendar deadline) {
+			super(description, tags);
+			_deadline = deadline;
+		}
+		
+		/**
+		 * Constructor to set up a deadline task
+		 * 
+		 * @param description
+		 *            Task description
+		 * @param tags
+		 *            Task tags
+		 * @param deadline
+		 *            Task deadline
+		 */
+		DeadlineTask(String description, TreeSet<String> tags,
 				Calendar deadline) {
 			super(description, tags);
 			_deadline = deadline;

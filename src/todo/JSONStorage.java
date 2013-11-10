@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TreeSet;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -259,7 +260,7 @@ public class JSONStorage {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private JSONArray getTagsJSON(ArrayList<String> tagArray){
+	private JSONArray getTagsJSON(TreeSet<String> tagArray){
 		JSONArray tagJSON = new JSONArray();
 		for (String tag : tagArray){
 			tagJSON.add(tag);

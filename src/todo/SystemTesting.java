@@ -127,9 +127,7 @@ public class SystemTesting {
 
 		// Checks if the hashtags stored in the task object in the state are
 		// correct
-		String hashtag = displayState.getDeadlineTasks().last().getTags()
-				.get(0);
-		assertEquals("CS2103", hashtag);
+		assert(displayState.getDeadlineTasks().last().getTags().contains("CS2103"));
 
 	}
 
@@ -149,13 +147,9 @@ public class SystemTesting {
 
 		// Checks if the hashtags stored in the task object in the state are
 		// correct
-		String hashtag = displayState2.getFloatingTasks().last().getTags().get(
-				0);
-		assertEquals("hobby", hashtag);
+		assert(displayState2.getFloatingTasks().last().getTags().contains("hobby"));
 
-		String hashtag2 = displayState2.getFloatingTasks().last().getTags()
-				.get(1);
-		assertEquals("interest", hashtag2);
+		assert(displayState2.getFloatingTasks().last().getTags().contains("interest"));
 
 	}
 
@@ -196,8 +190,7 @@ public class SystemTesting {
 
 		// Checks if the hashtags stored in the task object in the state are
 		// correct
-		String hashtag = displayState3.getTimedTasks().last().getTags().get(0);
-		assertEquals("work", hashtag);
+		assert(displayState3.getTimedTasks().last().getTags().contains("work"));
 
 	}
 

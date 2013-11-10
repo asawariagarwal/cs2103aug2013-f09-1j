@@ -3,6 +3,7 @@ package todo;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.TreeSet;
 
 /**
  * Subclass to encapsulate Timed Tasks
@@ -30,6 +31,25 @@ class TimedTask extends Task implements Comparable<TimedTask> {
 	 *            Task end Calendar object
 	 */
 	TimedTask(String description, ArrayList<String> tags, Calendar startDate,
+			Calendar endDate) {
+		super(description, tags);
+		_startDate = startDate;
+		_endDate = endDate;
+	}
+	
+	/**
+	 * Constructor to set up TimedTasks
+	 * 
+	 * @param description
+	 *            Task description
+	 * @param tags
+	 *            Task tags
+	 * @param startDate
+	 *            Task start Calendar object
+	 * @param endDate
+	 *            Task end Calendar object
+	 */
+	TimedTask(String description, TreeSet<String> tags, Calendar startDate,
 			Calendar endDate) {
 		super(description, tags);
 		_startDate = startDate;
