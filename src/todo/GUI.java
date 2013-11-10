@@ -163,7 +163,7 @@ public class GUI implements ActionListener {
 	 * Help Strings
 	 */
 	private static final String HELP_TEXT_1 = "Command List:\n\n";
-	private static final String HELP_TEXT_2 = "add\ndelete\nview\nundo\nredo\nchange\nreschedule\nmark/unmark\ntag/untag\nmute/unmute\nexit";
+	private static final String HELP_TEXT_2 = "add\ndelete\nview\nsearch\nundo/redo\nchange\nreschedule\nmark/unmark\ntag/untag\nmute/unmute\nexit";
 	private static final String HELP_TEXT_3 = "\n\nPress ";
 	private static final String HELP_TEXT_4 = "tab ";
 	private static final String HELP_TEXT_5 = "to \nauto-complete\n\nPress ";
@@ -177,7 +177,8 @@ public class GUI implements ActionListener {
 	/**
 	 * Audio feedback class
 	 */
-	private static AudioFeedBack audio;
+	private static AudioFeedBack _audio;
+	
 
 	/**
 	 * Class for custom scroll bar implementation
@@ -582,12 +583,12 @@ public class GUI implements ActionListener {
 				_userInputField.setText(EMPTY_STRING);
 				updateHelpPane();
 			} else if (isMute(input)) {
-				audio.disable();
+				_audio.disable();
 				_userInputField.setText(EMPTY_STRING);
 				_displayState.setFeedback(new Feedback(
 						FEEDBACK_SOUND_TURNED_OFF, true));
 			} else if (isUnmute(input)) {
-				audio.enable();
+				_audio.enable();
 				_userInputField.setText(EMPTY_STRING);
 				_displayState.setFeedback(new Feedback(
 						FEEDBACK_SOUND_TURNED_ON, true));
@@ -872,7 +873,7 @@ public class GUI implements ActionListener {
 	 * Sets up the audio feedback
 	 */
 	private void initAudioFeedBack() {
-		audio = new AudioFeedBack();
+		_audio = new AudioFeedBack();
 	}
 
 	/**
@@ -884,9 +885,9 @@ public class GUI implements ActionListener {
 		}
 
 		if (isPositiveFeedback()) {
-			audio.playSuccess();
+			_audio.playSuccess();
 		} else {
-			audio.playFailure();
+			_audio.playFailure();
 		}
 	}
 
@@ -905,7 +906,7 @@ public class GUI implements ActionListener {
 	 * @return whether the audio is undefined
 	 */
 	private boolean isUndefinedAudio() {
-		return audio == null;
+		return _audio == null;
 	}
 
 	/**
