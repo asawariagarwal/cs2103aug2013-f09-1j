@@ -65,6 +65,10 @@ public class Interpreter {
 	private static final String PREFIX_END_TIME =" to ";
 	private static final String PREFIX_DAY =" on ";
 	private static final String PREFIX_RESCHEDULE =" till ";
+	private static final String NULL_STRING = "";
+	private static final String SPACE_STRING =" ";
+	private static final String PREFIX_FROM_WITHOUT_SPACE ="from";
+	
 
 	private static final String KEYWORD_ALL = "all";
 	private static final String KEYWORD_DEADLINE = "deadlines";
@@ -319,7 +323,7 @@ public class Interpreter {
 		String TaskDes = getDeadlineTaskDescription();
 		String dateStr;
 
-		if(!TaskDes.equals("")){
+		if(!TaskDes.equals(NULL_STRING)){
 
 			dateStr = extractTillHashtagOrEnd();
 			Calendar deadline = isValid(dateStr);
@@ -354,17 +358,17 @@ public class Interpreter {
 		String date1, date2, day;
 		String TaskDes = getTimedTaskDescription();
 
-		if(!TaskDes.equals("")){
+		if(!TaskDes.equals(NULL_STRING)){
 
 			date1 = extractTillKeyword(PREFIX_END_TIME);
 
 			//Special case if user specifies day separate from time 
-			if(_userInput.contains(" on ")){
+			if(_userInput.contains(PREFIX_DAY)){
 
 				date2 = extractTillKeyword(PREFIX_DAY);
 				day= extractTillHashtagOrEnd();
-				date1=date1.concat(" "+day+" ");
-				date2=date2.concat(" "+day+" ");
+				date1=date1.concat(SPACE_STRING+day+SPACE_STRING);
+				date2=date2.concat(SPACE_STRING+day+SPACE_STRING);
 			}else{
 				date2 = extractTillHashtagOrEnd();
 			}
@@ -467,28 +471,18 @@ public class Interpreter {
 
 	DeleteCommand parseDelete() throws Exception {
 		String regex="-[edf]\\d{1,}";
-		char taskType;
-		int index;
 		if(_userInput.matches(regex)){
 			DeleteCommand command;
-			taskType=_userInput.charAt(1);
-			index=Integer.parseInt(_userInput.substring(2));
-			if(taskType=='e'){
-				command = new DeleteCommand(index,DeleteCommand.INDEX_TIMED);
-				return command;
-			}else if(taskType=='d'){
-				command = new DeleteCommand(index,DeleteCommand.INDEX_DEADLINE);
-				return command;
-			}else if(taskType=='f'){
-				command = new DeleteCommand(index,DeleteCommand.INDEX_FLOATING);
-				return command;
-			}	
-		}else if(!_userInput.equals("")) {
+			command =deleteByIndex();	
+			return command;
+		}else if(!_userInput.equals(NULL_STRING)) {
 			DeleteCommand command = new DeleteCommand(_userInput);
 			return command;
 		} 
 		return null;
 	}
+
+
 
 	/**
 	 * This function performs the parsing of a clear type command and
@@ -502,7 +496,7 @@ public class Interpreter {
 	ClearCommand parseClear() throws Exception {
 		ClearCommand command;
 		_userInput=_userInput.trim();
-		if(_userInput.equals("")){
+		if(_userInput.equals(NULL_STRING)){
 			command = new ClearCommand();
 		}else if(isClearCommandDone()){
 			command = new ClearCommand(ClearCommand.MODE_CLEAR_DONE);
@@ -533,32 +527,19 @@ public class Interpreter {
 
 	ModifyCommand parseChange()throws Exception {
 		String regex="-[edf]\\d{1,} {1,}to {1,}.*";
-		char taskType;
-		int index;
 		String oldTask, newTask;
 		if(_userInput.matches(regex)){
 			ModifyCommand command;
-			taskType=_userInput.charAt(1);
-			int spaceIndex = _userInput.indexOf(" ");
-			index=Integer.parseInt(_userInput.substring(2, spaceIndex));
-			int toIndex = _userInput.indexOf(" to ", spaceIndex) + 3;
-			newTask = _userInput.substring(toIndex).trim();
-			if(taskType=='e'){
-				command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, newTask);
-				return command;
-			} else if(taskType=='d'){
-				command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, newTask);
-				return command;
-			} else if(taskType=='f'){
-				command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, newTask);
-				return command;
-			}
+			command=changeByIndex();
+			return command;
 		}
 		oldTask = getModifyTaskDescription().trim();
 		newTask = _userInput.trim();
 		ModifyCommand command = new ModifyCommand(oldTask, newTask);
 		return command;
 	}
+
+
 
 	/**
 	 * This function performs the parsing of a reschedule type command and
@@ -573,31 +554,10 @@ public class Interpreter {
 		String copyInput; 
 		copyInput=_userInput;
 		String regex="-[edf]\\d{1,} {1,}to {1,}.*";
-		char taskType;
-		int index;
 		if(_userInput.matches(regex)){
-			taskType=_userInput.charAt(1);
-			int spaceIndex = _userInput.indexOf(" ");
-			index=Integer.parseInt(_userInput.substring(2, spaceIndex));
-			int toIndex = _userInput.indexOf(" to ", spaceIndex) + 3;
-			_userInput = _userInput.substring(toIndex).trim();
-			if(taskType=='e'){
-				String startDate = extractTillKeyword(PREFIX_RESCHEDULE);
-				String endDate = _userInput.trim();
-				Calendar calendar1 = isValid(startDate);
-				Calendar calendar2 = isValid(endDate);
-				command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, calendar1, calendar2);
-				return command;
-			} else if(taskType=='d'){
-				String deadline= _userInput.trim();
-				Calendar calendar = isValid(deadline);
-				command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, calendar);
-				return command;
-			} else if(taskType=='f'){
-				return null;
-			}
+			command =rescheduleByIndex();
+			return command;
 		}
-
 		command = parseRescheduleTimed();
 		if (command != null) {
 			return command;
@@ -609,7 +569,6 @@ public class Interpreter {
 		}
 		return null;
 	}
-
 
 	/**
 	 * This function performs the parsing of a reschedule type command on 
@@ -624,7 +583,7 @@ public class Interpreter {
 		String startDate, endDate;
 		taskName= getModifyTaskDescription().trim();
 
-		if(!taskName.equals("")){
+		if(!taskName.equals(NULL_STRING)){
 
 			startDate = extractTillKeyword(PREFIX_RESCHEDULE);
 			endDate = _userInput.trim();
@@ -655,7 +614,7 @@ public class Interpreter {
 		String deadline;
 
 		taskName= getModifyTaskDescription().trim();
-		if(!taskName.equals("")){
+		if(!taskName.equals(NULL_STRING)){
 
 			deadline= _userInput.trim();
 			Calendar calendar = isValid(deadline);
@@ -692,7 +651,7 @@ public class Interpreter {
 		calendar[1]=null;
 		
 		searchString=SearchInInterval(calendar);
-		if(searchString!=""){
+		if(searchString!=NULL_STRING){
 	    splitIntoDifferentArrays(searchString,wordsInclude,wordsExclude,tagsInclude,tagsExclude);
 		command = new SearchCommand(wordsInclude,wordsExclude,tagsInclude,tagsExclude,calendar[0],calendar[1]);
 		return command;
@@ -702,14 +661,14 @@ public class Interpreter {
 		calendar[1]=null;
 		_userInput=copyInput;
 		searchString=SearchOnDate(calendar);
-		if(searchString!=""){
+		if(searchString!=NULL_STRING){
 			splitIntoDifferentArrays(searchString,wordsInclude,wordsExclude,tagsInclude,tagsExclude);
 			command = new SearchCommand(wordsInclude,wordsExclude,tagsInclude,tagsExclude,calendar[0]);
 			return command;	
 		}
 	
 		_userInput=copyInput;
-		if(!_userInput.equals("")){
+		if(!_userInput.equals(NULL_STRING)){
 			splitIntoDifferentArrays(_userInput,wordsInclude,wordsExclude,tagsInclude,tagsExclude);
 			command = new SearchCommand(wordsInclude,wordsExclude,tagsInclude,tagsExclude);
 			return command;
@@ -730,29 +689,18 @@ public class Interpreter {
 	ModifyCommand parseMark()throws Exception{
 		ModifyCommand command;
 		String regex="-[edf]\\d{1,}";
-		char taskType;
-		int index;
 		if(_userInput.matches(regex)){
-			taskType=_userInput.charAt(1);
-			index=Integer.parseInt(_userInput.substring(2));
-			if(taskType=='e'){
-				command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, true);
-				return command;
-			} else if(taskType=='d'){
-				command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, true);
-				return command;
-			} else if(taskType=='f'){
-				command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, true);
-				return command;
-			}
+			command =markByIndex();
+			return command;
 		}
-		if(!_userInput.equals("")){
+		if(!_userInput.equals(NULL_STRING)){
 			command = new ModifyCommand(_userInput.trim(),true);
 			return command;
 		}else{
 			return null;
 		}
 	}
+
 
 	/**
 	 * This function performs the actual parsing of a unmark type command and
@@ -765,29 +713,18 @@ public class Interpreter {
 	ModifyCommand parseUnmark()throws Exception{
 		ModifyCommand command;
 		String regex="-[edf]\\d{1,}";
-		char taskType;
-		int index;
 		if(_userInput.matches(regex)){
-			taskType=_userInput.charAt(1);
-			index=Integer.parseInt(_userInput.substring(2));
-			if(taskType=='e'){
-				command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, false);
-				return command;
-			} else if(taskType=='d'){
-				command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, false);
-				return command;
-			} else if(taskType=='f'){
-				command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, false);
-				return command;
-			}
+			command=unmarkByIndex();
+			return command;
 		}
-		if(!_userInput.equals("")){
+		if(!_userInput.equals(NULL_STRING)){
 			command = new ModifyCommand(_userInput.trim(),false);
 			return command;
 		}else{
 			return null;
 		}
 	}
+
 
 
 	/**
@@ -801,37 +738,16 @@ public class Interpreter {
 	ModifyCommand parseTag() throws Exception {
 		ModifyCommand command;
 		String regex="-[edf]\\d{1,} {1,}.*";
-		char taskType;
-		int index;
 		ArrayList<String> hashtags = new ArrayList<String>();
 		if(_userInput.matches(regex)){
-			taskType=_userInput.charAt(1);
-			int spaceIndex = _userInput.indexOf(" ");
-			index=Integer.parseInt(_userInput.substring(2, spaceIndex));
-			_userInput = _userInput.substring(spaceIndex).trim();
-			while (!(_userInput.equals(""))) {
-				String hashtag=extractHashtag();
-				if(hashtag.equals("")){
-					break;
-				}
-				hashtags.add(hashtag);
-			}
-			if(taskType=='e'){
-				command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, hashtags, true);
-				return command;
-			} else if(taskType=='d'){
-				command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, hashtags, true);
-				return command;
-			} else if(taskType=='f'){
-				command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, hashtags, true);
-				return command;
-			}
+			command =tagByIndex(hashtags);
+			return command;
 		}
 		String taskDes=extractTillHashtagOrEnd();
-		if(!taskDes.equals("")) {
-			while (!(_userInput.equals(""))) {
+		if(!taskDes.equals(NULL_STRING)) {
+			while (!(_userInput.equals(NULL_STRING))) {
 				String hashtag=extractHashtag();
-				if(hashtag.equals("")){
+				if(hashtag.equals(NULL_STRING)){
 					break;
 				}
 				hashtags.add(hashtag);
@@ -843,6 +759,8 @@ public class Interpreter {
 		}
 	}
 
+
+
 	/**
 	 * This function performs the actual parsing of a untag type command and
 	 * creates a ModifyCommand type object
@@ -853,37 +771,16 @@ public class Interpreter {
 	ModifyCommand parseUntag() throws Exception {
 		ModifyCommand command;
 		String regex="-[edf]\\d{1,} {1,}.*";
-		char taskType;
-		int index;
 		ArrayList<String> hashtags = new ArrayList<String>();
 		if(_userInput.matches(regex)){
-			taskType=_userInput.charAt(1);
-			int spaceIndex = _userInput.indexOf(" ");
-			index=Integer.parseInt(_userInput.substring(2, spaceIndex));
-			_userInput = _userInput.substring(spaceIndex).trim();
-			while (!(_userInput.equals(""))) {
-				String hashtag=extractHashtag();
-				if(hashtag.equals("")){
-					break;
-				}
-				hashtags.add(hashtag);
-			}
-			if(taskType=='e'){
-				command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, hashtags, false);
-				return command;
-			} else if(taskType=='d'){
-				command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, hashtags, false);
-				return command;
-			} else if(taskType=='f'){
-				command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, hashtags, false);
-				return command;
-			}
+			command=untagByIndex(hashtags);
+			return command;
 		}
 		String taskDes=extractTillHashtagOrEnd();
-		if(!taskDes.equals("")) {
-			while (!(_userInput.equals(""))) {
+		if(!taskDes.equals(NULL_STRING)) {
+			while (!(_userInput.equals(NULL_STRING))) {
 				String hashtag=extractHashtag();
-				if(hashtag.equals("")){
+				if(hashtag.equals(NULL_STRING)){
 					break;
 				}
 				hashtags.add(hashtag);
@@ -894,8 +791,6 @@ public class Interpreter {
 			return null;
 		}
 	}
-
-
 
 	/**
 	 * This function performs the actual parsing of a undo type command
@@ -908,7 +803,7 @@ public class Interpreter {
 	UndoCommand parseUndo()throws Exception{
 		UndoCommand command;
 		_userInput=_userInput.trim();
-		if(_userInput.equals("")){
+		if(_userInput.equals(NULL_STRING)){
 			command = new UndoCommand();
 		}else{
 			command = new UndoCommand(Integer.parseInt(_userInput));
@@ -928,7 +823,7 @@ public class Interpreter {
 	UndoCommand parseRedo()throws Exception{
 		UndoCommand command;
 		_userInput=_userInput.trim();
-		if(_userInput.equals("")){
+		if(_userInput.equals(NULL_STRING)){
 			command = new UndoCommand(1, true);
 		}else{
 			command = new UndoCommand((Integer.parseInt(_userInput)), true);
@@ -1047,10 +942,10 @@ public class Interpreter {
 
 	private boolean isViewCommandDisplayingTasksInAnInterval(Calendar[] calendar)throws Exception{
 		String startDate,endDate;
-		if((_userInput.trim()).startsWith("from")){
+		if((_userInput.trim()).startsWith(PREFIX_FROM_WITHOUT_SPACE )){
 			_userInput = (_userInput
-					.substring(_userInput.indexOf("from") + ("from").length())).trim();
-			startDate=extractTillKeyword(" to ");
+					.substring(_userInput.indexOf(PREFIX_FROM_WITHOUT_SPACE ) + (PREFIX_FROM_WITHOUT_SPACE ).length())).trim();
+			startDate=extractTillKeyword(PREFIX_END_TIME);
 			calendar[0] =isValid(startDate);
 			endDate=extractTillHashtagOrEnd();
 			calendar[1] =isValid(endDate);
@@ -1082,7 +977,213 @@ public class Interpreter {
 
 		return false;
 	}
+	
+/**
+ * This function parses the command when user is trying to delete by index
+ * 
+ * @return DeleteCommand object or null
+ */
+	
+	private DeleteCommand deleteByIndex() {
+		char taskType;
+		int index;
+		DeleteCommand command;
+		taskType=_userInput.charAt(1);
+		index=Integer.parseInt(_userInput.substring(2));
+		if(taskType=='e'){
+			command = new DeleteCommand(index,DeleteCommand.INDEX_TIMED);
+			return command;
+		}else if(taskType=='d'){
+			command = new DeleteCommand(index,DeleteCommand.INDEX_DEADLINE);
+			return command;
+		}else if(taskType=='f'){
+			command = new DeleteCommand(index,DeleteCommand.INDEX_FLOATING);
+			return command;
+		}
+		return null;
+	}
+	
+	/**
+	 * This function parses the command when user is trying to change by index
+	 * 
+	 * @return ModifyCommand object or null
+	 */
+	
+	private ModifyCommand changeByIndex() {
+		char taskType;
+		int index;
+		String newTask;
+		ModifyCommand command;
+		taskType=_userInput.charAt(1);
+		int spaceIndex = _userInput.indexOf(SPACE_STRING);
+		index=Integer.parseInt(_userInput.substring(2, spaceIndex));
+		int toIndex = _userInput.indexOf(" to ", spaceIndex) + 3;
+		newTask = _userInput.substring(toIndex).trim();
+		if(taskType=='e'){
+			command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, newTask);
+			return command;
+		} else if(taskType=='d'){
+			command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, newTask);
+			return command;
+		} else if(taskType=='f'){
+			command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, newTask);
+			return command;
+		}
+		return null;
+	}
+	
+	/**
+	 * This function parses the command when user is trying to reschedule by index
+	 * 
+	 * @return ModifyCommand object or null
+	 */
+	
+	
+	private ModifyCommand rescheduleByIndex() throws Exception {
+		ModifyCommand command;
+		char taskType;
+		int index;
+		taskType=_userInput.charAt(1);
+		int spaceIndex = _userInput.indexOf(SPACE_STRING);
+		index=Integer.parseInt(_userInput.substring(2, spaceIndex));
+		int toIndex = _userInput.indexOf(" to ", spaceIndex) + 3;
+		_userInput = _userInput.substring(toIndex).trim();
+		if(taskType=='e'){
+			String startDate = extractTillKeyword(PREFIX_RESCHEDULE);
+			String endDate = _userInput.trim();
+			Calendar calendar1 = isValid(startDate);
+			Calendar calendar2 = isValid(endDate);
+			command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, calendar1, calendar2);
+			return command;
+		} else if(taskType=='d'){
+			String deadline= _userInput.trim();
+			Calendar calendar = isValid(deadline);
+			command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, calendar);
+			return command;
+		} else if(taskType=='f'){
+			return null;
+		}
+		return null;
+	}
 
+	/**
+	 * This function parses the command when user is trying to mark by index
+	 * 
+	 * @return ModifyCommand object or null
+	 */
+	
+	private ModifyCommand markByIndex() {
+		ModifyCommand command;
+		char taskType;
+		int index;
+		taskType=_userInput.charAt(1);
+		index=Integer.parseInt(_userInput.substring(2));
+		if(taskType=='e'){
+			command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, true);
+			return command;
+		} else if(taskType=='d'){
+			command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, true);
+			return command;
+		} else if(taskType=='f'){
+			command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, true);
+			return command;
+		}
+		return null;
+	}
+	
+	/**
+	 * This function parses the command when user is trying to unmark by index
+	 * 
+	 * @return ModifyCommand object or null
+	 */
+	
+	private ModifyCommand unmarkByIndex() {
+		ModifyCommand command;
+		char taskType;
+		int index;
+		taskType=_userInput.charAt(1);
+		index=Integer.parseInt(_userInput.substring(2));
+		if(taskType=='e'){
+			command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, false);
+			return command;
+		} else if(taskType=='d'){
+			command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, false);
+			return command;
+		} else if(taskType=='f'){
+			command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, false);
+			return command;
+		}
+		return null;
+	}
+
+	/**
+	 * This function parses the command when user is trying to tag by index
+	 * 
+	 * @return ModifyCommand object or null
+	 */
+	
+	private ModifyCommand tagByIndex(ArrayList<String> hashtags) throws Exception {
+		ModifyCommand command;
+		char taskType;
+		int index;
+		taskType=_userInput.charAt(1);
+		int spaceIndex = _userInput.indexOf(SPACE_STRING);
+		index=Integer.parseInt(_userInput.substring(2, spaceIndex));
+		_userInput = _userInput.substring(spaceIndex).trim();
+		while (!(_userInput.equals(NULL_STRING))) {
+			String hashtag=extractHashtag();
+			if(hashtag.equals(NULL_STRING)){
+				break;
+			}
+			hashtags.add(hashtag);
+		}
+		if(taskType=='e'){
+			command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, hashtags, true);
+			return command;
+		} else if(taskType=='d'){
+			command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, hashtags, true);
+			return command;
+		} else if(taskType=='f'){
+			command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, hashtags, true);
+			return command;
+		}
+		return null;
+	}
+	
+	/**
+	 * This function parses the command when user is trying to untag by index
+	 * 
+	 * @return ModifyCommand object or null
+	 */
+	
+	private ModifyCommand untagByIndex(ArrayList<String> hashtags) throws Exception {
+		ModifyCommand command;
+		char taskType;
+		int index;
+		taskType=_userInput.charAt(1);
+		int spaceIndex = _userInput.indexOf(SPACE_STRING);
+		index=Integer.parseInt(_userInput.substring(2, spaceIndex));
+		_userInput = _userInput.substring(spaceIndex).trim();
+		while (!(_userInput.equals(NULL_STRING))) {
+			String hashtag=extractHashtag();
+			if(hashtag.equals(NULL_STRING)){
+				break;
+			}
+			hashtags.add(hashtag);
+		}
+		if(taskType=='e'){
+			command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, hashtags, false);
+			return command;
+		} else if(taskType=='d'){
+			command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, hashtags, false);
+			return command;
+		} else if(taskType=='f'){
+			command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, hashtags, false);
+			return command;
+		}
+		return null;
+	}
+	
 	/**
 	 * This function checks if clear command refers to clearing all deadline tasks
 	 * 
@@ -1168,14 +1269,14 @@ public class Interpreter {
     private String SearchInInterval(Calendar[] calendar) throws Exception{
     	String searchString =getTimedTaskDescription();
     	String startDate,endDate;
-			startDate=extractTillKeyword(" to ");
+			startDate=extractTillKeyword(PREFIX_END_TIME);
 			calendar[0] =isValid(startDate);
 			endDate=extractTillHashtagOrEnd();
 			calendar[1] =isValid(endDate);
-			if((calendar[0]!=(null))&&(calendar[1]!=(null))&&(searchString!="")){
+			if((calendar[0]!=(null))&&(calendar[1]!=(null))&&(searchString!=NULL_STRING)){
 				return searchString;
 			}else {
-				return "";
+				return NULL_STRING;
 			}
 		}	
 	/**
@@ -1192,10 +1293,10 @@ public class Interpreter {
 		String date;
 		date = extractTillHashtagOrEnd();
 		calendar[0]=isValid(date);
-		if(calendar[0]!=(null)&&(searchString!="")){
+		if(calendar[0]!=(null)&&(searchString!=NULL_STRING)){
 			return searchString;
 		}else{
-			return "";
+			return NULL_STRING;
 		}
 	}
   /**
@@ -1244,11 +1345,11 @@ public class Interpreter {
 
 	String getCommandType() throws Exception{
 		String commandType;
-		int locationOfSpace = _userInput.indexOf(" ");
+		int locationOfSpace = _userInput.indexOf(SPACE_STRING);
 		if(locationOfSpace==-1)
 		{
-			_userInput=_userInput.concat(" ");
-			locationOfSpace = _userInput.indexOf(" ");
+			_userInput=_userInput.concat(SPACE_STRING);
+			locationOfSpace = _userInput.indexOf(SPACE_STRING);
 		}
 		assert locationOfSpace!=-1;
 		commandType = (_userInput.substring(0, locationOfSpace)).trim();
@@ -1256,7 +1357,6 @@ public class Interpreter {
 		return commandType; // add , delete, view, change, reschedule, mark ,
 		// drop , undo , search
 	}
-
 
 	/**
 	 * This functions is used when the default command i.e. ADD has to be executed.
@@ -1267,7 +1367,7 @@ public class Interpreter {
 	 */
 
 	private void getOriginalInput(String commandTypeKeyword)throws Exception{
-		_userInput = commandTypeKeyword.concat(" "+_userInput);
+		_userInput = commandTypeKeyword.concat(SPACE_STRING+_userInput);
 	}
 
 	/**
@@ -1338,10 +1438,10 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	private int populateHashtags(ArrayList<String> hashtags)throws Exception {
-		while (!(_userInput.equals(""))) {
+	  int populateHashtags(ArrayList<String> hashtags)throws Exception {
+		while (!(_userInput.equals(NULL_STRING))) {
 			String hashtag=extractHashtag();
-			if(hashtag.equals("")){
+			if(hashtag.equals(NULL_STRING)){
 				return 0;
 			}
 			hashtags.add(hashtag);
@@ -1491,7 +1591,7 @@ public class Interpreter {
 			return extractedString;
 		}
 		assert posOfKeyword==-1;
-		return "";// returns extracted string just before keyword
+		return NULL_STRING;// returns extracted string just before keyword
 	}
 
 
@@ -1511,7 +1611,7 @@ public class Interpreter {
 			_userInput = (_userInput.substring(posOfHash)).trim();
 		} else {
 			extractedString = (_userInput).trim();
-			_userInput="";
+			_userInput=NULL_STRING;
 		}
 		return extractedString;
 	}
@@ -1527,17 +1627,17 @@ public class Interpreter {
 		String hashtag;
 		if (_userInput.startsWith("#")){
 			_userInput=_userInput.substring(1);
-			if(_userInput!=""){
+			if(_userInput!=NULL_STRING){
 				hashtag=extractTillHashtagOrEnd();
-				if(hashtag.contains(" ")){
-					return "";
+				if(hashtag.contains(SPACE_STRING)){
+					return NULL_STRING;
 				}
 				return hashtag;
 			}else{
-				return "";
+				return NULL_STRING;
 			}
 		}
-		return "";
+		return NULL_STRING;
 	}
 
 	/**
