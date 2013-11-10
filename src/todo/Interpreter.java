@@ -185,7 +185,7 @@ public class Interpreter {
 					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");	
 				}return resObj;
 
-			/**TODO case SEARCH:
+			case SEARCH:
 				SearchCommand searchObj;
 				searchObj = parseSearch();
 				if(searchObj!=null){
@@ -193,7 +193,7 @@ public class Interpreter {
 				}else{
 					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");	
 				}return searchObj;
-*/
+
 			case MARK:
 				ModifyCommand markObj;
 				markObj = parseMark();
@@ -669,14 +669,14 @@ public class Interpreter {
 		return null;
 	}
 
-	/**TODO
+	/**
 	 * This function performs the parsing of a search type command and
 	 * creates a search command type object
 	 * 
 	 * @return SearchCommand type object or null
 	 * @throws Exception
 	 */
-/**
+
 	    SearchCommand parseSearch()throws Exception{
 		SearchCommand command;
 		
@@ -717,7 +717,7 @@ public class Interpreter {
 			return null;
 			
 	}
-*/
+
 	
 	/**
 	 * This function performs the actual parsing of a mark type command and
