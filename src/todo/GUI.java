@@ -79,7 +79,7 @@ import com.melloware.jintellitype.JIntellitype;
  * 
  */
 public class GUI implements ActionListener {
-	private static boolean scrolledTop;
+	private static boolean _scrolledTop;
 
 	private static final String DEADLINE_PREFIX = "\t\tby:   ";
 
@@ -584,11 +584,13 @@ public class GUI implements ActionListener {
 				_userInputField.setText(EMPTY_STRING);
 				updateHelpPane();
 			} else if (isMute(input)) {
+				assert _audio != null;
 				_audio.disable();
 				_userInputField.setText(EMPTY_STRING);
 				_displayState.setFeedback(new Feedback(
 						FEEDBACK_SOUND_TURNED_OFF, true));
 			} else if (isUnmute(input)) {
+				assert _audio != null;
 				_audio.enable();
 				_userInputField.setText(EMPTY_STRING);
 				_displayState.setFeedback(new Feedback(
@@ -596,6 +598,7 @@ public class GUI implements ActionListener {
 			} else {
 				clearHelpPane();
 				_displayState = _handler.handleInput(input);
+				assert _displayState != null;
 				updateUI(input);
 			}
 		}
@@ -785,7 +788,7 @@ public class GUI implements ActionListener {
 			@Override
 			public void run() {
 				try {
-					GUI window = new GUI();
+					GUI window = GUIFactory.getInstance();
 					window._frmTodo.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -832,7 +835,8 @@ public class GUI implements ActionListener {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		scrolledTop = false;
+	
+		_scrolledTop = false;
 		
 		initMainWindow();
 
@@ -1319,7 +1323,7 @@ public class GUI implements ActionListener {
 		updateDeadlineTaskField();
 		updateFloatingTaskField();
 		_mainViewArea.repaint();
-		scrolledTop = false;
+		_scrolledTop = false;
 	}
 
 	/**
@@ -1637,9 +1641,9 @@ public class GUI implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		_currentDateTimeArea.setText(getCurrentDisplayTime());
-		if(!scrolledTop) {
+		if(!_scrolledTop) {
 			scrollToTop();
-			scrolledTop = true;
+			_scrolledTop = true;
 		}
 	}
 
