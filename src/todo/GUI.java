@@ -171,6 +171,11 @@ public class GUI implements ActionListener {
 	 */
 	private static class CustomScrollBar extends MetalScrollBarUI {
 
+		/**
+		 * Constants for CustomScrollBar
+		 */
+		private static final int DIMENSION_HEIGHT_ZERO = 0;
+		private static final int DIMENSION_WIDTH_ZERO = 0;
 		private static final Color SCROLL_BAR_COLOR = Color.blue;
 		private static final Color SCROLL_BAR_TRACK_IMAGE = Color.white;
 		private static final Color SCROLL_BAR_THUMB_IMAGE = SCROLL_BAR_COLOR
@@ -181,11 +186,15 @@ public class GUI implements ActionListener {
 
 			@Override
 			public Dimension getPreferredSize() {
-				return new Dimension(0, 0);
+				return new Dimension(DIMENSION_WIDTH_ZERO,
+						DIMENSION_HEIGHT_ZERO);
 			}
 
 		};
 
+		/**
+		 * Creates a custom scroll bar
+		 */
 		CustomScrollBar() {
 			imageThumb = ScrollImage.create(SCROLL_IMAGE_DIMENSION,
 					SCROLL_IMAGE_DIMENSION, SCROLL_BAR_THUMB_IMAGE);
@@ -217,6 +226,12 @@ public class GUI implements ActionListener {
 		}
 	}
 
+	/**
+	 * Class that creates the Scroll Image
+	 * 
+	 * @author Karan
+	 * 
+	 */
 	private static class ScrollImage {
 
 		static public Image create(int w, int h, Color c) {
@@ -256,6 +271,9 @@ public class GUI implements ActionListener {
 		private static Clip _failureClip;
 		private static URL _urlSuccess;
 		private static URL _urlFailure;
+		/**
+		 * To store whether audio is enabled
+		 */
 		private static boolean AUDIO_ENABLED;
 
 		AudioFeedBack() {
@@ -264,36 +282,76 @@ public class GUI implements ActionListener {
 			this.enable();
 		}
 
+		/**
+		 * Opens the audio clips
+		 */
 		private void openAudioClips() {
 			openSuccessClip();
 			openFailureClip();
 		}
 
+		/**
+		 * Opens the Failure Clip
+		 */
 		private void openFailureClip() {
 			AudioInputStream ais;
 			ais = null;
-			try {
-				ais = AudioSystem.getAudioInputStream(_urlFailure);
-			} catch (UnsupportedAudioFileException | IOException e) {
-				e.printStackTrace();
-			}
+			ais = initFailureAudioStream(ais);
+			openFailureAudioStream(ais);
+		}
+
+		/**
+		 * Opens the failure stream and sets it to ais
+		 * 
+		 * @param ais
+		 *            Stream to be assigned
+		 */
+		private void openFailureAudioStream(AudioInputStream ais) {
 			try {
 				_failureClip.open(ais);
 			} catch (LineUnavailableException e) {
+				GUILogger.log(Level.WARNING, e.getMessage());
 				e.printStackTrace();
 			} catch (IOException e) {
+				GUILogger.log(Level.WARNING, e.getMessage());
 				e.printStackTrace();
 			}
 		}
 
-		private void openSuccessClip() {
-			AudioInputStream ais = null;
+		/**
+		 * Initializes the Failure audio stream
+		 * 
+		 * @param ais
+		 *            stream to be initialized
+		 * 
+		 * @return the initializes stream
+		 */
+		private AudioInputStream initFailureAudioStream(AudioInputStream ais) {
 			try {
-				ais = AudioSystem.getAudioInputStream(_urlSuccess);
+				ais = AudioSystem.getAudioInputStream(_urlFailure);
 			} catch (UnsupportedAudioFileException | IOException e) {
-				GUILogger.log(Level.WARNING, LOG_AUDIO_FAILED_TO_STREAM);
+				GUILogger.log(Level.WARNING, e.getMessage());
 				e.printStackTrace();
 			}
+			return ais;
+		}
+
+		/**
+		 * Opens the success audio clip
+		 */
+		private void openSuccessClip() {
+			AudioInputStream ais = null;
+			ais = initSuccessAudioStream(ais);
+			openSuccessAudioStream(ais);
+		}
+
+		/**
+		 * Opens the success audio stream
+		 * 
+		 * @param ais
+		 *            Stream to be assigned
+		 */
+		private void openSuccessAudioStream(AudioInputStream ais) {
 			try {
 				_successClip.open(ais);
 			} catch (LineUnavailableException e) {
@@ -305,6 +363,27 @@ public class GUI implements ActionListener {
 			}
 		}
 
+		/**
+		 * Initializes the Success audio stream
+		 * 
+		 * @param ais
+		 *            Stream to be assigned
+		 * 
+		 * @return the initialized stream
+		 */
+		private AudioInputStream initSuccessAudioStream(AudioInputStream ais) {
+			try {
+				ais = AudioSystem.getAudioInputStream(_urlSuccess);
+			} catch (UnsupportedAudioFileException | IOException e) {
+				GUILogger.log(Level.WARNING, LOG_AUDIO_FAILED_TO_STREAM);
+				e.printStackTrace();
+			}
+			return ais;
+		}
+
+		/**
+		 *	Sets up the audio clips 
+		 */
 		private void setUpAudioClips() {
 			try {
 				_urlSuccess = new URL(FILE_SRC_SOUND_SUCCESS_WAV);
@@ -318,10 +397,16 @@ public class GUI implements ActionListener {
 			}
 		}
 
+		/**
+		 * Enables audio
+		 */
 		protected void enable() {
 			AUDIO_ENABLED = true;
 		}
 
+		/**
+		 * Plays the success audio
+		 */
 		protected void playSuccess() {
 			if (AUDIO_ENABLED) {
 				_successClip.setFramePosition(_successClip.getFrameLength());
@@ -330,6 +415,9 @@ public class GUI implements ActionListener {
 			}
 		}
 
+		/**
+		 * Plays the failure audio
+		 */
 		protected void playFailure() {
 			if (AUDIO_ENABLED) {
 				_failureClip.setFramePosition(_failureClip.getFrameLength());
@@ -338,6 +426,9 @@ public class GUI implements ActionListener {
 			}
 		}
 
+		/**
+		 * Disables audio
+		 */
 		protected void disable() {
 			AUDIO_ENABLED = false;
 		}
