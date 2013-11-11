@@ -31,6 +31,7 @@ public class SystemTesting {
 
 	@Test
 	// Test to check edge case of all tasks cleared after adding two task
+	// @author A0098219
 	public void checkClearCommandAfterAdd() {
 
 		// Add task
@@ -66,7 +67,7 @@ public class SystemTesting {
 
 		timedTasks = displayState.getTimedTasks();
 		assertTrue(timedTasks.isEmpty());
-		
+
 		// Run Clear
 		displayState = handler.handleInput("clear");
 
@@ -107,7 +108,8 @@ public class SystemTesting {
 		// Checks whether the feedback send to the GUI is correct
 		State displayState = handler
 				.handleInput("add complete V0.3 by 05/10/2013 #CS2103");
-		assertEquals("added new deadline task: complete V0.3", displayState.getFeedback().getDisplay());
+		assertEquals("added new deadline task: complete V0.3", displayState
+				.getFeedback().getDisplay());
 
 		// Checks whether the task description stored in the state is correct
 		String taskDes = displayState.getDeadlineTasks().last()
@@ -127,7 +129,8 @@ public class SystemTesting {
 
 		// Checks if the hashtags stored in the task object in the state are
 		// correct
-		assert(displayState.getDeadlineTasks().last().getTags().contains("CS2103"));
+		assert (displayState.getDeadlineTasks().last().getTags()
+				.contains("CS2103"));
 
 	}
 
@@ -138,7 +141,8 @@ public class SystemTesting {
 		// Checks whether the feedback send to the GUi is correct
 		State displayState2 = handler
 				.handleInput("add read a book #hobby #interest ");
-		assertEquals("added new floating task: read a book", displayState2.getFeedback().getDisplay());
+		assertEquals("added new floating task: read a book", displayState2
+				.getFeedback().getDisplay());
 
 		// Checks whether the task description stored in the state is correct
 		String taskDes = displayState2.getFloatingTasks().last()
@@ -147,14 +151,14 @@ public class SystemTesting {
 
 		// Checks if the hashtags stored in the task object in the state are
 		// correct
-		assert(displayState2.getFloatingTasks().last().getTags().contains("hobby"));
+		assert (displayState2.getFloatingTasks().last().getTags()
+				.contains("hobby"));
 
-		assert(displayState2.getFloatingTasks().last().getTags().contains("interest"));
+		assert (displayState2.getFloatingTasks().last().getTags()
+				.contains("interest"));
 
 	}
 
-	
-	
 	// Test to check if adding of a timed task works
 	@Test
 	public void addTimedTest() throws ParseException {
@@ -162,7 +166,8 @@ public class SystemTesting {
 		// Checks whether the feedback send to the GUi is correct
 		State displayState3 = handler
 				.handleInput("add attend seminar from 2/12/2013 to 5/12/2013 #work");
-		assertEquals("added new timed task: attend seminar", displayState3.getFeedback().getDisplay());
+		assertEquals("added new timed task: attend seminar", displayState3
+				.getFeedback().getDisplay());
 
 		// Checks whether the task description stored in the state is correct
 		String taskDes = displayState3.getTimedTasks().last()
@@ -190,13 +195,10 @@ public class SystemTesting {
 
 		// Checks if the hashtags stored in the task object in the state are
 		// correct
-		assert(displayState3.getTimedTasks().last().getTags().contains("work"));
+		assert (displayState3.getTimedTasks().last().getTags().contains("work"));
 
 	}
 
-	
-	
-	
 	// Test to check if the feedback sent to the user for invalid command is
 	// correct
 	@Test
@@ -208,9 +210,6 @@ public class SystemTesting {
 
 	}
 
-	
-	
-	
 	@After
 	public void restoreState() {
 		try {

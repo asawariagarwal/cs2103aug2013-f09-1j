@@ -8,7 +8,7 @@ import java.util.TreeSet;
 /**
 	 * Subclass to encapsulate Deadline based tasks
 	 * 
-	 * @author Karan
+	 * @author A0098219
 	 * 
 	 */
 	class DeadlineTask extends Task implements Comparable<DeadlineTask> {
