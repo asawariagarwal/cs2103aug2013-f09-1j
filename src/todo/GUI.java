@@ -73,14 +73,6 @@ import org.apache.commons.io.IOUtils;
 
 import java.awt.GridLayout;
 
-
-
-
-
-
-
-
-
 import com.dstjacques.jhotkeys.JHotKeys;
 import com.dstjacques.jhotkeys.JHotKeyListener;
 import com.melloware.jintellitype.JIntellitype;
@@ -197,7 +189,6 @@ public class GUI implements ActionListener {
 	 * Audio feedback class
 	 */
 	private static AudioFeedBack _audio;
-	
 
 	/**
 	 * Class for custom scroll bar implementation
@@ -422,12 +413,10 @@ public class GUI implements ActionListener {
 		 */
 		private void setUpAudioClips() {
 			try {
-				_urlSuccess =
-						new BufferedInputStream 
-						(GUI.class.getResourceAsStream(FILE_SRC_SOUND_SUCCESS_WAV));
-				_urlFailure =
-						new BufferedInputStream 
-						(GUI.class.getResourceAsStream(FILE_SRC_SOUND_FAILURE_WAV));
+				_urlSuccess = new BufferedInputStream(GUI.class
+						.getResourceAsStream(FILE_SRC_SOUND_SUCCESS_WAV));
+				_urlFailure = new BufferedInputStream(GUI.class
+						.getResourceAsStream(FILE_SRC_SOUND_FAILURE_WAV));
 				_successClip = AudioSystem.getClip();
 				_failureClip = AudioSystem.getClip();
 				GUILogger.log(Level.INFO, LOG_AUDIO_SET_UP_IS_SUCCESSFUL);
@@ -796,7 +785,7 @@ public class GUI implements ActionListener {
 	private String HELP_PROMPT = "\nFeeling Lost?\nTry keying in 'help'";
 	private SimpleAttributeSet completedAttributes;
 	private SimpleAttributeSet expiredAttributes;
-
+	private static GUI _runningGUI;
 	/**
 	 * Logger for the GUI
 	 */
@@ -810,8 +799,8 @@ public class GUI implements ActionListener {
 			@Override
 			public void run() {
 				try {
-					GUI window = GUIFactory.getInstance();
-					window._frmTodo.setVisible(true);
+					_runningGUI = GUIFactory.getInstance();
+					_runningGUI._frmTodo.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -820,9 +809,29 @@ public class GUI implements ActionListener {
 	}
 
 	/**
+	 * Class to return a static instance of the GUI class
+	 * 
+	 * @author Karan
+	 * 
+	 */
+	public static class GUIFactory {
+		/**
+		 * Routine to return a static instance of a GUI class
+		 * 
+		 * @return a static instance of a GUI class
+		 */
+		public static GUI getInstance() {
+			if (_runningGUI == null) {
+				return new GUI();
+			}
+			return _runningGUI;
+		}
+	}
+
+	/**
 	 * Create the application.
 	 */
-	public GUI() {
+	private GUI() {
 		GUILogger.log(Level.INFO, LOG_GUI_SETTING_UP);
 
 		_handler = new CommandHandler();
@@ -857,9 +866,9 @@ public class GUI implements ActionListener {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-	
+
 		_scrolledTop = false;
-		
+
 		initMainWindow();
 
 		setUpAttributes();
@@ -986,23 +995,23 @@ public class GUI implements ActionListener {
 		};
 		_shortcutKey.addHotKeyListener(hotkeyListener);
 	}
-	
-	private void writeDllToDisk(String name) {
-	    InputStream in = GUI.class.getResourceAsStream(name);
-	    
-	    File fileOut = new File(DISK_LOCATION + name);
 
-        OutputStream out;
+	private void writeDllToDisk(String name) {
+		InputStream in = GUI.class.getResourceAsStream(name);
+
+		File fileOut = new File(DISK_LOCATION + name);
+
+		OutputStream out;
 		try {
 			out = FileUtils.openOutputStream(fileOut);
-	        IOUtils.copy(in, out);
-	        in.close();
-	        out.close();
-		    
+			IOUtils.copy(in, out);
+			in.close();
+			out.close();
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			GUILogger.log(Level.WARNING,"Unable to write DLL to disk");
+			GUILogger.log(Level.WARNING, "Unable to write DLL to disk");
 		}
 
 	}
@@ -1010,7 +1019,8 @@ public class GUI implements ActionListener {
 	private void setUpJIntellitype() {
 		writeDllToDisk(LIB_PATH_WINDOWS_J_INTELLITYPE_DLL);
 		writeDllToDisk(FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL);
-		JIntellitype.setLibraryLocation(DISK_LOCATION + LIB_PATH_WINDOWS_J_INTELLITYPE_DLL);
+		JIntellitype.setLibraryLocation(DISK_LOCATION
+				+ LIB_PATH_WINDOWS_J_INTELLITYPE_DLL);
 		try {
 			_shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
 		} catch (Exception e) {
@@ -1018,8 +1028,8 @@ public class GUI implements ActionListener {
 					LOG_ATTEMPTING_TO_USE_64_BIT_DLL_AS_32_BIT_FAILED);
 			GUILogger.log(Level.WARNING, LOG_ERROR + e.getMessage()
 					+ LOG_ATTEMPTING_RESOLUTION);
-			JIntellitype
-					.setLibraryLocation(DISK_LOCATION + FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL);
+			JIntellitype.setLibraryLocation(DISK_LOCATION
+					+ FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL);
 		}
 	}
 
@@ -1093,18 +1103,19 @@ public class GUI implements ActionListener {
 		GUILogger.log(Level.INFO, LOG_ATTEMPTING_TO_ENABLE_SYSTRAY_SUPPORT);
 		if (SystemTray.isSupported()) {
 			_systemTray = SystemTray.getSystemTray();
-			InputStream picStream = GUI.class.getResourceAsStream(PATH_TO_SYSTRAY_IMAGE);
+			InputStream picStream = GUI.class
+					.getResourceAsStream(PATH_TO_SYSTRAY_IMAGE);
 			BufferedInputStream in = new BufferedInputStream(picStream);
 			try {
 				_trayImage = ImageIO.read(in);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				GUILogger.log(Level.WARNING,"Image could not be loaded");
+				GUILogger.log(Level.WARNING, "Image could not be loaded");
 				e.printStackTrace();
 			}
-			//_trayImage = Toolkit.getDefaultToolkit().getImage(
-					//GUI.class.getRe);
-			
+			// _trayImage = Toolkit.getDefaultToolkit().getImage(
+			// GUI.class.getRe);
+
 			_menu = new PopupMenu();
 
 			populateSysTrayMenu();
@@ -1690,7 +1701,7 @@ public class GUI implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		_currentDateTimeArea.setText(getCurrentDisplayTime());
-		if(!_scrolledTop) {
+		if (!_scrolledTop) {
 			scrollToTop();
 			_scrolledTop = true;
 		}
