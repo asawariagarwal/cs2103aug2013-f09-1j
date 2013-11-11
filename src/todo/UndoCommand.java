@@ -3,16 +3,18 @@ package todo;
 /**
  * Subclass to encapsulate undo/redo commands
  * 
- * @author Eugene
+ * @author A0097199H
  * 
  */
 public class UndoCommand extends Command {
 	private static final String FEEDBACK_UNDO_NONE = "undo cannot be performed";
 	private static final String FEEDBACK_UNDO_SINGLE = "undo last command";
 	private static final String FEEDBACK_UNDO_MULTIPLE = "undo last %1$s commands";
+	private static final String FEEDBACK_MAX_UNDO = "no commands left to undo";
 	private static final String FEEDBACK_REDO_NONE = "redo cannot be performed";
 	private static final String FEEDBACK_REDO_SINGLE = "redo last command";
 	private static final String FEEDBACK_REDO_MULTIPLE = "redo last %1$s commands";
+	private static final String FEEDBACK_MAX_REDO = "no commands left to redo";
 	
 	private int n;
 	private boolean redo;
@@ -86,13 +88,20 @@ public class UndoCommand extends Command {
 			currentState = currentState.getPrevious();
 			done++;
 		}
+		String feedback;
 		if (done == 0) {
-			currentState.setFeedback(new Feedback(FEEDBACK_UNDO_NONE,false));
+			currentState.setFeedback(new Feedback(FEEDBACK_UNDO_NONE, false));
+			return currentState;
 		} else if (done == 1) {
-			currentState.setFeedback(new Feedback(FEEDBACK_UNDO_SINGLE,true));
+			feedback = FEEDBACK_UNDO_SINGLE;
 		} else {
-			currentState.setFeedback(new Feedback(String.format(FEEDBACK_UNDO_MULTIPLE, String.valueOf(done)),true));
+			feedback = String.format(FEEDBACK_UNDO_MULTIPLE, String.valueOf(done));
 		}
+		if (done < n) {
+			feedback += System.lineSeparator();
+			feedback += FEEDBACK_MAX_UNDO;
+		}
+		currentState.setFeedback(new Feedback(feedback, true));
 		return currentState;
 	}
 	
@@ -114,13 +123,20 @@ public class UndoCommand extends Command {
 			currentState = currentState.getNext();
 			done++;
 		}
+		String feedback;
 		if (done == 0) {
 			currentState.setFeedback(new Feedback(FEEDBACK_REDO_NONE,false));
+			return currentState;
 		} else if (done == 1) {
-			currentState.setFeedback(new Feedback(FEEDBACK_REDO_SINGLE,true));
+			feedback = FEEDBACK_REDO_SINGLE;
 		} else {
-			currentState.setFeedback(new Feedback(String.format(FEEDBACK_REDO_MULTIPLE, String.valueOf(done)),true));
+			feedback = String.format(FEEDBACK_REDO_MULTIPLE, String.valueOf(done));
 		}
+		if (done < n) {
+			feedback += System.lineSeparator();
+			feedback += FEEDBACK_MAX_REDO;
+		}
+		currentState.setFeedback(new Feedback(feedback, true));
 		return currentState;
 	}
 }
