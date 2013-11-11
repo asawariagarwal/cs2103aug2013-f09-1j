@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author Asawari
+ * @author A0098167N
  *
  */
 public class InterpreterTest {
