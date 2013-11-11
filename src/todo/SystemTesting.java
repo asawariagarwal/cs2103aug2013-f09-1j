@@ -13,6 +13,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * @author A0098167N
+ *
+ */
 public class SystemTesting {
 
 	CommandHandler handler;
@@ -102,6 +106,7 @@ public class SystemTesting {
 	}
 
 	// Test to check if adding of a deadline task works
+	// @author A0098127N
 	@Test
 	public void addDeadlineTest() throws ParseException {
 
