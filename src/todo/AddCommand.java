@@ -5,7 +5,7 @@ import java.util.logging.*;
 /**
  * Subclass to encapsulate add commands
  * 
- * @author Eugene
+ * @author A0097199H
  * 
  */	
 public class AddCommand extends Command {
@@ -106,6 +106,7 @@ public class AddCommand extends Command {
 		State s = new State(state);
 		
 		if (hasDuplicateTask(state, task)) {
+			logger.log(Level.INFO, LOG_DUPLICATE);
 			Feedback f = new Feedback(FEEDBACK_DUPLICATE, false);
 			s.setFeedback(f);
 			return s;

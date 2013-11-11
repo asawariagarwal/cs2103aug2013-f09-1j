@@ -12,7 +12,7 @@ import java.util.logging.*;
  * 				UndoCommand,
  * 				SearchCommand
  * 
- * @author Eugene
+ * @author A0097199H
  * 
  */
 abstract class Command {
