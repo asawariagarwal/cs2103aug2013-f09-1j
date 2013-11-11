@@ -361,8 +361,8 @@ public class Interpreter {
 				if(populateHashtags(hashtags)==0)
 					return null;
 
-				DeadlineTask TaskObj = new DeadlineTask(TaskDes, hashtags, deadline);
-				AddCommand command = new AddCommand(TaskObj);
+				DeadlineTask taskObj = new DeadlineTask(TaskDes, hashtags, deadline);
+				AddCommand command = new AddCommand(taskObj);
 
 				return command;
 
@@ -440,8 +440,8 @@ public class Interpreter {
 		if(populateHashtags(hashtags)==0)
 			return null;
 
-		FloatingTask TaskObj = new FloatingTask(TaskDes, hashtags);
-		AddCommand command = new AddCommand(TaskObj);
+		FloatingTask taskObj = new FloatingTask(TaskDes, hashtags);
+		AddCommand command = new AddCommand(taskObj);
 		return command;
 	}
 
@@ -1489,11 +1489,11 @@ public class Interpreter {
 	 * @throws Exception
 	 */
 
-	public Calendar isValid(String Date_str)throws Exception {
+	public Calendar isValid(String dateStr)throws Exception {
 		try{
-			Date_str=manipulateDate(Date_str);
+			dateStr=manipulateDate(dateStr);
 			Parser parser = new Parser();
-			List<DateGroup> groups = parser.parse(Date_str);
+			List<DateGroup> groups = parser.parse(dateStr);
 			if(groups.isEmpty()){
 				return null;
 			}
