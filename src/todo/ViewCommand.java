@@ -10,7 +10,7 @@ import todo.Feedback;
 /**
  * Subclass to encapsulate view commands
  * 
- * @author Eugene
+ * @author A0097199H
  * 
  */
 public class ViewCommand extends Command {
@@ -303,6 +303,8 @@ public class ViewCommand extends Command {
 	 * @param state
 	 *            current state of program
 	 * @return state after executing command
+	 * 
+	 * @author Karan
 	 */
 	private State executeViewDate(State state) {
 		State s = new State();
@@ -473,25 +475,15 @@ public class ViewCommand extends Command {
 	 * @param state
 	 *            current state of program
 	 * @return state after executing command
+	 * 
+	 * @author A0097199H
 	 */
 	private State executeViewTag(State state) {
 		State s = new State();
-		TreeSet<DeadlineTask> deadline = state.getDeadlineTasks();
-		TreeSet<TimedTask> timed = state.getTimedTasks();
-		TreeSet<FloatingTask> floating = state.getFloatingTasks();
-		for (DeadlineTask cur : deadline) {
-			if (cur.hasTag(tag)) {
-				s.addTask(cur);
-			}
-		}
-		for (TimedTask cur : timed) {
-			if (cur.hasTag(tag)) {
-				s.addTask(cur);
-			}
-		}
-		for (FloatingTask cur : floating) {
-			if (cur.hasTag(tag)) {
-				s.addTask(cur);
+		ArrayList<Task> tasks = state.getAllTasks();
+		for (Task t : tasks) {
+			if (t.hasTag(tag)) {
+				s.addTask(t);
 			}
 		}
 		s.setFeedback(new Feedback(String.format(FEEDBACK_VIEW_TAG, tag), true));

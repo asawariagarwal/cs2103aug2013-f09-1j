@@ -5,7 +5,7 @@ import java.util.logging.*;
 /**
  * Subclass to encapsulate delete commands
  * 
- * @author Eugene
+ * @author A0097199H
  * 
  */
 public class DeleteCommand extends Command {
@@ -130,6 +130,25 @@ public class DeleteCommand extends Command {
 	 * @return state after execution
 	 */
 	protected State executeByIndex(State state, State displayState) throws Exception {
+		Task task = getTaskByIndex(displayState);
+		if (task == null) {
+			return makeErrorState(displayState, new Feedback(FEEDBACK_BAD_INDEX, false));
+		}
+		State s = new State(state);
+		s.removeTask(task);
+		s.setFeedback(new Feedback(String.format(FEEDBACK_DELETED, task.getTaskDescription()),true));
+		return s;
+	}
+	
+	/**
+	 * Retrieves a task by its index
+	 * 
+	 * @param displayState
+	 * 			display state of the program
+	 * 
+	 * @return task with given index
+	 */
+	private Task getTaskByIndex(State displayState) throws Exception {
 		TreeSet<? extends Task> tasks;
 		if (indexType == INDEX_FLOATING) {
 			tasks = displayState.getFloatingTasks();
@@ -138,23 +157,20 @@ public class DeleteCommand extends Command {
 		} else if (indexType == INDEX_DEADLINE) {
 			tasks = displayState.getDeadlineTasks();
 		} else {
+			logger.log(Level.WARNING, LOG_ERROR);
 			throw new Exception();
 		}
 		
 		int i = 1;
-		State s = new State(state);
-		for (Task t : tasks) {
+		for (Task task : tasks) {
 			if (i > indexPos) {
-				break;
+				return null;
 			} else if (i == indexPos) {
-				s.removeTask(t);
-				Feedback f = new Feedback(String.format(FEEDBACK_DELETED, t.getTaskDescription()),true);
-				s.setFeedback(f);
-				return s;
+				return task;
 			}
 			i++;
 		}
-		return makeErrorState(displayState, new Feedback(FEEDBACK_BAD_INDEX, false));
+		return null;
 	}
 
 	/**

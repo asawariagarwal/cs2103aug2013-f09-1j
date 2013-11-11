@@ -8,10 +8,14 @@ import java.io.IOException;
  * A Command would be returned and this will check whether the Command is valid.
  * If valid, Command will be executed, and a new State will be returned.
  * 
- * @author Eugene
+ * @author A0097199H
  *
  */
 class CommandHandler {
+	
+	private static final String FEEDBACK_CORRUPTED = "corrupted Previous State";
+	private static final String FEEDBACK_EXECUTE_ERROR = "error encountered executing command";
+	private static final String FEEDBACK_INVALID_COMMAND = "invalid command";
 	
 	private Interpreter interpreter;
 	private State state;
@@ -74,14 +78,14 @@ class CommandHandler {
 			try {
 				newState = command.execute(getCurrentState(), getDisplayState());
 			} catch (Exception e) {
-				return makeInvalidState(new Feedback("Error encountered executing command",false));
+				return makeInvalidState(new Feedback(FEEDBACK_EXECUTE_ERROR, false));
 			}
 			if (command.isMutator()) {
 				handleMutator(command, newState);
 			}
 			return newState;
 		} else {
-			return makeInvalidState(new Feedback("Invalid command",false));
+			return makeInvalidState(new Feedback(FEEDBACK_INVALID_COMMAND, false));
 		}
 	}
 	
@@ -179,8 +183,8 @@ class CommandHandler {
 			initState = store.readStore();
 			return initState;
 		} catch (Exception e) {
-			initState.setFeedback(new Feedback("Corrupted Previous State",false));
+			initState.setFeedback(new Feedback(FEEDBACK_CORRUPTED,false));
 			return initState;
 		}
-	}	
+	}
 }

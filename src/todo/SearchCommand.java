@@ -7,7 +7,7 @@ import java.util.logging.*;
 /**
  * Subclass to encapsulate search commands
  * 
- * @author Eugene
+ * @author A0097199H
  * 
  */
 public class SearchCommand extends Command {
@@ -79,7 +79,7 @@ public class SearchCommand extends Command {
 		this.includedTags = includedTags;
 		this.excludedTags = excludedTags;
 		this.date = date;
-		setTime(this.date, 0, 0, 0, 0);
+		setStartTime(this.date);
 	}
 	
 	/**
@@ -114,8 +114,8 @@ public class SearchCommand extends Command {
 		this.excludedTags = excludedTags;
 		this.startDate = startDate;
 		this.endDate = endDate;
-		setTime(this.startDate, 0, 0, 0, 0);
-		setTime(this.endDate, 23, 59, 59, 999);
+		setStartTime(this.startDate);
+		setEndTime(this.endDate);
 	}
 	
 	@Override
@@ -195,120 +195,252 @@ public class SearchCommand extends Command {
 		}
 	}
 	
+	/**
+	 * Remove tasks that do not contain included words
+	 * 
+	 * @param tasks
+	 * 			list of remaining search results
+	 */
 	private void removeIncludedWords(ArrayList<Task> tasks) {
+		if (tasks.isEmpty()) {
+			return;
+		}
 		for (String word : includedWords) {
-			int i = 0;
-			while (i<tasks.size()) {
-				Task task = tasks.get(i);
-				if (task.getTaskDescription().indexOf(word) == -1) {
-					tasks.remove(i);
-				} else {
-					i++;
-				}
+			removeIncludedWord(tasks, word);
+		}
+	}
+	
+	/**
+	 * Checks tasks for word and remove those without word
+	 * 
+	 * @param tasks
+	 * 			remaining search results
+	 * @param word
+	 * 			search keyword
+	 */
+	private void removeIncludedWord(ArrayList<Task> tasks, String word) {
+		int i = 0;
+		while (i<tasks.size()) {
+			Task task = tasks.get(i);
+			if (task.getTaskDescription().indexOf(word) == -1) {
+				tasks.remove(i);
+			} else {
+				i++;
 			}
 		}
 	}
 	
+	/**
+	 * Remove tasks that contain excluded words
+	 * 
+	 * @param tasks
+	 * 			list of remaining search results
+	 */
 	private void removeExcludedWords(ArrayList<Task> tasks) {
+		if (tasks.isEmpty()) {
+			return;
+		}
 		for (String word : excludedWords) {
-			int i = 0;
-			while (i<tasks.size()) {
-				Task task = tasks.get(i);
-				if (task.getTaskDescription().indexOf(word) != -1) {
-					tasks.remove(i);
-				} else {
-					i++;
-				}
+			removeExcludedWord(tasks, word);
+		}
+	}
+	
+	/**
+	 * Checks tasks for word and remove those with word
+	 * 
+	 * @param tasks
+	 * 			remaining search results
+	 * @param word
+	 * 			search keyword
+	 */
+	private void removeExcludedWord(ArrayList<Task> tasks, String word) {
+		int i = 0;
+		while (i<tasks.size()) {
+			Task task = tasks.get(i);
+			if (task.getTaskDescription().indexOf(word) != -1) {
+				tasks.remove(i);
+			} else {
+				i++;
 			}
 		}
 	}
 	
+	/**
+	 * Remove tasks that do not contain included tags
+	 * 
+	 * @param tasks
+	 * 			list of remaining search results
+	 */
 	private void removeIncludedTags(ArrayList<Task> tasks) {
+		if (tasks.isEmpty()) {
+			return;
+		}
 		for (String tag : includedTags) {
-			int i = 0;
-			while (i<tasks.size()) {
-				Task task = tasks.get(i);
-				if (!task.hasTag(tag)) {
-					tasks.remove(i);
-				} else {
-					i++;
-				}
+			removeIncludedTag(tasks, tag);
+		}
+	}
+	
+	/**
+	 * Checks tasks for tag and remove those without tag
+	 * 
+	 * @param tasks
+	 * 			remaining search results
+	 * @param tag
+	 * 			search tag
+	 */
+	private void removeIncludedTag(ArrayList<Task> tasks, String tag) {
+		int i = 0;
+		while (i<tasks.size()) {
+			Task task = tasks.get(i);
+			if (!task.hasTag(tag)) {
+				tasks.remove(i);
+			} else {
+				i++;
 			}
 		}
 	}
 	
+	/**
+	 * Remove tasks that contain excluded tags
+	 * 
+	 * @param tasks
+	 * 			list of remaining search results
+	 */
 	private void removeExcludedTags(ArrayList<Task> tasks) {
+		if (tasks.isEmpty()) {
+			return;
+		}
 		for (String tag : excludedTags) {
-			int i = 0;
-			while (i<tasks.size()) {
-				Task task = tasks.get(i);
-				if (task.hasTag(tag)) {
-					tasks.remove(i);
-				} else {
-					i++;
-				}
+			removeExcludedTag(tasks, tag);
+		}
+	}
+	
+	/**
+	 * Checks tasks for tag and remove those with tag
+	 * 
+	 * @param tasks
+	 * 			remaining search results
+	 * @param tag
+	 * 			search tag
+	 */
+	private void removeExcludedTag(ArrayList<Task> tasks, String tag) {
+		int i = 0;
+		while (i<tasks.size()) {
+			Task task = tasks.get(i);
+			if (!task.hasTag(tag)) {
+				tasks.remove(i);
+			} else {
+				i++;
 			}
 		}
 	}
 	
+	/**
+	 * Remove tasks not on date
+	 * 
+	 * @param tasks
+	 * 			remaining search results
+	 */
 	private void removeDate(ArrayList<Task> tasks) {
 		int i = 0;
 		while (i<tasks.size()) {
 			Task task = tasks.get(i);
+			boolean toRemove = false;
 			if (task instanceof DeadlineTask) {
-				DeadlineTask deadline = (DeadlineTask) task;
-				Calendar tempDate = Calendar.getInstance();
-				tempDate.setTimeInMillis(deadline.getDeadline().getTimeInMillis());
-				setTime(tempDate, 0, 0, 0, 0);
-				if (tempDate.getTimeInMillis() != date.getTimeInMillis()) {
-					tasks.remove(i);
-				} else {
-					i++;
-				}
+				toRemove = !isSameDate((DeadlineTask) task);
 			} else if (task instanceof TimedTask) {
-				TimedTask timed = (TimedTask) task;
-				Calendar tempStartDate = Calendar.getInstance();
-				Calendar tempEndDate = Calendar.getInstance();
-				tempStartDate.setTimeInMillis(timed.getStartDate().getTimeInMillis());
-				setTime(tempStartDate, 0, 0, 0, 0);
-				tempEndDate.setTimeInMillis(timed.getEndDate().getTimeInMillis());
-				setTime(tempEndDate, 23, 59, 59, 999);
-				if (tempStartDate.compareTo(date) > 0 ||
-						tempEndDate.compareTo(date) < 0) {
-					tasks.remove(i);
-				} else {
-					i++;
-				}
+				toRemove = !isSameDate((TimedTask) task);
+			} else {
+				toRemove = false;
+			}
+			if (toRemove) {
+				tasks.remove(i);
 			} else {
 				i++;
 			}
 		}
 	}
 	
+	/**
+	 * Checks if deadline task is same date as search date
+	 * 
+	 * @param task
+	 * 			deadline task to be compared
+	 * @return true if same date, false otherwise
+	 */
+	private boolean isSameDate(DeadlineTask task) {
+		Calendar tempDate = Calendar.getInstance();
+		tempDate.setTimeInMillis(task.getDeadline().getTimeInMillis());
+		setStartTime(tempDate);
+		return (tempDate.getTimeInMillis() == date.getTimeInMillis());
+	}
+	
+	/**
+	 * Checks if timed task is same date as search date
+	 * 
+	 * @param task
+	 * 			timed task to be compared
+	 * @return true if same date, false otherwise
+	 */
+	private boolean isSameDate(TimedTask task) {
+		Calendar tempStartDate = Calendar.getInstance();
+		Calendar tempEndDate = Calendar.getInstance();
+		tempStartDate.setTimeInMillis(task.getStartDate().getTimeInMillis());
+		setStartTime(tempStartDate);
+		tempEndDate.setTimeInMillis(task.getEndDate().getTimeInMillis());
+		setEndTime(tempEndDate);
+		return (tempStartDate.compareTo(date) <= 0 &&
+				tempEndDate.compareTo(date) >= 0);
+	}
+	
+	/**
+	 * Remove tasks not within interval
+	 * 
+	 * @param tasks
+	 * 			remaining search results
+	 */
 	private void removeInterval(ArrayList<Task> tasks) {
 		int i = 0;
 		while (i<tasks.size()) {
 			Task task = tasks.get(i);
+			boolean toRemove = false;
 			if (task instanceof DeadlineTask) {
-				DeadlineTask deadline = (DeadlineTask) task;
-				if (startDate.compareTo(deadline.getDeadline()) > 0 ||
-						endDate.compareTo(deadline.getDeadline()) < 0) {
-					tasks.remove(i);
-				} else {
-					i++;
-				}
+				toRemove = !isWithinInterval((DeadlineTask) task);
 			} else if (task instanceof TimedTask) {
-				TimedTask timed = (TimedTask) task;
-				if (endDate.compareTo(timed.getStartDate()) < 0 ||
-						startDate.compareTo(timed.getEndDate()) > 0) {
-					tasks.remove(i);
-				} else {
-					i++;
-				}
+				toRemove = !isWithinInterval((TimedTask) task);
+			} else {
+				toRemove = false;
+			}
+			if (toRemove) {
+				tasks.remove(i);
 			} else {
 				i++;
 			}
 		}
+	}
+	
+	/**
+	 * Checks if deadline task is within search interval
+	 * 
+	 * @param task
+	 * 			deadline task to be compared
+	 * @return true if within interval, false otherwise
+	 */
+	private boolean isWithinInterval(DeadlineTask task) {
+		return (startDate.compareTo(task.getDeadline()) <= 0 &&
+				endDate.compareTo(task.getDeadline()) >= 0);
+	}
+	
+	/**
+	 * Checks if timed task is within search interval
+	 * 
+	 * @param task
+	 * 			timed task to be compared
+	 * @return true if within interval, false otherwise
+	 */
+	private boolean isWithinInterval(TimedTask task) {
+		return (endDate.compareTo(task.getStartDate()) >= 0 &&
+				startDate.compareTo(task.getEndDate()) <= 0);
 	}
 	
 	/**
@@ -330,5 +462,25 @@ public class SearchCommand extends Command {
 		calObj.set(Calendar.MINUTE, m);
 		calObj.set(Calendar.SECOND, s);
 		calObj.set(Calendar.MILLISECOND, ms);
+	}
+	
+	/**
+	 * Sets time of calendar to 00:00:00:000
+	 * 
+	 * @param calObj
+	 * 			calendar obj to be set
+	 */
+	private void setStartTime(Calendar calObj) {
+		setTime(calObj, 0, 0, 0, 0);
+	}
+	
+	/**
+	 * Sets time of calendar to 23:59:59:999
+	 * 
+	 * @param calObj
+	 * 			calendar obj to be set
+	 */
+	private void setEndTime(Calendar calObj) {
+		setTime(calObj, 23, 59, 59, 999);
 	}
 }
