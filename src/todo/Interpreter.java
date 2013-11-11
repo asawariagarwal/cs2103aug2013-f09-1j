@@ -28,6 +28,35 @@ import todo.ModifyCommand;
 public class Interpreter {
 
 	/**
+	 * Error message
+	 */
+	private static final String NO_CLASS_DEF_FOUND_ERROR = "NoClassDefFoundError: ";
+	/**
+	 * Index references
+	 */
+	private static final char INDEX_FLEXIBLE = 'f';
+	private static final char INDEX_DEADLINES = 'd';
+	private static final char INDEX_EVENTS = 'e';
+
+	/**
+	 * Log messages
+	 */
+	private static final String LOGGER_COMPLETE_REDO = "Interpretation Complete:REDO";
+	private static final String LOGGER_COMPLETE_UNDO = "Interpretation Complete:UNDO";
+	private static final String LOGGER_COMPLETE_UNTAG = "Interpretation Complete:UNTAG";
+	private static final String LOGGER_COMPLETE_TAG = "Interpretation Complete:TAG";
+	private static final String LOGGER_COMPLETE_UNMARK = "Interpretation Complete:UNMARK";
+	private static final String LOGGER_COMPLETE_MARK = "Interpretation Complete:MARK";
+	private static final String LOGGER_COMPLETE_SEARCH = "Interpretation Complete:SEARCH";
+	private static final String LOGGER_COMPLETE_RESCEDULE = "Interpretation Complete:RESCEDULE";
+	private static final String LOGGER_COMPLETE_CHANGE = "Interpretation Complete:CHANGE";
+	private static final String LOGGER_COMPLETE_CLEAR = "Interpretation Complete:CLEAR";
+    private static final String LOGGER_COMPLETE_DELETE = "Interpretation Complete:DELETE";
+	private static final String LOGGER_COMPLETE_VIEW = "Interpretation Complete:VIEW";
+	private static final String LOGGER_COMPLETE_INVALID = "Interpretation Complete:INVALID";
+	private static final String LOGGER_COMPLETE_ADD = "Interpretation Complete:ADD";
+
+	/**
 	 * Logger for Interpreter
 	 */
 	protected static Logger interpreterLogger = Logger.getLogger("Interpreter");
@@ -137,37 +166,37 @@ public class Interpreter {
 				AddCommand addObj;
 				addObj = parseAdd();
 				if(addObj!=null){
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:ADD");
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_ADD);
 				}else{
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");	
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_INVALID);	
 				}return addObj;
 
 			case VIEW:
 				ViewCommand viewObj;
 				viewObj = parseView();
 				if(viewObj!=null){
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:VIEW");
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_VIEW);
 				}else{
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");	
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_INVALID);	
 				}return viewObj;
 
 			case DELETE:
 				DeleteCommand delObj;
 				delObj = parseDelete();
 				if(delObj!=null){
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:DELETE");}
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_DELETE);}
 				else{
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");	
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_INVALID);	
 				}return delObj;
 
 			case CLEAR:
 				ClearCommand clrObj;
 				clrObj = parseClear();
 				if(clrObj!=null){
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:CLEAR");
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_CLEAR);
 				}
 				else{
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");	
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_INVALID);	
 				}return clrObj;
 
 
@@ -175,81 +204,81 @@ public class Interpreter {
 				ModifyCommand modObj;
 				modObj = parseChange();
 				if(modObj!=null){
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:CHANGE");
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_CHANGE);
 				}else{
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");	
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_INVALID);	
 				}return modObj;
 
 			case RESCHEDULE:
 				ModifyCommand resObj;
 				resObj = parseReschedule();
 				if(resObj!=null){
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:RESCEDULE");
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_RESCEDULE);
 				}else{
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");	
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_INVALID);	
 				}return resObj;
 
 			case SEARCH:
 				SearchCommand searchObj;
 				searchObj = parseSearch();
 				if(searchObj!=null){
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:SEARCH");
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_SEARCH);
 				}else{
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");	
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_INVALID);	
 				}return searchObj;
 
 			case MARK:
 				ModifyCommand markObj;
 				markObj = parseMark();
 				if(markObj!=null){
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:MARK");
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_MARK);
 				}else{
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");	
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_INVALID);	
 				} return markObj;
 
 			case UNMARK:
 				ModifyCommand unmarkObj;
 				unmarkObj = parseUnmark();
 				if(unmarkObj!=null){
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:UNMARK");
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_UNMARK);
 				}else{
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");	
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_INVALID);	
 				}return unmarkObj;
 
 			case TAG:
 				ModifyCommand tagObj;
 				tagObj = parseTag();
 				if(tagObj!=null){
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:TAG");
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_TAG);
 				}else{
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_INVALID);
 				}return tagObj;
 
 			case UNTAG:
 				ModifyCommand untagObj;
 				untagObj = parseUntag();
 				if(untagObj!=null){
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:UNTAG");
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_UNTAG);
 				}else{
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");	
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_INVALID);	
 				}return untagObj;
 
 			case UNDO:
 				UndoCommand undoObj;
 				undoObj = parseUndo();
 				if(undoObj!=null){
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:PARSE");
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_UNDO);
 				}else{
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");	
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_INVALID);	
 				}return undoObj;
 
 			case REDO:
 				UndoCommand redoObj;
 				redoObj=parseRedo();
 				if(redoObj!=null){
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:REDO");
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_REDO);
 				}else{
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");	
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_INVALID);	
 				}return redoObj;
 
 				//The default command mode is ADD	
@@ -258,16 +287,16 @@ public class Interpreter {
 				AddCommand addObj2;
 				addObj2 = parseAdd();
 				if(addObj2!=null){
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:ADD");
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_ADD);
 				}else{
-					interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");	
+					interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_INVALID);	
 				}return addObj2;
 
 			}
 		} catch (Exception e) {
 			System.err.println(EXCEPTION_MSG+ e.getMessage());
 		}
-		interpreterLogger.log(Level.INFO,"Interpretation Complete:INVALID");
+		interpreterLogger.log(Level.INFO,LOGGER_COMPLETE_INVALID);
 		return null;
 	}
 
@@ -990,13 +1019,13 @@ public class Interpreter {
 		DeleteCommand command;
 		taskType=_userInput.charAt(1);
 		index=Integer.parseInt(_userInput.substring(2));
-		if(taskType=='e'){
+		if(taskType==INDEX_EVENTS){
 			command = new DeleteCommand(index,DeleteCommand.INDEX_TIMED);
 			return command;
-		}else if(taskType=='d'){
+		}else if(taskType==INDEX_DEADLINES){
 			command = new DeleteCommand(index,DeleteCommand.INDEX_DEADLINE);
 			return command;
-		}else if(taskType=='f'){
+		}else if(taskType==INDEX_FLEXIBLE){
 			command = new DeleteCommand(index,DeleteCommand.INDEX_FLOATING);
 			return command;
 		}
@@ -1019,13 +1048,13 @@ public class Interpreter {
 		index=Integer.parseInt(_userInput.substring(2, spaceIndex));
 		int toIndex = _userInput.indexOf(" to ", spaceIndex) + 3;
 		newTask = _userInput.substring(toIndex).trim();
-		if(taskType=='e'){
+		if(taskType==INDEX_EVENTS){
 			command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, newTask);
 			return command;
-		} else if(taskType=='d'){
+		} else if(taskType==INDEX_DEADLINES){
 			command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, newTask);
 			return command;
-		} else if(taskType=='f'){
+		} else if(taskType==INDEX_FLEXIBLE){
 			command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, newTask);
 			return command;
 		}
@@ -1048,19 +1077,19 @@ public class Interpreter {
 		index=Integer.parseInt(_userInput.substring(2, spaceIndex));
 		int toIndex = _userInput.indexOf(" to ", spaceIndex) + 3;
 		_userInput = _userInput.substring(toIndex).trim();
-		if(taskType=='e'){
+		if(taskType==INDEX_EVENTS){
 			String startDate = extractTillKeyword(PREFIX_RESCHEDULE);
 			String endDate = _userInput.trim();
 			Calendar calendar1 = isValid(startDate);
 			Calendar calendar2 = isValid(endDate);
 			command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, calendar1, calendar2);
 			return command;
-		} else if(taskType=='d'){
+		} else if(taskType==INDEX_DEADLINES){
 			String deadline= _userInput.trim();
 			Calendar calendar = isValid(deadline);
 			command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, calendar);
 			return command;
-		} else if(taskType=='f'){
+		} else if(taskType==INDEX_FLEXIBLE){
 			return null;
 		}
 		return null;
@@ -1078,13 +1107,13 @@ public class Interpreter {
 		int index;
 		taskType=_userInput.charAt(1);
 		index=Integer.parseInt(_userInput.substring(2));
-		if(taskType=='e'){
+		if(taskType==INDEX_EVENTS){
 			command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, true);
 			return command;
-		} else if(taskType=='d'){
+		} else if(taskType==INDEX_DEADLINES){
 			command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, true);
 			return command;
-		} else if(taskType=='f'){
+		} else if(taskType==INDEX_FLEXIBLE){
 			command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, true);
 			return command;
 		}
@@ -1103,13 +1132,13 @@ public class Interpreter {
 		int index;
 		taskType=_userInput.charAt(1);
 		index=Integer.parseInt(_userInput.substring(2));
-		if(taskType=='e'){
+		if(taskType==INDEX_EVENTS){
 			command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, false);
 			return command;
-		} else if(taskType=='d'){
+		} else if(taskType==INDEX_DEADLINES){
 			command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, false);
 			return command;
-		} else if(taskType=='f'){
+		} else if(taskType==INDEX_FLEXIBLE){
 			command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, false);
 			return command;
 		}
@@ -1137,13 +1166,13 @@ public class Interpreter {
 			}
 			hashtags.add(hashtag);
 		}
-		if(taskType=='e'){
+		if(taskType==INDEX_EVENTS){
 			command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, hashtags, true);
 			return command;
-		} else if(taskType=='d'){
+		} else if(taskType==INDEX_DEADLINES){
 			command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, hashtags, true);
 			return command;
-		} else if(taskType=='f'){
+		} else if(taskType==INDEX_FLEXIBLE){
 			command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, hashtags, true);
 			return command;
 		}
@@ -1171,13 +1200,13 @@ public class Interpreter {
 			}
 			hashtags.add(hashtag);
 		}
-		if(taskType=='e'){
+		if(taskType==INDEX_EVENTS){
 			command = new ModifyCommand(index, ModifyCommand.INDEX_TIMED, hashtags, false);
 			return command;
-		} else if(taskType=='d'){
+		} else if(taskType==INDEX_DEADLINES){
 			command = new ModifyCommand(index, ModifyCommand.INDEX_DEADLINE, hashtags, false);
 			return command;
-		} else if(taskType=='f'){
+		} else if(taskType==INDEX_FLEXIBLE){
 			command = new ModifyCommand(index, ModifyCommand.INDEX_FLOATING, hashtags, false);
 			return command;
 		}
@@ -1476,7 +1505,7 @@ public class Interpreter {
 			}
 		}
 		catch (NoClassDefFoundError e) {
-			System.err.println("NoClassDefFoundError: " + e.getMessage());
+			System.err.println(NO_CLASS_DEF_FOUND_ERROR + e.getMessage());
 		}
 		return null;
 	}
