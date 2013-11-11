@@ -7,7 +7,7 @@ import java.util.TreeSet;
  * This class helps maintain a state of the application, containing all
  * neccessary data and methods to manipulate them
  * 
- * @author A0098219
+ * @author A0098219U
  * 
  */
 

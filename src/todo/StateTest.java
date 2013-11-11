@@ -11,7 +11,7 @@ import org.junit.Test;
 
 /**
  * JUnit Tests for State Class
- * @author A0098219
+ * @author A0098219U
  *
  */
 public class StateTest {

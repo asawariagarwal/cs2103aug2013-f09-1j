@@ -305,7 +305,7 @@ public class ViewCommand extends Command {
 	 *            current state of program
 	 * @return state after executing command
 	 * 
-	 * @author A0098219
+	 * @author A0098219U
 	 */
 	private State executeViewDate(State state) {
 		State s = new State();

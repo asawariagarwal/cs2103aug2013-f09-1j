@@ -13,7 +13,7 @@ import java.io.IOException;
  */
 class CommandHandler {
 	
-	private static final String FEEDBACK_CORRUPTED = "corrupted Previous State";
+	private static final String FEEDBACK_CORRUPTED = "corrupted previous state";
 	private static final String FEEDBACK_EXECUTE_ERROR = "error encountered executing command";
 	private static final String FEEDBACK_INVALID_COMMAND = "invalid command";
 	

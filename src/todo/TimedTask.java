@@ -8,7 +8,7 @@ import java.util.TreeSet;
 /**
  * Subclass to encapsulate Timed Tasks
  * 
- * @author A0098219
+ * @author A0098219U
  * 
  */
 class TimedTask extends Task implements Comparable<TimedTask> {
