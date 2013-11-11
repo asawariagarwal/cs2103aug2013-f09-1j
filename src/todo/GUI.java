@@ -84,57 +84,14 @@ import com.melloware.jintellitype.JIntellitype;
  * 
  */
 public class GUI implements ActionListener {
-	private static final boolean NOT_EDITABLE = false;
-
-	private static final String LOG_IMAGE_COULD_NOT_BE_LOADED = "Image could not be loaded";
-
-	private static final String LOG_UNABLE_TO_WRITE_DLL_TO_DISK = "Unable to write DLL to disk";
-
-	private static final int NO_KEY_MODIFIER = 0;
-
-	private static final boolean FEEDBACK_NEGATIVE = false;
-
-	private static final boolean WINDOW_VISIBLE = true;
-
-	private static boolean _scrolledTop;
-
-	private static final String DEADLINE_PREFIX = "\t\tby:   ";
-
-	private static final String EVENTS_TO_PREFIX = "\t\tto:   ";
-
-	private static final String EVENTS_FROM_PREFIX = "\t\tfrom: ";
-
-	private static final String NEW_LINE = "\n";
-
-	private static final String INDEX_SUFFIX = ". ";
-
-	private static final String TAB_SPACE = "\t";
-
-	private static final int MIN_MODE_HEIGHT = 100;
-
-	private static final int MIN_MODE_WIDTH = 700;
-
-	private static final String TO_DO = "ToDo";
-
-	private static final String CLOCK_DISPLAY_FORMAT = "hh:mm:ss aa\nEEEEEEEEE\ndd MMMMMMMMMMM, yyyy";
-	private static final int TIMER_INTERVAL = 1000;
-
-	private static final String FLEXIBLE_HEADER = "Flexible Tasks :\n\n";
-	private static final String DEADLINES_HEADER = "Deadlines :\n\n";
-	private static final String EVENTS_HEADER = "Events :\n\n";
-
-	private static final String EMPTY_STRING = "";
-	private static final String PROMPT_SYMBOL = ">";
-	private static final int PROMPT_COLUMNS = 1;
-
-	private static final String STRING_START_TYPING_HERE = "Start Typing Here....";
-	private static final String STRING_FETCHING_SYSTEM_TIME = "Fetching System Time...\n\n";
 
 	/**
 	 * Constants for logging
 	 */
 	private static final String GUI_LOGGER = "GUILogger";
 
+	private static final String LOG_IMAGE_COULD_NOT_BE_LOADED = "Image could not be loaded";
+	private static final String LOG_UNABLE_TO_WRITE_DLL_TO_DISK = "Unable to write DLL to disk";
 	private static final String LOG_SYSTRAY_UNSUPPORTED = "Systray Unsupported";
 	private static final String LOG_DEACTIVATING_MIN_MODE = "Deactivating MinMode";
 	private static final String LOG_ACTIVATING_MIN_MODE = "Activating MinMode";
@@ -153,10 +110,64 @@ public class GUI implements ActionListener {
 	private static final String LOG_SHORTCUT_TRIGERRED = "Shortcut Trigerred";
 
 	/**
+	 * Constants for panes
+	 */
+	private static final boolean NOT_EDITABLE = false;
+	private static final int NO_KEY_MODIFIER = 0;
+	private static final boolean FEEDBACK_NEGATIVE = false;
+	private static final boolean WINDOW_VISIBLE = true;
+	
+	/**
 	 * System tray menu options
 	 */
 	private static final String MENU_OPTION_EXIT = "Exit";
 	private static final String MENU_OPTION_PULL_UP = "Pull Up";
+
+	/**
+	 * Default Values for non-task panes
+	 */
+	private static final String STRING_START_TYPING_HERE = "Start Typing Here....";
+	private static final String STRING_FETCHING_SYSTEM_TIME = "Fetching System Time...\n\n";
+
+	/**
+	 * Flag to indicate if a scroll is required
+	 */
+	private static boolean _scrolledTop;
+	
+	/**
+	 * Constants for task panes
+	 */
+	private static final String DEADLINE_PREFIX = "\t\tby:   ";
+	private static final String EVENTS_TO_PREFIX = "\t\tto:   ";
+	private static final String EVENTS_FROM_PREFIX = "\t\tfrom: ";
+	private static final String NEW_LINE = "\n";
+	private static final String INDEX_SUFFIX = ". ";
+	private static final String TAB_SPACE = "\t";
+	
+	/**
+	 * MinMode Dimensions
+	 */
+	private static final int MIN_MODE_HEIGHT = 100;
+	private static final int MIN_MODE_WIDTH = 700;
+
+	private static final String TO_DO = "ToDo";
+	
+	/**
+	 * Date Time Pane constants
+	 */
+	private static final String CLOCK_DISPLAY_FORMAT = "hh:mm:ss aa\nEEEEEEEEE\ndd MMMMMMMMMMM, yyyy";
+	private static final int TIMER_INTERVAL = 1000;
+	
+	/**
+	 * Task Pane Headers
+	 */
+	private static final String FLEXIBLE_HEADER = "Flexible Tasks :\n\n";
+	private static final String DEADLINES_HEADER = "Deadlines :\n\n";
+	private static final String EVENTS_HEADER = "Events :\n\n";
+
+	private static final String EMPTY_STRING = "";
+	private static final String PROMPT_SYMBOL = ">";
+	private static final int PROMPT_COLUMNS = 1;
 
 	/**
 	 * Important filepaths
@@ -177,13 +188,15 @@ public class GUI implements ActionListener {
 
 	private static final String FONT_NAME = "Consolas";
 
-	private static final Font FONT_TASK_PANE = new Font(FONT_NAME, Font.PLAIN, 20);
+	private static final Font FONT_TASK_PANE = new Font(FONT_NAME, Font.PLAIN,
+			20);
 
-	private static final Font FONT_HELP_PANE = new Font(FONT_NAME, Font.PLAIN, 17);
+	private static final Font FONT_HELP_PANE = new Font(FONT_NAME, Font.PLAIN,
+			17);
 	private static final String FONT_TIME_AND_DATE_PANE = "Courier New";
 
-	private static final Font FONT_DATE_TIME = new Font(FONT_TIME_AND_DATE_PANE,
-			Font.BOLD, 17);
+	private static final Font FONT_DATE_TIME = new Font(
+			FONT_TIME_AND_DATE_PANE, Font.BOLD, 17);
 
 	/**
 	 * Help Strings
@@ -1022,7 +1035,8 @@ public class GUI implements ActionListener {
 	 * Assigns a handler to the shortcut
 	 */
 	private void assignShortcutHotKeyFunctionality() {
-		_shortcutKey.registerHotKey(NO_KEY_MODIFIER, NO_KEY_MODIFIER, KeyEvent.VK_F3);
+		_shortcutKey.registerHotKey(NO_KEY_MODIFIER, NO_KEY_MODIFIER,
+				KeyEvent.VK_F3);
 		JHotKeyListener hotkeyListener = new JHotKeyListener() {
 			@Override
 			public void onHotKey(int id) {
@@ -1064,7 +1078,8 @@ public class GUI implements ActionListener {
 		JIntellitype.setLibraryLocation(DISK_LOCATION
 				+ LIB_PATH_WINDOWS_J_INTELLITYPE_DLL);
 		try {
-			_shortcutKey.registerHotKey(NO_KEY_MODIFIER, NO_KEY_MODIFIER, KeyEvent.VK_F3);
+			_shortcutKey.registerHotKey(NO_KEY_MODIFIER, NO_KEY_MODIFIER,
+					KeyEvent.VK_F3);
 		} catch (Exception e) {
 			GUILogger.log(Level.INFO,
 					LOG_ATTEMPTING_TO_USE_64_BIT_DLL_AS_32_BIT_FAILED);
