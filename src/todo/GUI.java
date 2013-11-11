@@ -84,6 +84,18 @@ import com.melloware.jintellitype.JIntellitype;
  * 
  */
 public class GUI implements ActionListener {
+	private static final boolean NOT_EDITABLE = false;
+
+	private static final String LOG_IMAGE_COULD_NOT_BE_LOADED = "Image could not be loaded";
+
+	private static final String LOG_UNABLE_TO_WRITE_DLL_TO_DISK = "Unable to write DLL to disk";
+
+	private static final int NO_KEY_MODIFIER = 0;
+
+	private static final boolean FEEDBACK_NEGATIVE = false;
+
+	private static final boolean WINDOW_VISIBLE = true;
+
 	private static boolean _scrolledTop;
 
 	private static final String DEADLINE_PREFIX = "\t\tby:   ";
@@ -164,7 +176,14 @@ public class GUI implements ActionListener {
 	private static final String FEEDBACK_CORRUPTED_PREVIOUS_STATE = "Corrupted Previous State";
 
 	private static final String FONT_NAME = "Consolas";
+
+	private static final Font FONT_TASK_PANE = new Font(FONT_NAME, Font.PLAIN, 20);
+
+	private static final Font FONT_HELP_PANE = new Font(FONT_NAME, Font.PLAIN, 17);
 	private static final String FONT_TIME_AND_DATE_PANE = "Courier New";
+
+	private static final Font FONT_DATE_TIME = new Font(FONT_TIME_AND_DATE_PANE,
+			Font.BOLD, 17);
 
 	/**
 	 * Help Strings
@@ -262,12 +281,14 @@ public class GUI implements ActionListener {
 	 */
 	private static class ScrollImage {
 
+		private static final int RECT_DIM_DEFAULT = 0;
+
 		static public Image create(int w, int h, Color c) {
 			BufferedImage bi = new BufferedImage(w, h,
 					BufferedImage.TYPE_INT_ARGB);
 			Graphics2D g2d = bi.createGraphics();
 			g2d.setPaint(c);
-			g2d.fillRect(0, 0, w, h);
+			g2d.fillRect(RECT_DIM_DEFAULT, RECT_DIM_DEFAULT, w, h);
 			g2d.dispose();
 			return bi;
 		}
@@ -561,7 +582,7 @@ public class GUI implements ActionListener {
 		 * Prompts with recent values from session
 		 */
 		private void executePrompt() {
-			if (_previousInputs.size() - UP_KEYPRESS_COUNTER >= 0) {
+			if (hasPrompt()) {
 				_userInputField.setText(_previousInputs.get(_previousInputs
 						.size()
 						- UP_KEYPRESS_COUNTER++));
@@ -571,6 +592,15 @@ public class GUI implements ActionListener {
 						.size()
 						- UP_KEYPRESS_COUNTER++));
 			}
+		}
+
+		/**
+		 * Checks whether prompt is available
+		 * 
+		 * @return whether prompt is available
+		 */
+		private boolean hasPrompt() {
+			return _previousInputs.size() - UP_KEYPRESS_COUNTER >= 0;
 		}
 
 		/**
@@ -801,7 +831,7 @@ public class GUI implements ActionListener {
 			public void run() {
 				try {
 					_runningGUI = GUIFactory.getInstance();
-					_runningGUI._frmTodo.setVisible(true);
+					_runningGUI._frmTodo.setVisible(WINDOW_VISIBLE);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -839,7 +869,7 @@ public class GUI implements ActionListener {
 		_displayState = new State();
 		_autoComplete = new Suggestor();
 		_displayState.setFeedback(new Feedback(
-				FEEDBACK_CORRUPTED_PREVIOUS_STATE, false));
+				FEEDBACK_CORRUPTED_PREVIOUS_STATE, FEEDBACK_NEGATIVE));
 		try {
 			_displayState = _handler.getCurrentState();
 			_autoComplete.updateState(_displayState);
@@ -868,7 +898,7 @@ public class GUI implements ActionListener {
 	 */
 	private void initialize() {
 
-		_scrolledTop = false;
+		resetScrollFlag();
 
 		initMainWindow();
 
@@ -906,6 +936,14 @@ public class GUI implements ActionListener {
 
 		initAudioFeedBack();
 
+	}
+
+	/**
+	 * Indicates the a scroll is required
+	 * 
+	 */
+	private void resetScrollFlag() {
+		_scrolledTop = false;
 	}
 
 	/**
@@ -963,7 +1001,7 @@ public class GUI implements ActionListener {
 	private void createHelpPane() {
 		_helpPane = new JTextPane();
 		_helpPane.setBackground(GUI_BACKGROUND_COLOR);
-		_helpPane.setFont(new Font(FONT_NAME, Font.PLAIN, 17));
+		_helpPane.setFont(FONT_HELP_PANE);
 		_helpPane.setEditable(false);
 	}
 
@@ -984,14 +1022,18 @@ public class GUI implements ActionListener {
 	 * Assigns a handler to the shortcut
 	 */
 	private void assignShortcutHotKeyFunctionality() {
-		_shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
+		_shortcutKey.registerHotKey(NO_KEY_MODIFIER, NO_KEY_MODIFIER, KeyEvent.VK_F3);
 		JHotKeyListener hotkeyListener = new JHotKeyListener() {
 			@Override
 			public void onHotKey(int id) {
 				GUILogger.log(Level.INFO, LOG_SHORTCUT_TRIGERRED);
-				if (id == 0) {
+				if (isZero(id)) {
 					toggleGUI();
 				}
+			}
+
+			private boolean isZero(int id) {
+				return id == 0;
 			}
 		};
 		_shortcutKey.addHotKeyListener(hotkeyListener);
@@ -1010,9 +1052,8 @@ public class GUI implements ActionListener {
 			out.close();
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-			GUILogger.log(Level.WARNING, "Unable to write DLL to disk");
+			GUILogger.log(Level.WARNING, LOG_UNABLE_TO_WRITE_DLL_TO_DISK);
 		}
 
 	}
@@ -1023,7 +1064,7 @@ public class GUI implements ActionListener {
 		JIntellitype.setLibraryLocation(DISK_LOCATION
 				+ LIB_PATH_WINDOWS_J_INTELLITYPE_DLL);
 		try {
-			_shortcutKey.registerHotKey(0, 0, KeyEvent.VK_F3);
+			_shortcutKey.registerHotKey(NO_KEY_MODIFIER, NO_KEY_MODIFIER, KeyEvent.VK_F3);
 		} catch (Exception e) {
 			GUILogger.log(Level.INFO,
 					LOG_ATTEMPTING_TO_USE_64_BIT_DLL_AS_32_BIT_FAILED);
@@ -1050,7 +1091,7 @@ public class GUI implements ActionListener {
 		if (_frmTodo.isShowing()) {
 			_frmTodo.dispose();
 		} else {
-			_frmTodo.setVisible(true);
+			_frmTodo.setVisible(WINDOW_VISIBLE);
 		}
 	}
 
@@ -1110,12 +1151,9 @@ public class GUI implements ActionListener {
 			try {
 				_trayImage = ImageIO.read(in);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				GUILogger.log(Level.WARNING, "Image could not be loaded");
+				GUILogger.log(Level.WARNING, LOG_IMAGE_COULD_NOT_BE_LOADED);
 				e.printStackTrace();
 			}
-			// _trayImage = Toolkit.getDefaultToolkit().getImage(
-			// GUI.class.getRe);
 
 			_menu = new PopupMenu();
 
@@ -1187,7 +1225,7 @@ public class GUI implements ActionListener {
 		pullUpItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				_frmTodo.setVisible(true);
+				_frmTodo.setVisible(WINDOW_VISIBLE);
 			}
 		});
 		_menu.add(pullUpItem);
@@ -1236,7 +1274,7 @@ public class GUI implements ActionListener {
 		_userInputField.setForeground(FOREGROUND_COLOR_WHITE);
 		_userInputField.setBackground(new Color(0, 0, 0));
 		_userInputField.setText(STRING_START_TYPING_HERE);
-		_userInputField.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
+		_userInputField.setFont(FONT_TASK_PANE);
 		_userInputField.setSize(20, 1);
 		_userInputField.requestFocusInWindow();
 	}
@@ -1273,13 +1311,12 @@ public class GUI implements ActionListener {
 	 */
 	private void initDateTimeArea() {
 		_currentDateTimeArea = new JTextPane();
-		_currentDateTimeArea.setFont(new Font(FONT_TIME_AND_DATE_PANE,
-				Font.BOLD, 17));
+		_currentDateTimeArea.setFont(FONT_DATE_TIME);
 		_currentDateTimeArea.setForeground(FOREGROUND_COLOR_WHITE);
 		_currentDateTimeArea.setText(STRING_FETCHING_SYSTEM_TIME);
 		_currentDateTimeArea.setBackground(new Color(0, 0, 0));
 
-		_currentDateTimeArea.setEditable(false);
+		_currentDateTimeArea.setEditable(NOT_EDITABLE);
 
 		_notificationsArea.add(_currentDateTimeArea, BorderLayout.NORTH);
 	}
@@ -1289,11 +1326,10 @@ public class GUI implements ActionListener {
 	 */
 	private void initFloatingTaskView() {
 		_floatingTaskView = new JTextPane();
-		_floatingTaskView.setEditable(false);
+		_floatingTaskView.setEditable(NOT_EDITABLE);
 		_floatingTaskView.setForeground(FOREGROUND_COLOR_WHITE);
-		_floatingTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
+		_floatingTaskView.setFont(FONT_TASK_PANE);
 		_floatingTaskView.setBackground(GUI_BACKGROUND_COLOR);
-		_floatingTaskView.setAutoscrolls(false);
 	}
 
 	/**
@@ -1301,12 +1337,10 @@ public class GUI implements ActionListener {
 	 */
 	private void initDeadlineTaskView() {
 		_deadlineTaskView = new JTextPane();
-		_deadlineTaskView.setEditable(false);
+		_deadlineTaskView.setEditable(NOT_EDITABLE);
 		_deadlineTaskView.setForeground(FOREGROUND_COLOR_WHITE);
-		_deadlineTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
+		_deadlineTaskView.setFont(FONT_TASK_PANE);
 		_deadlineTaskView.setBackground(GUI_BACKGROUND_COLOR);
-		_deadlineTaskView.setAutoscrolls(false);
-
 	}
 
 	/**
@@ -1314,11 +1348,10 @@ public class GUI implements ActionListener {
 	 */
 	private void initTimedTaskView() {
 		_timedTaskView = new JTextPane();
-		_timedTaskView.setEditable(false);
-		_timedTaskView.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
+		_timedTaskView.setEditable(NOT_EDITABLE);
+		_timedTaskView.setFont(FONT_TASK_PANE);
 		_timedTaskView.setForeground(FOREGROUND_COLOR_WHITE);
 		_timedTaskView.setBackground(new Color(0, 0, 0));
-		_timedTaskView.setAutoscrolls(false);
 	}
 
 	/**
@@ -1328,10 +1361,10 @@ public class GUI implements ActionListener {
 		_feedbackPane = new JTextPane();
 		_feedbackPane.setForeground(Color.YELLOW);
 		_feedbackPane.setBackground(new Color(0, 0, 0));
-		_feedbackPane.setFont(new Font(FONT_NAME, Font.PLAIN, 20));
-		_feedbackPane.setEditable(false);
+		_feedbackPane.setFont(FONT_TASK_PANE);
+		_feedbackPane.setEditable(NOT_EDITABLE);
 		_feedbackPane.setDisabledTextColor(Color.BLUE);
-		if (!_displayState.getFeedback().getDisplay().equals("")) {
+		if (!_displayState.getFeedback().getDisplay().equals(EMPTY_STRING)) {
 			updateFeedbackPane();
 		}
 		_userInputArea.add(_feedbackPane, BorderLayout.CENTER);
@@ -1369,9 +1402,7 @@ public class GUI implements ActionListener {
 		_frmTodo.getContentPane().setBackground(new Color(0, 0, 0));
 		_frmTodo.getContentPane().setLayout(new BorderLayout(0, 0));
 		_frmTodo.setTitle(TO_DO);
-		_frmTodo.setBounds(1100, 0, 800, 850);
 		_frmTodo.setLocationRelativeTo(null);
-		// frmTodo.setLocationByPlatform(true);
 		_frmTodo.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		_frmTodo.setExtendedState(Frame.MAXIMIZED_BOTH);
 	}
@@ -1384,7 +1415,7 @@ public class GUI implements ActionListener {
 		updateDeadlineTaskField();
 		updateFloatingTaskField();
 		_mainViewArea.repaint();
-		_scrolledTop = false;
+		resetScrollFlag();
 	}
 
 	/**
