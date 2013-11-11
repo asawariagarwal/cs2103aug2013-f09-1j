@@ -22,28 +22,44 @@ import org.json.simple.parser.ParseException;
  * This class implements storage to file
  * saving a textfile formatted in JSON-encoding
  * 
- * @author Jishnu
+ * @author A0100784L
  *
  */
 public class JSONStorage {
 	
+	/**
+	 * Specifies storage filepath
+	 */
 	private static String _filename = "C:\\ToDo\\taskstore.txt";
+	
+	/**
+	 * Specifies constants for converting Calendar to string
+	 */
 	private static final String TIMED_FORMAT = "hh:mm aa 'on' EEEEEEEEE ',' dd MMMMMMMMM, yyyy ";
 	private static final String DEADLINE_FORMAT = " 'by' hh:mm aa 'on' EEEEEEEEE',' dd MMMMMMMMM',' yyyy ";
 	private static final String INITIAL_FEEDBACK = "Welcome";
 	
 	protected static Logger storageLogger = Logger.getLogger("JSONStorage");
 	
+	/**
+	 * Specifies labels used in Storage
+	 */
 	private static final String FLOATING_LABEL = "floating";
 	private static final String TIMED_LABEL = "timed";
 	private static final String DEADLINE_LABEL = "deadline";
 	
+	/**
+	 * Specifies labels for task properties in Storage
+	 */
 	private static final String TASK_END_LABEL = "to";
 	private static final String TASK_START_LABEL = "from";
 	private static final String TASK_DONE_FLAG = "done";
 	private static final String TASK_TAGS_LABEL = "tags";
 	private static final String TASK_DESCRIPTION_LABEL = "description";
 	
+	/**
+	 * Defines Log Message String
+	 */
 	private static final String LOG_FILE_WRITE_START = "Writing to file";
 	private static final String LOG_JSON_ARRAY_START = "Putting Task Arrays into JSON";
 	private static final String LOG_DEADLINE_WRITE_BEGIN = "Adding Deadline";
@@ -68,6 +84,9 @@ public class JSONStorage {
 	private static final String LOG_SAVE_STATE_CHECK_END = "Checks finished successfully";
 	private static final String LOG_SAVE_STATE_CHECK_START = "Checking Save State";
 	
+	/**
+	 * Defines Exception Messages
+	 */
 	private static final String NULL_TIMED_EXCEPTION = "Storage received null timed task set";
 	private static final String NULL_FLOATING_EXCEPTION = "Storage received null floating task set";
 	private static final String NULL_DEADLINE_EXCEPTION = "Storage received null deadline task set";
@@ -75,10 +94,12 @@ public class JSONStorage {
 	
 	
 	/**
-	 * @return
-	 * @throws IOException
-	 * @throws ParseException
-	 * @throws java.text.ParseException
+	 * Method to read from store 
+	 * 
+	 * @return state containing information read from store
+	 * @throws IOException in case of IOError in opening/closing file
+	 * @throws ParseException in case of error when parsing file data
+	 * @throws java.text.ParseException in case of error when parsing file data
 	 */
 	protected State readStore() throws IOException, ParseException, java.text.ParseException{
 		File storeFile = new File(_filename);
@@ -98,119 +119,11 @@ public class JSONStorage {
 		}
 	}
 	
-	private State parseStore(String jsonString) throws ParseException, java.text.ParseException{
-		JSONParser parser = new JSONParser();
-		Object obj = parser.parse(jsonString);
-		JSONObject storeObject = (JSONObject) obj;
-		
-		JSONArray floatingArray = (JSONArray) storeObject.get(FLOATING_LABEL);
-		JSONArray timedArray = (JSONArray) storeObject.get(TIMED_LABEL);
-		JSONArray deadlineArray = (JSONArray) storeObject.get(DEADLINE_LABEL);
-		
-		State savedState = new State();
-		
-		storageLogger.log(Level.FINE, LOG_FLOATING_PARSE_START); 
-		for (Object floatObj : floatingArray){
-			FloatingTask floatingTask = getFloatingTask(floatObj);
-			savedState.addTask(floatingTask);
-		}
-		
-		storageLogger.log(Level.FINE, LOG_TIMED_PARSE_START); 
-		for (Object timedObj : timedArray){
-			TimedTask timedTask = getTimedTask(timedObj);
-			savedState.addTask(timedTask);
-		}
-		
-		storageLogger.log(Level.FINE, LOG_DEADLINE_PARSE_START); 
-		for (Object deadlineObj : deadlineArray){
-			DeadlineTask deadlineTask = getDeadlineTask(deadlineObj);
-			savedState.addTask(deadlineTask);
-		}
-		
-		savedState.setFeedback(new Feedback(INITIAL_FEEDBACK,true));
-		
-		storageLogger.log(Level.INFO, LOG_PARSE_END_SUCCESS);
-		return savedState;
-	}
-
-	@SuppressWarnings("unchecked")
-	private DeadlineTask getDeadlineTask(Object deadlineObj)
-			throws java.text.ParseException {
-		
-		storageLogger.log(Level.FINE, LOG_BEFORE_JSON_READ);
-		JSONObject deadlineTaskJSON = (JSONObject) deadlineObj;
-		String taskDescription = (String) deadlineTaskJSON.get(TASK_DESCRIPTION_LABEL);
-		ArrayList<String> tags = (ArrayList<String>) deadlineTaskJSON.get(TASK_TAGS_LABEL);
-		String deadlineString = (String) deadlineTaskJSON.get(DEADLINE_LABEL);
-		boolean isCompleted = (boolean) deadlineTaskJSON.get(TASK_DONE_FLAG);
-		storageLogger.log(Level.FINE, LOG_AFTER_JSON_READ);
-		
-		String deadlineFormat = DEADLINE_FORMAT;
-		SimpleDateFormat curFormater = new SimpleDateFormat(deadlineFormat);
-		Date deadlineDate = curFormater.parse(deadlineString);
-		
-		Calendar deadlineCalendar = Calendar.getInstance();
-		deadlineCalendar.setTime(deadlineDate);
-		
-		DeadlineTask deadlineTask = new DeadlineTask(taskDescription, tags, deadlineCalendar);
-		if (isCompleted){
-			deadlineTask.markAsDone();
-		}
-		storageLogger.log(Level.FINE, LOG_SINGLE_DEADLINE_READ_SUCCESS);
-		return deadlineTask;
-	}
-
-	@SuppressWarnings("unchecked")
-	private TimedTask getTimedTask(Object timedObj)
-			throws java.text.ParseException {
-		storageLogger.log(Level.FINER, LOG_BEFORE_JSON_READ);
-		JSONObject timedTaskJSON = (JSONObject) timedObj;
-		String taskDescription = (String) timedTaskJSON.get(TASK_DESCRIPTION_LABEL);
-		ArrayList<String> tags = (ArrayList<String>) timedTaskJSON.get(TASK_TAGS_LABEL);
-		boolean isCompleted = (boolean) timedTaskJSON.get(TASK_DONE_FLAG);
-		
-		String startString = (String) timedTaskJSON.get(TASK_START_LABEL);
-		String endString = (String) timedTaskJSON.get(TASK_END_LABEL);
-		storageLogger.log(Level.FINER, LOG_AFTER_JSON_READ);
-		
-		String timedTaskFormat = TIMED_FORMAT;
-		SimpleDateFormat curFormater = new SimpleDateFormat(timedTaskFormat);
-		Date fromDate = curFormater.parse(startString);
-		Date toDate = curFormater.parse(endString);
-		
-		Calendar fromCalendar = Calendar.getInstance();
-		Calendar toCalendar = Calendar.getInstance();
-		fromCalendar.setTime(fromDate);
-		toCalendar.setTime(toDate);
-		
-		TimedTask timedTask = new TimedTask(taskDescription, tags, fromCalendar, toCalendar);
-		if (isCompleted){
-			timedTask.markAsDone();
-		}
-		storageLogger.log(Level.FINER, LOG_SINGLE_TIMED_READ_SUCCESS);
-		return timedTask;
-	}
-
-	@SuppressWarnings("unchecked")
-	private FloatingTask getFloatingTask(Object floatObj) {
-		storageLogger.log(Level.FINER, LOG_BEFORE_JSON_READ);
-		JSONObject floatingTaskJSON = (JSONObject) floatObj;
-		String taskDescription = (String) floatingTaskJSON.get(TASK_DESCRIPTION_LABEL);
-		ArrayList<String> tags = (ArrayList<String>) floatingTaskJSON.get(TASK_TAGS_LABEL);
-		boolean isCompleted = (boolean) floatingTaskJSON.get(TASK_DONE_FLAG);
-		storageLogger.log(Level.FINER, LOG_AFTER_JSON_READ);
-		
-		FloatingTask floatingTask = new FloatingTask(taskDescription, tags);
-		if (isCompleted){
-			floatingTask.markAsDone();
-		}
-		storageLogger.log(Level.FINER, LOG_SINGLE_FLOATING_READ_SUCCESS);
-		return floatingTask;
-	}
-	
 	/**
-	 * @param saveState
-	 * @throws IOException
+	 * Method to write state to storage
+	 * 
+	 * @param saveState contains state to write
+	 * @throws IOException in case of error opening/writing file
 	 */
 	@SuppressWarnings("unchecked")
 	protected void writeStore(State saveState) throws IOException{
@@ -252,7 +165,151 @@ public class JSONStorage {
 		fileWriter.close();
 		
 	}
+	
+	/**
+	 * Method to parse a JSONString to a state
+	 * 
+	 * @param jsonString contains input in JSON formatting passed to it
+	 * @return a State containing the information from JSON
+	 * @throws ParseException if the file is not formatted correctly
+	 * @throws java.text.ParseException if the file is not formatted correctly
+	 */
+	private State parseStore(String jsonString) throws ParseException, java.text.ParseException{
+		JSONParser parser = new JSONParser();
+		Object obj = parser.parse(jsonString);
+		JSONObject storeObject = (JSONObject) obj;
+		
+		JSONArray floatingArray = (JSONArray) storeObject.get(FLOATING_LABEL);
+		JSONArray timedArray = (JSONArray) storeObject.get(TIMED_LABEL);
+		JSONArray deadlineArray = (JSONArray) storeObject.get(DEADLINE_LABEL);
+		
+		State savedState = new State();
+		
+		storageLogger.log(Level.FINE, LOG_FLOATING_PARSE_START); 
+		for (Object floatObj : floatingArray){
+			FloatingTask floatingTask = getFloatingTask(floatObj);
+			savedState.addTask(floatingTask);
+		}
+		
+		storageLogger.log(Level.FINE, LOG_TIMED_PARSE_START); 
+		for (Object timedObj : timedArray){
+			TimedTask timedTask = getTimedTask(timedObj);
+			savedState.addTask(timedTask);
+		}
+		
+		storageLogger.log(Level.FINE, LOG_DEADLINE_PARSE_START); 
+		for (Object deadlineObj : deadlineArray){
+			DeadlineTask deadlineTask = getDeadlineTask(deadlineObj);
+			savedState.addTask(deadlineTask);
+		}
+		
+		savedState.setFeedback(new Feedback(INITIAL_FEEDBACK,true));
+		
+		storageLogger.log(Level.INFO, LOG_PARSE_END_SUCCESS);
+		return savedState;
+	}
 
+	/**
+	 * Method to generate a DeadlineTask object from a JSONObject
+	 * 
+	 * @param deadlineObj specifies JSONObject containing DeadlineTask information
+	 * @return the DeadlineTask specified
+	 * @throws java.text.ParseException if incorrectly formatted JSON
+	 */
+	@SuppressWarnings("unchecked")
+	private DeadlineTask getDeadlineTask(Object deadlineObj)
+			throws java.text.ParseException {
+		
+		storageLogger.log(Level.FINE, LOG_BEFORE_JSON_READ);
+		JSONObject deadlineTaskJSON = (JSONObject) deadlineObj;
+		String taskDescription = (String) deadlineTaskJSON.get(TASK_DESCRIPTION_LABEL);
+		ArrayList<String> tags = (ArrayList<String>) deadlineTaskJSON.get(TASK_TAGS_LABEL);
+		String deadlineString = (String) deadlineTaskJSON.get(DEADLINE_LABEL);
+		boolean isCompleted = (boolean) deadlineTaskJSON.get(TASK_DONE_FLAG);
+		storageLogger.log(Level.FINE, LOG_AFTER_JSON_READ);
+		
+		String deadlineFormat = DEADLINE_FORMAT;
+		SimpleDateFormat curFormater = new SimpleDateFormat(deadlineFormat);
+		Date deadlineDate = curFormater.parse(deadlineString);
+		
+		Calendar deadlineCalendar = Calendar.getInstance();
+		deadlineCalendar.setTime(deadlineDate);
+		
+		DeadlineTask deadlineTask = new DeadlineTask(taskDescription, tags, deadlineCalendar);
+		if (isCompleted){
+			deadlineTask.markAsDone();
+		}
+		storageLogger.log(Level.FINE, LOG_SINGLE_DEADLINE_READ_SUCCESS);
+		return deadlineTask;
+	}
+
+	/**
+	 * Method to generate a TimedTask object from a JSONObject
+	 * 
+	 * @param timedObj specifies JSONObject containing TimedTask information
+	 * @return the TimedTask specified
+	 * @throws java.text.ParseException if incorrectly formatted JSON
+	 */
+	@SuppressWarnings("unchecked")
+	private TimedTask getTimedTask(Object timedObj)
+			throws java.text.ParseException {
+		storageLogger.log(Level.FINER, LOG_BEFORE_JSON_READ);
+		JSONObject timedTaskJSON = (JSONObject) timedObj;
+		String taskDescription = (String) timedTaskJSON.get(TASK_DESCRIPTION_LABEL);
+		ArrayList<String> tags = (ArrayList<String>) timedTaskJSON.get(TASK_TAGS_LABEL);
+		boolean isCompleted = (boolean) timedTaskJSON.get(TASK_DONE_FLAG);
+		
+		String startString = (String) timedTaskJSON.get(TASK_START_LABEL);
+		String endString = (String) timedTaskJSON.get(TASK_END_LABEL);
+		storageLogger.log(Level.FINER, LOG_AFTER_JSON_READ);
+		
+		String timedTaskFormat = TIMED_FORMAT;
+		SimpleDateFormat curFormater = new SimpleDateFormat(timedTaskFormat);
+		Date fromDate = curFormater.parse(startString);
+		Date toDate = curFormater.parse(endString);
+		
+		Calendar fromCalendar = Calendar.getInstance();
+		Calendar toCalendar = Calendar.getInstance();
+		fromCalendar.setTime(fromDate);
+		toCalendar.setTime(toDate);
+		
+		TimedTask timedTask = new TimedTask(taskDescription, tags, fromCalendar, toCalendar);
+		if (isCompleted){
+			timedTask.markAsDone();
+		}
+		storageLogger.log(Level.FINER, LOG_SINGLE_TIMED_READ_SUCCESS);
+		return timedTask;
+	}
+
+	/**
+	 * Method to generate a FloatingTask object from a JSONObject
+	 * 
+	 * @param floatObj specifies JSONObject containing FloatingTask information
+	 * @return the FloatingTask specified
+	 */
+	@SuppressWarnings("unchecked")
+	private FloatingTask getFloatingTask(Object floatObj) {
+		storageLogger.log(Level.FINER, LOG_BEFORE_JSON_READ);
+		JSONObject floatingTaskJSON = (JSONObject) floatObj;
+		String taskDescription = (String) floatingTaskJSON.get(TASK_DESCRIPTION_LABEL);
+		ArrayList<String> tags = (ArrayList<String>) floatingTaskJSON.get(TASK_TAGS_LABEL);
+		boolean isCompleted = (boolean) floatingTaskJSON.get(TASK_DONE_FLAG);
+		storageLogger.log(Level.FINER, LOG_AFTER_JSON_READ);
+		
+		FloatingTask floatingTask = new FloatingTask(taskDescription, tags);
+		if (isCompleted){
+			floatingTask.markAsDone();
+		}
+		storageLogger.log(Level.FINER, LOG_SINGLE_FLOATING_READ_SUCCESS);
+		return floatingTask;
+	}
+
+	/**
+	 * Method to check if any null elements in state
+	 * 
+	 * @param saveState specifies state to check
+	 * @throws IOException if any null objects
+	 */
 	private void checkUsableState(State saveState) throws IOException {
 		storageLogger.log(Level.INFO, LOG_SAVE_STATE_CHECK_START);
 		if (saveState == null){
@@ -273,6 +330,12 @@ public class JSONStorage {
 		storageLogger.log(Level.FINE,LOG_SAVE_STATE_CHECK_END);
 	}
 	
+	/**
+	 * Method to get JSONObject from FloatingTask
+	 * 
+	 * @param task specifies FloatingTask to convert
+	 * @return JSONObject with floating task information
+	 */
 	@SuppressWarnings("unchecked")
 	private JSONObject getFloatingJSON(FloatingTask task){
 		JSONObject taskObject = new JSONObject();
@@ -284,6 +347,12 @@ public class JSONStorage {
 		return taskObject;
 	}
 	
+	/**
+	 * Method to get JSONObject from TimedTask
+	 * 
+	 * @param task specifies TimedTask to convert
+	 * @return JSONObject with timed task information
+	 */
 	@SuppressWarnings("unchecked")
 	private JSONObject getTimedJSON(TimedTask task){
 		JSONObject taskObject = new JSONObject();
@@ -305,6 +374,12 @@ public class JSONStorage {
 		
 	}
 	
+	/**
+	 * Method to get JSONObject from DeadlineTask
+	 * 
+	 * @param task specifies DeadlineTask to convert
+	 * @return JSONObject with TimedTask information
+	 */
 	@SuppressWarnings("unchecked")
 	private JSONObject getDeadlineJSON(DeadlineTask task){
 		JSONObject taskObject = new JSONObject();
@@ -323,6 +398,12 @@ public class JSONStorage {
 		return taskObject;
 	}
 	
+	/**
+	 * Method to get JSONArray of tags from ArrayList of tags
+	 * 
+	 * @param tagArray containing tag Strings
+	 * @return required JSONArray
+	 */
 	@SuppressWarnings("unchecked")
 	private JSONArray getTagsJSON(TreeSet<String> tagArray){
 		JSONArray tagJSON = new JSONArray();

@@ -7,7 +7,7 @@ import java.util.HashMap;
  * This class is a GUI-Helper class which
  * is used to implement autocomplete functionality
  * 
- * @author Jishnu
+ * @author A0100784L
  *
  */
 public class Suggestor {

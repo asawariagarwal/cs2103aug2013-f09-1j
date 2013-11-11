@@ -10,7 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * @author Jishnu
+ * @author A0100784L
  *
  */
 public class StorageTest {
