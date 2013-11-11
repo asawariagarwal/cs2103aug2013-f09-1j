@@ -1,0 +1,3414 @@
+//@author: a0098219u
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\DeadlineTask.java
+	 */
+
+	 * 
+	 */
+	class DeadlineTask extends Task implements Comparable<DeadlineTask> {
+		/**
+		 * Variable to store the deadline
+		 */
+		private Calendar _deadline;
+
+		/**
+		 * Constructor to set up a deadline task
+		 * 
+		 * @param description
+		 *            Task description
+		 * @param tags
+		 *            Task tags
+		 * @param deadline
+		 *            Task deadline
+		 */
+		DeadlineTask(String description, ArrayList<String> tags,
+				Calendar deadline) {
+			super(description, tags);
+			_deadline = deadline;
+		}
+		
+		/**
+		 * Constructor to set up a deadline task
+		 * 
+		 * @param description
+		 *            Task description
+		 * @param tags
+		 *            Task tags
+		 * @param deadline
+		 *            Task deadline
+		 */
+		DeadlineTask(String description, TreeSet<String> tags,
+				Calendar deadline) {
+			super(description, tags);
+			_deadline = deadline;
+		}
+		
+		/**
+		 * Default Constructor
+		 */
+		public DeadlineTask() {
+			super();
+			_deadline = Calendar.getInstance();
+		}
+
+		/**
+		 * Routine to set Task deadline
+		 * 
+		 * @param deadline
+		 *            deadline to be set
+		 */
+		protected void setDeadline(Calendar deadline) {
+			_deadline = deadline;
+		}
+
+		/**
+		 * Routine to get the Task deadline
+		 * 
+		 * @return the Task deadline as a Calendar object
+		 */
+		protected Calendar getDeadline() {
+			return _deadline;
+		}
+		
+		/**
+		 * Routine to get the deadline as a String
+		 * 
+		 * @return the deadline as a String
+		 */
+		protected String getDeadlineString() {
+			String deadlineString = "";
+			String timeFormat = "hh:mm aa 'on' EEEEEEEEE',' dd MMMMMMMMM, yyyy ";
+
+			SimpleDateFormat sdf = new SimpleDateFormat(timeFormat);
+
+			deadlineString = sdf.format(getDeadline().getTime());
+			return deadlineString;
+		}
+		
+		/* (non-Javadoc)
+		 * @see todo.Task#isExpired()
+		 */
+		protected boolean isExpired() {
+			Calendar currentTime  = Calendar.getInstance();
+			
+			if(currentTime.getTimeInMillis() > this.getDeadline().getTimeInMillis()) {
+				return true;
+			}
+			
+			return false;
+		}
+		/**
+		 * Routine to return the deadline task as a String
+		 */
+		@Override
+		public String toString() {
+			String taskString = "";
+
+			String deadlineFormat = " 'by' EEEEEEEEE',' dd MMMMMMMMM',' yyyy ";
+
+			SimpleDateFormat sdf = new SimpleDateFormat(deadlineFormat);
+
+			taskString = (getTaskDescription() + sdf.format(getDeadline()
+					.getTime()));
+
+			for (String tag : getTags()) {
+				taskString += (" #" + tag);
+			}
+
+			return taskString;
+		}
+
+		@Override
+		public int compareTo(DeadlineTask otherTask) {
+			if (this.getDeadline().before(otherTask.getDeadline())){
+				return -1;
+			} else if (this.getDeadline().after(otherTask.getDeadline())){
+				return 1;
+			} else {
+				int descCompare = this.getTaskDescription().compareTo(otherTask.getTaskDescription());
+				if (descCompare != 0){
+					return descCompare;
+				} else {
+					if (this.getTags().equals(otherTask.getTags())){
+						return 0;
+					} else {
+						return this.getTags().toString().compareTo(otherTask.getTags().toString());
+					}
+				}			
+			}
+		}
+		
+		@Override
+		public boolean equals(Object o){
+			if (!(o instanceof DeadlineTask)){
+				return false;
+			} else {
+				DeadlineTask deadlineO = (DeadlineTask) o;
+				boolean sameDeadline = this.getDeadline().equals(deadlineO.getDeadline());
+				boolean sameName = this.getTaskDescription().equals(deadlineO.getTaskDescription());
+				boolean sameTags = this.getTags().equals(deadlineO.getTags());
+				return sameDeadline && sameName && sameTags;
+			}
+		}
+		
+		@Override
+		public int hashCode(){
+			String deadlineString = this.getDeadline().toString();
+			String nameString = this.getTaskDescription();
+			String tagString = this.getTags().toString();
+			return (deadlineString + nameString + tagString).hashCode();
+		}
+		
+		/*
+		 * (non-Javadoc)
+		 * @see todo.Task#clone()
+		 */
+		protected DeadlineTask clone() {
+			String desc = this.getTaskDescription();
+			ArrayList<String> tags = new ArrayList<String>(this.getTags());
+			Calendar deadline = Calendar.getInstance();
+			deadline.setTimeInMillis(this.getDeadline().getTimeInMillis());
+			DeadlineTask result = new DeadlineTask(desc, tags, deadline);
+			if (this.isComplete()) {
+				result.markAsDone();
+			}
+			return result;
+		}
+
+	}
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\DeadlineTask.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\FloatingTask.java
+	 */
+
+ * 
+ */
+class FloatingTask extends Task implements Comparable<FloatingTask> {
+	/**
+	 * Constructor to set up FloatingTasks object
+	 * 
+	 * @param description
+	 *            Task description
+	 * @param tags
+	 *            tags for this task
+	 */
+	FloatingTask(String description, ArrayList<String> tags) {
+		super(description, tags);
+	}
+	
+	/**
+	 * Constructor to set up FloatingTasks object
+	 * 
+	 * @param description
+	 *            Task description
+	 * @param tags
+	 *            tags for this task
+	 */
+	FloatingTask(String description, TreeSet<String> tags) {
+		super(description, tags);
+	}
+
+	/**
+	 * Routine to get floating task as a String
+	 */
+	@Override
+	public String toString() {
+		String taskString = "";
+
+		for (String tag : getTags()) {
+			taskString += " #" + tag;
+		}
+		taskString = getTaskDescription() + taskString;
+
+		return taskString;
+	}
+
+	@Override
+	public int compareTo(FloatingTask otherTask) {
+		int descCompare = this.getTaskDescription().compareTo(otherTask.getTaskDescription());
+		if (descCompare != 0){
+			return descCompare;
+		} else {
+			if (this.getTags().equals(otherTask.getTags())){
+				return 0;
+			} else {
+				return this.getTags().toString().compareTo(otherTask.getTags().toString());
+			}
+		}
+	}
+	
+	@Override
+	public boolean equals(Object o){
+		if (!(o instanceof FloatingTask)){
+			return false;
+		} else {
+			FloatingTask timedO = (FloatingTask) o;
+			boolean sameName = this.getTaskDescription().equals(timedO.getTaskDescription());
+			boolean sameTags = this.getTags().equals(timedO.getTags());
+			return sameName && sameTags;
+		}
+	}
+	
+	@Override
+	public int hashCode(){
+		String nameString = this.getTaskDescription();
+		String tagString = this.getTags().toString();
+		return (nameString + tagString).hashCode();
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see todo.Task#clone()
+	 */
+	protected FloatingTask clone() {
+		String desc = this.getTaskDescription();
+		ArrayList<String> tags = new ArrayList<String>(this.getTags());
+		FloatingTask result = new FloatingTask(desc, tags);
+		if (this.isComplete()) {
+			result.markAsDone();
+		}
+		if (this.isExpired()) {
+			result.expire();
+		}
+		return result;
+	}
+}
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\FloatingTask.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\GUI.java
+	 */
+
+ * 
+ */
+public class GUI implements ActionListener {
+
+	/**
+	 * Constants for logging
+	 */
+	private static final String GUI_LOGGER = "GUILogger";
+
+	private static final String LOG_IMAGE_COULD_NOT_BE_LOADED = "Image could not be loaded";
+	private static final String LOG_UNABLE_TO_WRITE_DLL_TO_DISK = "Unable to write DLL to disk";
+	private static final String LOG_SYSTRAY_UNSUPPORTED = "Systray Unsupported";
+	private static final String LOG_DEACTIVATING_MIN_MODE = "Deactivating MinMode";
+	private static final String LOG_ACTIVATING_MIN_MODE = "Activating MinMode";
+	private static final String LOG_FLOATING_TASKS_ARE_EMPTY = "Floating Tasks are empty";
+	private static final String LOG_DEADLINE_TASKS_ARE_EMPTY = "Deadline Tasks are empty";
+	private static final String LOG_TIMED_TASKS_ARE_EMPTY = "Timed Tasks are empty";
+	private static final String LOG_SYSTRAY_ENABLE_FAILED_FOR_UNKNOWN_REASON = "Systray enable failed for unknown reason";
+	private static final String LOG_ATTEMPTING_TO_ENABLE_SYSTRAY_SUPPORT = "Attempting to enable systray support";
+	private static final String LOG_ATTEMPTING_RESOLUTION = "\nAttempting Resolution..";
+	private static final String LOG_ERROR = "Error: ";
+	private static final String LOG_ATTEMPTING_TO_USE_64_BIT_DLL_AS_32_BIT_FAILED = "Attempting to use 64 bit dll as 32 bit failed.";
+	private static final String LOG_WINDOWS_DETECTED = "Windows Detected";
+	private static final String LOG_SHORTCUT_KEY_BEING_INITIALIZED = "Shortcut Key Being Initialized";
+	private static final String LOG_PREVIOUS_STATE_WAS_CORRUPTED_NEW_STATE_CALLED = "Previous State was corrupted. New State called";
+	private static final String LOG_GUI_SETTING_UP = "GUI Setting Up";
+	private static final String LOG_SHORTCUT_TRIGERRED = "Shortcut Trigerred";
+
+	/**
+	 * Constants for panes
+	 */
+	private static final boolean NOT_EDITABLE = false;
+	private static final int NO_KEY_MODIFIER = 0;
+	private static final boolean FEEDBACK_NEGATIVE = false;
+	private static final boolean WINDOW_VISIBLE = true;
+	
+	/**
+	 * System tray menu options
+	 */
+	private static final String MENU_OPTION_EXIT = "Exit";
+	private static final String MENU_OPTION_PULL_UP = "Pull Up";
+
+	/**
+	 * Default Values for non-task panes
+	 */
+	private static final String STRING_START_TYPING_HERE = "Start Typing Here....";
+	private static final String STRING_FETCHING_SYSTEM_TIME = "Fetching System Time...\n\n";
+
+	/**
+	 * Flag to indicate if a scroll is required
+	 */
+	private static boolean _scrolledTop;
+	
+	/**
+	 * Constants for task panes
+	 */
+	private static final String DEADLINE_PREFIX = "\t\tby:   ";
+	private static final String EVENTS_TO_PREFIX = "\t\tto:   ";
+	private static final String EVENTS_FROM_PREFIX = "\t\tfrom: ";
+	private static final String NEW_LINE = "\n";
+	private static final String INDEX_SUFFIX = ". ";
+	private static final String TAB_SPACE = "\t";
+	
+	/**
+	 * MinMode Dimensions
+	 */
+	private static final int MIN_MODE_HEIGHT = 100;
+	private static final int MIN_MODE_WIDTH = 700;
+
+	private static final String TO_DO = "ToDo";
+	
+	/**
+	 * Date Time Pane constants
+	 */
+	private static final String CLOCK_DISPLAY_FORMAT = "hh:mm:ss aa\nEEEEEEEEE\ndd MMMMMMMMMMM, yyyy";
+	private static final int TIMER_INTERVAL = 1000;
+	
+	/**
+	 * Task Pane Headers
+	 */
+	private static final String FLEXIBLE_HEADER = "Flexible Tasks :\n\n";
+	private static final String DEADLINES_HEADER = "Deadlines :\n\n";
+	private static final String EVENTS_HEADER = "Events :\n\n";
+
+	private static final String EMPTY_STRING = "";
+	private static final String PROMPT_SYMBOL = ">";
+	private static final int PROMPT_COLUMNS = 1;
+
+	/**
+	 * Important filepaths
+	 */
+	private static final String PATH_TO_SYSTRAY_IMAGE = "Two.jpg";
+	private static final String LIB_PATH_WINDOWS_J_INTELLITYPE_DLL = "JIntellitype.dll";
+	private static final String LIB_PATH_JHOTKEYS = "./lib";
+	private static final String FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL = "JIntellitype64.dll";
+	private static final String DISK_LOCATION = "C:/Todo/";
+
+	private static final String OS_NAME_WINDOWS = "Windows";
+	private static final String OS_NAME = "os.name";
+
+	private static final Color GUI_BACKGROUND_COLOR = Color.BLACK;
+	private static final Color FOREGROUND_COLOR_WHITE = Color.WHITE;
+
+	private static final String FEEDBACK_CORRUPTED_PREVIOUS_STATE = "Corrupted Previous State";
+
+	private static final String FONT_NAME = "Consolas";
+
+	private static final Font FONT_TASK_PANE = new Font(FONT_NAME, Font.PLAIN,
+			20);
+
+	private static final Font FONT_HELP_PANE = new Font(FONT_NAME, Font.PLAIN,
+			17);
+	private static final String FONT_TIME_AND_DATE_PANE = "Courier New";
+
+	private static final Font FONT_DATE_TIME = new Font(
+			FONT_TIME_AND_DATE_PANE, Font.BOLD, 17);
+
+	/**
+	 * Help Strings
+	 */
+	private static final String HELP_TEXT_1 = "Command List:\n\n";
+	private static final String HELP_TEXT_2 = "add\ndelete\nview\nsearch\nundo/redo\nchange\nreschedule\nmark/unmark\ntag/untag\nmute/unmute\nexit";
+	private static final String HELP_TEXT_3 = "\n\nPress ";
+	private static final String HELP_TEXT_4 = "tab ";
+	private static final String HELP_TEXT_5 = "to \nauto-complete\n\nPress ";
+	private static final String HELP_TEXT_6 = "arrow-up ";
+	private static final String HELP_TEXT_7 = "to \ncycle through\nprevious commands\n\nPress ";
+	private static final String HELP_TEXT_8 = "F3 ";
+	private static final String HELP_TEXT_9 = "to minimize\nto/maximize from the\nSystem Tray\n\nPress ";
+	private static final String HELP_TEXT_10 = "Alt+Enter ";
+	private static final String HELP_TEXT_11 = "to \nswitch between Min \nand Full Modes";
+
+	/**
+	 * Audio feedback class
+	 */
+	private static AudioFeedBack _audio;
+
+	/**
+	 * Class for custom scroll bar implementation
+	 * 
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\GUI.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\GUI.java
+	 */
+
+	 * 
+	 */
+	private static class CustomScrollBar extends MetalScrollBarUI {
+
+		/**
+		 * Constants for CustomScrollBar
+		 */
+		private static final int DIMENSION_HEIGHT_ZERO = 0;
+		private static final int DIMENSION_WIDTH_ZERO = 0;
+		private static final Color SCROLL_BAR_COLOR = Color.blue;
+		private static final Color SCROLL_BAR_TRACK_IMAGE = Color.white;
+		private static final Color SCROLL_BAR_THUMB_IMAGE = SCROLL_BAR_COLOR
+				.darker();
+		private static final int SCROLL_IMAGE_DIMENSION = 32;
+		private Image imageThumb, imageTrack;
+		private JButton b = new JButton() {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Dimension getPreferredSize() {
+				return new Dimension(DIMENSION_WIDTH_ZERO,
+						DIMENSION_HEIGHT_ZERO);
+			}
+
+		};
+
+		/**
+		 * Creates a custom scroll bar
+		 */
+		CustomScrollBar() {
+			imageThumb = ScrollImage.create(SCROLL_IMAGE_DIMENSION,
+					SCROLL_IMAGE_DIMENSION, SCROLL_BAR_THUMB_IMAGE);
+			imageTrack = ScrollImage.create(SCROLL_IMAGE_DIMENSION,
+					SCROLL_IMAGE_DIMENSION, SCROLL_BAR_TRACK_IMAGE);
+		}
+
+		@Override
+		protected void paintThumb(Graphics g, JComponent c, Rectangle r) {
+			g.setColor(SCROLL_BAR_COLOR);
+			((Graphics2D) g).drawImage(imageThumb, r.x, r.y, r.width, r.height,
+					null);
+		}
+
+		@Override
+		protected void paintTrack(Graphics g, JComponent c, Rectangle r) {
+			((Graphics2D) g).drawImage(imageTrack, r.x, r.y, r.width, r.height,
+					null);
+		}
+
+		@Override
+		protected JButton createDecreaseButton(int orientation) {
+			return b;
+		}
+
+		@Override
+		protected JButton createIncreaseButton(int orientation) {
+			return b;
+		}
+	}
+
+	/**
+	 * Class that creates the Scroll Image
+	 * 
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\GUI.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\GUI.java
+	 */
+
+	 * 
+	 */
+	private static class ScrollImage {
+
+		private static final int RECT_DIM_DEFAULT = 0;
+
+		static public Image create(int w, int h, Color c) {
+			BufferedImage bi = new BufferedImage(w, h,
+					BufferedImage.TYPE_INT_ARGB);
+			Graphics2D g2d = bi.createGraphics();
+			g2d.setPaint(c);
+			g2d.fillRect(RECT_DIM_DEFAULT, RECT_DIM_DEFAULT, w, h);
+			g2d.dispose();
+			return bi;
+		}
+	}
+
+	/**
+	 * Nested class for Audio feedback
+	 * 
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\GUI.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\GUI.java
+	 */
+
+	 * 
+	 */
+	private final static class AudioFeedBack {
+		/**
+		 * Log messages
+		 */
+		private static final String LOG_FAILURE_AUDIO_PLAYED = "Failure Audio Played";
+		private static final String LOG_SUCCESS_AUDIO_PLAYED = "Success Audio Played";
+		private static final String LOG_AUDIO_FILE_FAILED_TO_OPEN = "Audio file failed to open";
+		private static final String LOG_AUDIO_FAILED_TO_STREAM = "Audio failed to stream";
+		private static final String LOG_AUDIO_SET_UP_HAS_FAILED = "Audio Set Up has failed";
+		private static final String LOG_AUDIO_SET_UP_IS_SUCCESSFUL = "Audio Set Up is successful";
+		private static final String FILE_SRC_SOUND_FAILURE_WAV = "beep2.wav";
+		private static final String FILE_SRC_SOUND_SUCCESS_WAV = "beep1.wav";
+
+		/**
+		 * To store clips and URL's to them
+		 */
+		private static Clip _successClip;
+		private static Clip _failureClip;
+		private static BufferedInputStream _urlSuccess;
+		private static BufferedInputStream _urlFailure;
+		/**
+		 * To store whether audio is enabled
+		 */
+		private static boolean AUDIO_ENABLED;
+
+		AudioFeedBack() {
+			setUpAudioClips();
+			openAudioClips();
+			this.enable();
+		}
+
+		/**
+		 * Opens the audio clips
+		 */
+		private void openAudioClips() {
+			openSuccessClip();
+			openFailureClip();
+		}
+
+		/**
+		 * Opens the Failure Clip
+		 */
+		private void openFailureClip() {
+			AudioInputStream ais;
+			ais = null;
+			ais = initFailureAudioStream(ais);
+			openFailureAudioStream(ais);
+		}
+
+		/**
+		 * Opens the failure stream and sets it to ais
+		 * 
+		 * @param ais
+		 *            Stream to be assigned
+		 */
+		private void openFailureAudioStream(AudioInputStream ais) {
+			try {
+				_failureClip.open(ais);
+			} catch (LineUnavailableException e) {
+				GUILogger.log(Level.WARNING, e.getMessage());
+				e.printStackTrace();
+			} catch (IOException e) {
+				GUILogger.log(Level.WARNING, e.getMessage());
+				e.printStackTrace();
+			}
+		}
+
+		/**
+		 * Initializes the Failure audio stream
+		 * 
+		 * @param ais
+		 *            stream to be initialized
+		 * 
+		 * @return the initializes stream
+		 */
+		private AudioInputStream initFailureAudioStream(AudioInputStream ais) {
+			try {
+				ais = AudioSystem.getAudioInputStream(_urlFailure);
+			} catch (UnsupportedAudioFileException | IOException e) {
+				GUILogger.log(Level.WARNING, e.getMessage());
+				e.printStackTrace();
+			}
+			return ais;
+		}
+
+		/**
+		 * Opens the success audio clip
+		 */
+		private void openSuccessClip() {
+			AudioInputStream ais = null;
+			ais = initSuccessAudioStream(ais);
+			openSuccessAudioStream(ais);
+		}
+
+		/**
+		 * Opens the success audio stream
+		 * 
+		 * @param ais
+		 *            Stream to be assigned
+		 */
+		private void openSuccessAudioStream(AudioInputStream ais) {
+			try {
+				_successClip.open(ais);
+			} catch (LineUnavailableException e) {
+				GUILogger.log(Level.WARNING, LOG_AUDIO_FILE_FAILED_TO_OPEN);
+				e.printStackTrace();
+			} catch (IOException e) {
+				GUILogger.log(Level.WARNING, LOG_AUDIO_FILE_FAILED_TO_OPEN);
+				e.printStackTrace();
+			}
+		}
+
+		/**
+		 * Initializes the Success audio stream
+		 * 
+		 * @param ais
+		 *            Stream to be assigned
+		 * 
+		 * @return the initialized stream
+		 */
+		private AudioInputStream initSuccessAudioStream(AudioInputStream ais) {
+			try {
+				ais = AudioSystem.getAudioInputStream(_urlSuccess);
+			} catch (UnsupportedAudioFileException | IOException e) {
+				GUILogger.log(Level.WARNING, LOG_AUDIO_FAILED_TO_STREAM);
+				e.printStackTrace();
+			}
+			return ais;
+		}
+
+		/**
+		 * Sets up the audio clips
+		 */
+		private void setUpAudioClips() {
+			try {
+				_urlSuccess = new BufferedInputStream(GUI.class
+						.getResourceAsStream(FILE_SRC_SOUND_SUCCESS_WAV));
+				_urlFailure = new BufferedInputStream(GUI.class
+						.getResourceAsStream(FILE_SRC_SOUND_FAILURE_WAV));
+				_successClip = AudioSystem.getClip();
+				_failureClip = AudioSystem.getClip();
+				GUILogger.log(Level.INFO, LOG_AUDIO_SET_UP_IS_SUCCESSFUL);
+			} catch (LineUnavailableException e) {
+				GUILogger.log(Level.WARNING, LOG_AUDIO_SET_UP_HAS_FAILED);
+				e.printStackTrace();
+			}
+		}
+
+		/**
+		 * Enables audio
+		 */
+		protected void enable() {
+			AUDIO_ENABLED = true;
+		}
+
+		/**
+		 * Plays the success audio
+		 */
+		protected void playSuccess() {
+			if (AUDIO_ENABLED) {
+				_successClip.setFramePosition(_successClip.getFrameLength());
+				_successClip.loop(1);
+				GUILogger.log(Level.INFO, LOG_SUCCESS_AUDIO_PLAYED);
+			}
+		}
+
+		/**
+		 * Plays the failure audio
+		 */
+		protected void playFailure() {
+			if (AUDIO_ENABLED) {
+				_failureClip.setFramePosition(_failureClip.getFrameLength());
+				_failureClip.loop(1);
+				GUILogger.log(Level.INFO, LOG_FAILURE_AUDIO_PLAYED);
+			}
+		}
+
+		/**
+		 * Disables audio
+		 */
+		protected void disable() {
+			AUDIO_ENABLED = false;
+		}
+	}
+
+	/**
+	 * Nested class to handle user input
+	 * 
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\GUI.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\GUI.java
+	 */
+
+	 * 
+	 */
+	private final class InputProcessor extends KeyAdapter {
+
+		private static final int INITIAL_UP_KEYPRESS_COUNT = 1;
+
+		private static final String EMPTY_STRING = "";
+
+		private static final String FEEDBACK_SOUND_TURNED_ON = "Sound turned on";
+		private static final String FEEDBACK_SOUND_TURNED_OFF = "Sound turned off";
+
+		private static final String UNMUTE_INPUT = "unmute";
+		private static final String MUTE_INPUT = "mute";
+		private static final String HELP_INPUT = "help";
+		private static final String EXIT_INPUT = "exit";
+
+		/**
+		 * Log constants
+		 */
+		private static final String LOG_ALT_KEY_RELEASED = "Alt key released";
+		private static final String LOG_ENTER_KEY_PRESSED = "Enter key pressed";
+		private static final String LOG_TAB_KEY_PRESSED = "Tab key pressed";
+		private static final String LOG_UP_KEY_PRESSED = "Up key pressed";
+
+		boolean altPressed = false;
+
+		@Override
+		public void keyPressed(KeyEvent e) {
+			if (isEnterKeyPress(e)) {
+				handleEnterKeyPress();
+			}
+			if (isUpKeyPress(e)) {
+				GUILogger.log(Level.INFO, LOG_UP_KEY_PRESSED);
+				executePrompt();
+			}
+			if (isTabKeyPress(e)) {
+				GUILogger.log(Level.INFO, LOG_TAB_KEY_PRESSED);
+				autocompleteCurrentInput();
+			}
+			if (isAltKeyPress(e)) {
+				GUILogger.log(Level.INFO, "Alt key pressed");
+				altPressed = true;
+			}
+		}
+
+		/**
+		 * Checks whether keypress is alt
+		 * 
+		 * @param e
+		 *            Key Event generated
+		 * 
+		 * @return whether keypress was alt
+		 */
+		private boolean isAltKeyPress(KeyEvent e) {
+			return e.getKeyCode() == KeyEvent.VK_ALT;
+		}
+
+		/**
+		 * Autocompletes current input
+		 */
+		private void autocompleteCurrentInput() {
+			String current = _userInputField.getText();
+			_userInputField.setText(_autoComplete.getSuggestion(current));
+		}
+
+		/**
+		 * Checks whether keypress is tab
+		 * 
+		 * @param e
+		 *            Key Event generated
+		 * 
+		 * @return whether keypress is tab
+		 */
+		private boolean isTabKeyPress(KeyEvent e) {
+			return e.getKeyCode() == KeyEvent.VK_TAB;
+		}
+
+		/**
+		 * Handles an event when the user hits enter
+		 */
+		private void handleEnterKeyPress() {
+			GUILogger.log(Level.INFO, LOG_ENTER_KEY_PRESSED);
+			if (altPressed) {
+				toggleMinMode();
+			} else {
+				handleEnteredInput();
+			}
+		}
+
+		/**
+		 * Prompts with recent values from session
+		 */
+		private void executePrompt() {
+			if (hasPrompt()) {
+				_userInputField.setText(_previousInputs.get(_previousInputs
+						.size()
+						- UP_KEYPRESS_COUNTER++));
+			} else {
+				UP_KEYPRESS_COUNTER = INITIAL_UP_KEYPRESS_COUNT;
+				_userInputField.setText(_previousInputs.get(_previousInputs
+						.size()
+						- UP_KEYPRESS_COUNTER++));
+			}
+		}
+
+		/**
+		 * Checks whether prompt is available
+		 * 
+		 * @return whether prompt is available
+		 */
+		private boolean hasPrompt() {
+			return _previousInputs.size() - UP_KEYPRESS_COUNTER >= 0;
+		}
+
+		/**
+		 * Determines whether the keypress is the up arrow
+		 * 
+		 * @param e
+		 *            Key event
+		 * @return whether the keypress is up
+		 */
+		private boolean isUpKeyPress(KeyEvent e) {
+			return e.getKeyCode() == KeyEvent.VK_UP;
+		}
+
+		/**
+		 * Handles the user entered input
+		 */
+		private void handleEnteredInput() {
+			String input = _userInputField.getText();
+			if (isExit(input)) {
+				System.exit(0);
+			} else if (isHelp(input)) {
+				_helpPane.setText(EMPTY_STRING);
+				_userInputField.setText(EMPTY_STRING);
+				updateHelpPane();
+			} else if (isMute(input)) {
+				assert _audio != null;
+				_audio.disable();
+				_userInputField.setText(EMPTY_STRING);
+				_displayState.setFeedback(new Feedback(
+						FEEDBACK_SOUND_TURNED_OFF, true));
+			} else if (isUnmute(input)) {
+				assert _audio != null;
+				_audio.enable();
+				_userInputField.setText(EMPTY_STRING);
+				_displayState.setFeedback(new Feedback(
+						FEEDBACK_SOUND_TURNED_ON, true));
+			} else {
+				clearHelpPane();
+				_displayState = _handler.handleInput(input);
+				assert _displayState != null;
+				updateUI(input);
+			}
+		}
+
+		/**
+		 * Clears the help pane
+		 */
+		private void clearHelpPane() {
+			_helpPane.setText(EMPTY_STRING);
+			appendToPane(_helpPane, HELP_PROMPT, _headerAttributes);
+		}
+
+		/**
+		 * Updates the UI on input submission
+		 * 
+		 * @param input
+		 *            Input submitted
+		 */
+		private void updateUI(String input) {
+			_userInputField.setText(EMPTY_STRING);
+			_autoComplete.updateState(_handler.getCurrentState());
+			_previousInputs.add(input);
+			UP_KEYPRESS_COUNTER = INITIAL_UP_KEYPRESS_COUNT;
+			updateTaskFields();
+			updateFeedbackPane();
+			playAudioFeedback();
+		}
+
+		/**
+		 * Checks whether input is unmute command
+		 * 
+		 * @param input
+		 *            User Input
+		 * 
+		 * @return whether the user input is unmute
+		 */
+		private boolean isUnmute(String input) {
+			return input.trim().equals(UNMUTE_INPUT);
+		}
+
+		/**
+		 * Checks whether the input command is mute
+		 * 
+		 * @param input
+		 *            User input
+		 * 
+		 * @return whether user input is mute command
+		 */
+		private boolean isMute(String input) {
+			return input.trim().equals(MUTE_INPUT);
+		}
+
+		/**
+		 * Checks whether user input is help command
+		 * 
+		 * @param input
+		 *            User input
+		 * @return whether user input is help command
+		 */
+		private boolean isHelp(String input) {
+			return input.trim().equals(HELP_INPUT);
+		}
+
+		/**
+		 * Checks whether user input is exit command
+		 * 
+		 * @param input
+		 *            User input
+		 * 
+		 * @return whether user input is exit command
+		 */
+		private boolean isExit(String input) {
+			return input.equals(EXIT_INPUT);
+		}
+
+		/**
+		 * Toggles to and from min mode
+		 */
+		private void toggleMinMode() {
+			if (_isMin) {
+				deactivateMinMode();
+				_isMin = false;
+			} else {
+				activateMinMode();
+				_isMin = true;
+			}
+		}
+
+		/**
+		 * Determines whether keypress is enter
+		 * 
+		 * @param e
+		 *            Key event generated
+		 * 
+		 * @return whether keypress is enter
+		 */
+		private boolean isEnterKeyPress(KeyEvent e) {
+			return e.getKeyCode() == KeyEvent.VK_ENTER;
+		}
+
+		@Override
+		public void keyReleased(KeyEvent e) {
+			if (isAltKeyPress(e)) {
+				GUILogger.log(Level.INFO, LOG_ALT_KEY_RELEASED);
+				altPressed = false;
+			}
+		}
+	}
+
+	/**
+	 * Triggers the min mode
+	 */
+	private void activateMinMode() {
+		GUILogger.log(Level.INFO, LOG_ACTIVATING_MIN_MODE);
+		_frmTodo.getContentPane().remove(_notificationsArea);
+		_frmTodo.getContentPane().remove(_taskScrollPane);
+		_frmTodo.setPreferredSize(new Dimension(MIN_MODE_WIDTH, MIN_MODE_HEIGHT));
+		_frmTodo.pack();
+		_frmTodo.setVisible(true);
+		_frmTodo.setExtendedState(Frame.NORMAL);
+	}
+
+	/**
+	 * Escapes from min mode
+	 */
+	private void deactivateMinMode() {
+		GUILogger.log(Level.INFO, LOG_DEACTIVATING_MIN_MODE);
+		_frmTodo.getContentPane().add(_notificationsArea, BorderLayout.EAST);
+		_frmTodo.getContentPane().add(_taskScrollPane, BorderLayout.CENTER);
+		_frmTodo.setExtendedState(Frame.MAXIMIZED_BOTH);
+		_frmTodo.setVisible(true);
+	}
+
+	/**
+	 * GUI state constants
+	 */
+	private JFrame _frmTodo;
+	private static JTextPane _currentDateTimeArea;
+	private static JTextPane _helpPane;
+	private static JPanel _notificationsArea;
+	private Timer _timer;
+	private JTextField _userInputField;
+	private JTextField _promptSymbol;
+	private JPanel _userInputArea;
+	private JPanel _userPromptArea;
+	private JTextPane _timedTaskView;
+	private JTextPane _deadlineTaskView;
+	private JTextPane _floatingTaskView;
+	private JTextPane _feedbackPane;
+	private JPanel _mainViewArea;
+	private static JScrollPane _taskScrollPane;
+	private ArrayList<String> _previousInputs;
+	private SystemTray _systemTray;
+	private Image _trayImage;
+	private PopupMenu _menu;
+	private TrayIcon _trayIcon;
+	private static CommandHandler _handler;
+	private static State _displayState;
+	private static Suggestor _autoComplete;
+	private static int UP_KEYPRESS_COUNTER;
+	private JHotKeys _shortcutKey;
+	private SimpleAttributeSet _headerAttributes;
+	private SimpleAttributeSet _bodyAttributes;
+	private SimpleAttributeSet _tagAttributes;
+	private SimpleAttributeSet _feedbackTextAttributes;
+	private SimpleAttributeSet _emptyAttributes;
+
+	/**
+	 * Stores whether in min or max mode
+	 */
+	private static boolean _isMin = false;
+
+	private String HELP_PROMPT = "\nFeeling Lost?\nTry keying in 'help'";
+	private SimpleAttributeSet completedAttributes;
+	private SimpleAttributeSet expiredAttributes;
+	private static GUI _runningGUI;
+	/**
+	 * Logger for the GUI
+	 */
+	protected static Logger GUILogger = Logger.getLogger(GUI_LOGGER);
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					_runningGUI = GUIFactory.getInstance();
+					_runningGUI._frmTodo.setVisible(WINDOW_VISIBLE);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Class to return a static instance of the GUI class
+	 * 
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\GUI.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\GUI.java
+	 */
+
+	 * 
+	 */
+	public static class GUIFactory {
+		/**
+		 * Routine to return a static instance of a GUI class
+		 * 
+		 * @return a static instance of a GUI class
+		 */
+		public static GUI getInstance() {
+			if (_runningGUI == null) {
+				return new GUI();
+			}
+			return _runningGUI;
+		}
+	}
+
+	/**
+	 * Create the application.
+	 */
+	private GUI() {
+		GUILogger.log(Level.INFO, LOG_GUI_SETTING_UP);
+
+		_handler = new CommandHandler();
+		_displayState = new State();
+		_autoComplete = new Suggestor();
+		_displayState.setFeedback(new Feedback(
+				FEEDBACK_CORRUPTED_PREVIOUS_STATE, FEEDBACK_NEGATIVE));
+		try {
+			_displayState = _handler.getCurrentState();
+			_autoComplete.updateState(_displayState);
+		} catch (Exception e) {
+			GUILogger.log(Level.WARNING,
+					LOG_PREVIOUS_STATE_WAS_CORRUPTED_NEW_STATE_CALLED);
+			e.printStackTrace();
+		} finally {
+			initialize();
+			UP_KEYPRESS_COUNTER = 1;
+			_previousInputs = new ArrayList<String>();
+			initTimer();
+		}
+	}
+
+	/**
+	 * Starts the timer
+	 */
+	private void initTimer() {
+		_timer = new Timer(TIMER_INTERVAL, this);
+		_timer.start();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+
+		resetScrollFlag();
+
+		initMainWindow();
+
+		setUpAttributes();
+
+		initMainViewArea();
+
+		initTimedTaskView();
+
+		initDeadlineTaskView();
+
+		initFloatingTaskView();
+
+		updateTaskFields();
+
+		initNotificationsArea();
+
+		initDateTimeArea();
+
+		initUserInputArea();
+
+		initFeedbackPane();
+
+		assignFocusToInput();
+
+		updateSystemTray();
+
+		setUpShortcutKey();
+
+		initHelpPane();
+
+		deactivateMinMode();
+
+		initAudioFeedBack();
+
+	}
+
+	/**
+	 * Indicates the a scroll is required
+	 * 
+	 */
+	private void resetScrollFlag() {
+		_scrolledTop = false;
+	}
+
+	/**
+	 * Sets up the audio feedback
+	 */
+	private void initAudioFeedBack() {
+		_audio = new AudioFeedBack();
+	}
+
+	/**
+	 * Plays the audio feedback
+	 */
+	private void playAudioFeedback() {
+		if (isUndefinedAudio()) {
+			return;
+		}
+
+		if (isPositiveFeedback()) {
+			_audio.playSuccess();
+		} else {
+			_audio.playFailure();
+		}
+	}
+
+	/**
+	 * Checks whether the feedback is positive
+	 * 
+	 * @return whether the feedback is positive
+	 */
+	private boolean isPositiveFeedback() {
+		return _displayState.getFeedback().isPositive();
+	}
+
+	/**
+	 * Checks whether the audio is undefined
+	 * 
+	 * @return whether the audio is undefined
+	 */
+	private boolean isUndefinedAudio() {
+		return _audio == null;
+	}
+
+	/**
+	 * Initializes the help pane
+	 */
+	private void initHelpPane() {
+		createHelpPane();
+		appendToPane(_helpPane, HELP_PROMPT, _headerAttributes);
+		_notificationsArea.add(_helpPane, BorderLayout.CENTER);
+	}
+
+	/**
+	 * Creates teh help pane
+	 */
+	private void createHelpPane() {
+		_helpPane = new JTextPane();
+		_helpPane.setBackground(GUI_BACKGROUND_COLOR);
+		_helpPane.setFont(FONT_HELP_PANE);
+		_helpPane.setEditable(false);
+	}
+
+	/**
+	 * Sets up the shortcut key
+	 */
+	private void setUpShortcutKey() {
+		GUILogger.log(Level.INFO, LOG_SHORTCUT_KEY_BEING_INITIALIZED);
+		_shortcutKey = new JHotKeys(LIB_PATH_JHOTKEYS);
+		if (isWindows()) {
+			GUILogger.log(Level.INFO, LOG_WINDOWS_DETECTED);
+			setUpJIntellitype();
+		}
+		assignShortcutHotKeyFunctionality();
+	}
+
+	/**
+	 * Assigns a handler to the shortcut
+	 */
+	private void assignShortcutHotKeyFunctionality() {
+		_shortcutKey.registerHotKey(NO_KEY_MODIFIER, NO_KEY_MODIFIER,
+				KeyEvent.VK_F3);
+		JHotKeyListener hotkeyListener = new JHotKeyListener() {
+			@Override
+			public void onHotKey(int id) {
+				GUILogger.log(Level.INFO, LOG_SHORTCUT_TRIGERRED);
+				if (isZero(id)) {
+					toggleGUI();
+				}
+			}
+
+			private boolean isZero(int id) {
+				return id == 0;
+			}
+		};
+		_shortcutKey.addHotKeyListener(hotkeyListener);
+	}
+
+	private void writeDllToDisk(String name) {
+		InputStream in = GUI.class.getResourceAsStream(name);
+
+		File fileOut = new File(DISK_LOCATION + name);
+
+		OutputStream out;
+		try {
+			out = FileUtils.openOutputStream(fileOut);
+			IOUtils.copy(in, out);
+			in.close();
+			out.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			GUILogger.log(Level.WARNING, LOG_UNABLE_TO_WRITE_DLL_TO_DISK);
+		}
+
+	}
+
+	private void setUpJIntellitype() {
+		writeDllToDisk(LIB_PATH_WINDOWS_J_INTELLITYPE_DLL);
+		writeDllToDisk(FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL);
+		JIntellitype.setLibraryLocation(DISK_LOCATION
+				+ LIB_PATH_WINDOWS_J_INTELLITYPE_DLL);
+		try {
+			_shortcutKey.registerHotKey(NO_KEY_MODIFIER, NO_KEY_MODIFIER,
+					KeyEvent.VK_F3);
+		} catch (Exception e) {
+			GUILogger.log(Level.INFO,
+					LOG_ATTEMPTING_TO_USE_64_BIT_DLL_AS_32_BIT_FAILED);
+			GUILogger.log(Level.WARNING, LOG_ERROR + e.getMessage()
+					+ LOG_ATTEMPTING_RESOLUTION);
+			JIntellitype.setLibraryLocation(DISK_LOCATION
+					+ FILEPATH_LIB_WINDOWS_J_INTELLITYPE64_DLL);
+		}
+	}
+
+	/**
+	 * Checks whether the OS is Windows
+	 * 
+	 * @return whether the OS is Windows
+	 */
+	private boolean isWindows() {
+		return System.getProperty(OS_NAME).contains(OS_NAME_WINDOWS);
+	}
+
+	/**
+	 * Toggles the GUI
+	 */
+	private void toggleGUI() {
+		if (_frmTodo.isShowing()) {
+			_frmTodo.dispose();
+		} else {
+			_frmTodo.setVisible(WINDOW_VISIBLE);
+		}
+	}
+
+	/**
+	 * Assigns the default focus to the input field
+	 */
+	private void assignFocusToInput() {
+		_frmTodo.addWindowFocusListener(new WindowAdapter() {
+			@Override
+			public void windowGainedFocus(WindowEvent e) {
+				_userInputField.requestFocusInWindow();
+			}
+		});
+	}
+
+	/**
+	 * Updates the Feedback Pane
+	 */
+	private void updateFeedbackPane() {
+		_feedbackPane.setText(EMPTY_STRING);
+		String feedbackText = _displayState.getFeedback().getDisplay();
+		if (isPositiveFeedback()) {
+			appendToPane(_feedbackPane, feedbackText, completedAttributes);
+		} else {
+			appendToPane(_feedbackPane, feedbackText, expiredAttributes);
+		}
+		_userInputArea.add(_feedbackPane);
+	}
+
+	/**
+	 * Updates the Help Pane
+	 */
+	private void updateHelpPane() {
+		appendToPane(_helpPane, HELP_TEXT_1, _headerAttributes);
+		appendToPane(_helpPane, HELP_TEXT_2, _feedbackTextAttributes);
+		appendToPane(_helpPane, HELP_TEXT_3, _headerAttributes);
+		appendToPane(_helpPane, HELP_TEXT_4, _feedbackTextAttributes);
+		appendToPane(_helpPane, HELP_TEXT_5, _headerAttributes);
+		appendToPane(_helpPane, HELP_TEXT_6, _feedbackTextAttributes);
+		appendToPane(_helpPane, HELP_TEXT_7, _headerAttributes);
+		appendToPane(_helpPane, HELP_TEXT_8, _feedbackTextAttributes);
+		appendToPane(_helpPane, HELP_TEXT_9, _headerAttributes);
+		appendToPane(_helpPane, HELP_TEXT_10, _feedbackTextAttributes);
+		appendToPane(_helpPane, HELP_TEXT_11, _headerAttributes);
+	}
+
+	/**
+	 * Updates the System Tray
+	 */
+	private void updateSystemTray() {
+		GUILogger.log(Level.INFO, LOG_ATTEMPTING_TO_ENABLE_SYSTRAY_SUPPORT);
+		if (SystemTray.isSupported()) {
+			_systemTray = SystemTray.getSystemTray();
+			InputStream picStream = GUI.class
+					.getResourceAsStream(PATH_TO_SYSTRAY_IMAGE);
+			BufferedInputStream in = new BufferedInputStream(picStream);
+			try {
+				_trayImage = ImageIO.read(in);
+			} catch (IOException e) {
+				GUILogger.log(Level.WARNING, LOG_IMAGE_COULD_NOT_BE_LOADED);
+				e.printStackTrace();
+			}
+
+			_menu = new PopupMenu();
+
+			populateSysTrayMenu();
+
+			setUpTrayIcon();
+
+			addIconToSysTray();
+		} else {
+			GUILogger.log(Level.WARNING, LOG_SYSTRAY_UNSUPPORTED);
+		}
+	}
+
+	/**
+	 * Sets up tray icon
+	 */
+	private void setUpTrayIcon() {
+		_trayIcon = new TrayIcon(_trayImage, TO_DO, _menu);
+		_trayIcon.setImageAutoSize(true);
+
+		_trayIcon.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				_frmTodo.setVisible(true);
+			}
+		});
+	}
+
+	/**
+	 * Adds an icon to System Tray
+	 */
+	private void addIconToSysTray() {
+		try {
+			_systemTray.add(_trayIcon);
+		} catch (AWTException e) {
+			GUILogger.log(Level.SEVERE,
+					LOG_SYSTRAY_ENABLE_FAILED_FOR_UNKNOWN_REASON);
+			GUILogger.log(Level.WARNING, e.getMessage());
+		}
+	}
+
+	/**
+	 * Populates the System tray Menu
+	 */
+	private void populateSysTrayMenu() {
+		addPullUpOption();
+		addExitOption();
+	}
+
+	/**
+	 * Adds the exit option to the systray menu
+	 */
+	private void addExitOption() {
+		MenuItem exitItem = new MenuItem(MENU_OPTION_EXIT);
+		exitItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+		_menu.add(exitItem);
+	}
+
+	/**
+	 * Adds the pull up option to the systray menu
+	 */
+	private void addPullUpOption() {
+		MenuItem pullUpItem = new MenuItem(MENU_OPTION_PULL_UP);
+		pullUpItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				_frmTodo.setVisible(WINDOW_VISIBLE);
+			}
+		});
+		_menu.add(pullUpItem);
+	}
+
+	/**
+	 * Initializes the user input area
+	 */
+	private void initUserInputArea() {
+		_userInputArea = new JPanel();
+		_frmTodo.getContentPane().add(_userInputArea, BorderLayout.SOUTH);
+		_userInputArea.setLayout(new BorderLayout(0, 0));
+		initUserPromptArea();
+		initPromptSymbol();
+		initPromptInputField();
+	}
+
+	/**
+	 * Initializes the user prompt area
+	 */
+	private void initUserPromptArea() {
+		_userPromptArea = new JPanel();
+		_userPromptArea.setLayout(new BorderLayout(0, 0));
+		_userInputArea.add(_userPromptArea, BorderLayout.SOUTH);
+
+	}
+
+	/**
+	 * Sets up the Prompt for the Input Field
+	 */
+	private void initPromptInputField() {
+		_userInputField = new JTextField();
+		_userInputField.addKeyListener(new InputProcessor());
+		_userInputField.setCaretColor(FOREGROUND_COLOR_WHITE);
+		_userInputField.setFocusTraversalKeysEnabled(false);
+		_userInputField.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				_userInputField.setText(EMPTY_STRING);
+			}
+		});
+		_userPromptArea.add(_userInputField, BorderLayout.CENTER);
+		_userInputField.setCursor(Cursor
+				.getPredefinedCursor(Cursor.TEXT_CURSOR));
+		_userInputField.setBorder(null);
+		_userInputField.setForeground(FOREGROUND_COLOR_WHITE);
+		_userInputField.setBackground(new Color(0, 0, 0));
+		_userInputField.setText(STRING_START_TYPING_HERE);
+		_userInputField.setFont(FONT_TASK_PANE);
+		_userInputField.setSize(20, 1);
+		_userInputField.requestFocusInWindow();
+	}
+
+	/**
+	 * Sets up prompt symbol
+	 */
+	private void initPromptSymbol() {
+		_promptSymbol = new JTextField();
+		_userPromptArea.add(_promptSymbol, BorderLayout.WEST);
+		_promptSymbol.setEditable(false);
+		_promptSymbol.setText(PROMPT_SYMBOL);
+		_promptSymbol.setForeground(FOREGROUND_COLOR_WHITE);
+		_promptSymbol
+				.setFont(new Font(FONT_TIME_AND_DATE_PANE, Font.PLAIN, 20));
+		_promptSymbol.setColumns(PROMPT_COLUMNS);
+		_promptSymbol.setBorder(null);
+		_promptSymbol.setBackground(GUI_BACKGROUND_COLOR);
+		_promptSymbol.setText(PROMPT_SYMBOL);
+	}
+
+	/**
+	 * Sets up the notifications area
+	 */
+	private void initNotificationsArea() {
+		_notificationsArea = new JPanel();
+		_notificationsArea.setBackground(new Color(0, 0, 0));
+		_frmTodo.getContentPane().add(_notificationsArea, BorderLayout.EAST);
+		_notificationsArea.setLayout(new BorderLayout(0, 0));
+	}
+
+	/**
+	 * Sets up the Date Time Area
+	 */
+	private void initDateTimeArea() {
+		_currentDateTimeArea = new JTextPane();
+		_currentDateTimeArea.setFont(FONT_DATE_TIME);
+		_currentDateTimeArea.setForeground(FOREGROUND_COLOR_WHITE);
+		_currentDateTimeArea.setText(STRING_FETCHING_SYSTEM_TIME);
+		_currentDateTimeArea.setBackground(new Color(0, 0, 0));
+
+		_currentDateTimeArea.setEditable(NOT_EDITABLE);
+
+		_notificationsArea.add(_currentDateTimeArea, BorderLayout.NORTH);
+	}
+
+	/**
+	 * Sets up the pane for floating tasks
+	 */
+	private void initFloatingTaskView() {
+		_floatingTaskView = new JTextPane();
+		_floatingTaskView.setEditable(NOT_EDITABLE);
+		_floatingTaskView.setForeground(FOREGROUND_COLOR_WHITE);
+		_floatingTaskView.setFont(FONT_TASK_PANE);
+		_floatingTaskView.setBackground(GUI_BACKGROUND_COLOR);
+	}
+
+	/**
+	 * Sets up the pane for deadline tasks
+	 */
+	private void initDeadlineTaskView() {
+		_deadlineTaskView = new JTextPane();
+		_deadlineTaskView.setEditable(NOT_EDITABLE);
+		_deadlineTaskView.setForeground(FOREGROUND_COLOR_WHITE);
+		_deadlineTaskView.setFont(FONT_TASK_PANE);
+		_deadlineTaskView.setBackground(GUI_BACKGROUND_COLOR);
+	}
+
+	/**
+	 * Sets up the pane for timed tasks
+	 */
+	private void initTimedTaskView() {
+		_timedTaskView = new JTextPane();
+		_timedTaskView.setEditable(NOT_EDITABLE);
+		_timedTaskView.setFont(FONT_TASK_PANE);
+		_timedTaskView.setForeground(FOREGROUND_COLOR_WHITE);
+		_timedTaskView.setBackground(new Color(0, 0, 0));
+	}
+
+	/**
+	 * Sets up the pane for feedback
+	 */
+	private void initFeedbackPane() {
+		_feedbackPane = new JTextPane();
+		_feedbackPane.setForeground(Color.YELLOW);
+		_feedbackPane.setBackground(new Color(0, 0, 0));
+		_feedbackPane.setFont(FONT_TASK_PANE);
+		_feedbackPane.setEditable(NOT_EDITABLE);
+		_feedbackPane.setDisabledTextColor(Color.BLUE);
+		if (!_displayState.getFeedback().getDisplay().equals(EMPTY_STRING)) {
+			updateFeedbackPane();
+		}
+		_userInputArea.add(_feedbackPane, BorderLayout.CENTER);
+	}
+
+	/**
+	 * Sets up the main view area
+	 */
+	private void initMainViewArea() {
+		_mainViewArea = new JPanel();
+		_mainViewArea.setForeground(Color.GREEN);
+		_mainViewArea.setBackground(new Color(0, 0, 0));
+
+		_taskScrollPane = new JScrollPane(_mainViewArea);
+		_taskScrollPane.setBorder(null);
+		_taskScrollPane.setViewportBorder(null);
+		_taskScrollPane
+				.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		_taskScrollPane.setViewportView(_mainViewArea);
+		_taskScrollPane.getVerticalScrollBar().setUI(new CustomScrollBar());
+		_taskScrollPane.getHorizontalScrollBar().setUI(new CustomScrollBar());
+
+		_frmTodo.getContentPane().add(_taskScrollPane, BorderLayout.CENTER);
+		_mainViewArea.setLayout(new GridLayout(0, 1, 0, 0));
+	}
+
+	/**
+	 * Sets up the main window
+	 */
+	private void initMainWindow() {
+		JFrame.setDefaultLookAndFeelDecorated(true);
+		_frmTodo = new JFrame();
+		_frmTodo.setIconImage(_trayImage);
+		_frmTodo.getContentPane().setForeground(new Color(0, 0, 0));
+		_frmTodo.getContentPane().setBackground(new Color(0, 0, 0));
+		_frmTodo.getContentPane().setLayout(new BorderLayout(0, 0));
+		_frmTodo.setTitle(TO_DO);
+		_frmTodo.setLocationRelativeTo(null);
+		_frmTodo.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+		_frmTodo.setExtendedState(Frame.MAXIMIZED_BOTH);
+	}
+
+	/**
+	 * Updates the task fields
+	 */
+	private void updateTaskFields() {
+		updateTimedTaskField();
+		updateDeadlineTaskField();
+		updateFloatingTaskField();
+		_mainViewArea.repaint();
+		resetScrollFlag();
+	}
+
+	/**
+	 * Appends text to a JTextPane
+	 * 
+	 * @param textPane
+	 *            Pane to append to
+	 * @param text
+	 *            text to append
+	 * @param attributes
+	 *            attributes to assign to appended text
+	 */
+	private void appendToPane(JTextPane textPane, String text,
+			SimpleAttributeSet attributes) {
+		StyledDocument document = textPane.getStyledDocument();
+
+		try {
+			document.insertString(document.getLength(), text, attributes);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+
+	/**
+	 * Routine to get the attributes for heading text
+	 * 
+	 * @return attributes for heading text
+	 */
+	private SimpleAttributeSet getHeadingAttributeSet() {
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributes, Color.BLUE);
+		StyleConstants.setBackground(attributes, GUI_BACKGROUND_COLOR);
+		StyleConstants.setFontFamily(attributes, FONT_NAME);
+		return attributes;
+	}
+
+	/**
+	 * Routine to get attributes for empty task text
+	 * 
+	 * @return attributes for empty task text
+	 */
+	private SimpleAttributeSet getEmptyAttributeSet() {
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributes, Color.GRAY);
+		StyleConstants.setBackground(attributes, GUI_BACKGROUND_COLOR);
+		StyleConstants.setFontFamily(attributes, FONT_NAME);
+		return attributes;
+	}
+
+	/**
+	 * Routine to get attributes for standard body text
+	 * 
+	 * @return attributes for standard body text
+	 */
+	private SimpleAttributeSet getBodyAttributeSet() {
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributes, FOREGROUND_COLOR_WHITE);
+		StyleConstants.setBackground(attributes, GUI_BACKGROUND_COLOR);
+		StyleConstants.setFontFamily(attributes, FONT_NAME);
+		return attributes;
+	}
+
+	/**
+	 * Routine to get attributes for tag text
+	 * 
+	 * @return attributes for tag text
+	 */
+	private SimpleAttributeSet getTagAttributeSet() {
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributes, Color.YELLOW);
+		StyleConstants.setBackground(attributes, GUI_BACKGROUND_COLOR);
+		StyleConstants.setFontFamily(attributes, FONT_NAME);
+		return attributes;
+	}
+
+	/**
+	 * Routine to get attributes for feedback text
+	 * 
+	 * @return attributes for feedback text
+	 */
+	private SimpleAttributeSet getFeedbackAttributeSet() {
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributes, Color.YELLOW);
+		StyleConstants.setBackground(attributes, GUI_BACKGROUND_COLOR);
+		StyleConstants.setFontFamily(attributes, FONT_NAME);
+		return attributes;
+	}
+
+	/**
+	 * Routine to get attributes for expired task text
+	 * 
+	 * @return attributes for expired task text
+	 */
+	private SimpleAttributeSet getExpiredAttributeSet() {
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributes, Color.RED);
+		StyleConstants.setBackground(attributes, GUI_BACKGROUND_COLOR);
+		StyleConstants.setFontFamily(attributes, FONT_NAME);
+		return attributes;
+	}
+
+	/**
+	 * Routine to get attributes for completed task text
+	 * 
+	 * @return attributes for completed task text
+	 */
+	private SimpleAttributeSet getCompletedAttributeSet() {
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributes, Color.GREEN);
+		StyleConstants.setBackground(attributes, GUI_BACKGROUND_COLOR);
+		StyleConstants.setFontFamily(attributes, FONT_NAME);
+		return attributes;
+	}
+
+	/**
+	 * Routine to set up attributes
+	 */
+	private void setUpAttributes() {
+
+		_headerAttributes = getHeadingAttributeSet();
+		_emptyAttributes = getEmptyAttributeSet();
+		_bodyAttributes = getBodyAttributeSet();
+		_tagAttributes = getTagAttributeSet();
+		_feedbackTextAttributes = getFeedbackAttributeSet();
+		completedAttributes = getCompletedAttributeSet();
+		expiredAttributes = getExpiredAttributeSet();
+	}
+
+	/**
+	 * Routine to update field for timed tasks
+	 */
+	private void updateTimedTaskField() {
+		if (!_displayState.getTimedTasks().isEmpty()) {
+
+			_timedTaskView.setText(EMPTY_STRING);
+
+			appendToPane(_timedTaskView, EVENTS_HEADER, _headerAttributes);
+
+			int index = 0;
+			for (TimedTask task : _displayState.getTimedTasks()) {
+				index = addTimedTaskToPane(index, task);
+			}
+
+			_mainViewArea.add(_timedTaskView);
+		} else if (_displayState.getTimedTasks().isEmpty()) {
+			GUILogger.log(Level.INFO, LOG_TIMED_TASKS_ARE_EMPTY);
+			_timedTaskView.setText(EMPTY_STRING);
+			_mainViewArea.remove(_timedTaskView);
+		}
+	}
+
+	/**
+	 * Routine to add a timed task to the GUI
+	 * 
+	 * @param index
+	 *            The index of the task to be added
+	 * @param task
+	 *            The task to be added
+	 * @return the index of the next task
+	 */
+	private int addTimedTaskToPane(int index, TimedTask task) {
+		String taskTags = EMPTY_STRING;
+		String timedTaskText = EMPTY_STRING;
+		String taskNum = TAB_SPACE + ++index + INDEX_SUFFIX;
+		timedTaskText += task.getTaskDescription() + TAB_SPACE;
+
+		taskTags = task.getTagString() + NEW_LINE;
+		String taskStart = task.getStartString();
+		String taskEnd = task.getEndString();
+
+		appendToPane(_timedTaskView, taskNum, _bodyAttributes);
+
+		if (task.isEmpty()) {
+			appendToPane(_timedTaskView, timedTaskText, _emptyAttributes);
+		} else if (task.isComplete()) {
+			appendToPane(_timedTaskView, timedTaskText, completedAttributes);
+		} else if (task.isExpired()) {
+			appendToPane(_timedTaskView, timedTaskText, expiredAttributes);
+		} else {
+			appendToPane(_timedTaskView, timedTaskText, _bodyAttributes);
+		}
+
+		appendToPane(_timedTaskView, taskTags, _tagAttributes);
+		appendToPane(_timedTaskView, EVENTS_FROM_PREFIX, _tagAttributes);
+		appendToPane(_timedTaskView, taskStart + NEW_LINE, _bodyAttributes);
+		appendToPane(_timedTaskView, EVENTS_TO_PREFIX, _tagAttributes);
+		appendToPane(_timedTaskView, taskEnd + NEW_LINE, _bodyAttributes);
+		return index;
+	}
+
+	/**
+	 * Routine to update the deadline task field
+	 */
+	private void updateDeadlineTaskField() {
+		if (!_displayState.getDeadlineTasks().isEmpty()) {
+
+			_deadlineTaskView.setText(EMPTY_STRING);
+
+			appendToPane(_deadlineTaskView, DEADLINES_HEADER, _headerAttributes);
+
+			int index = 0;
+
+			for (DeadlineTask task : _displayState.getDeadlineTasks()) {
+				index = addDeadlineTaskToPane(index, task);
+			}
+
+			_mainViewArea.add(_deadlineTaskView);
+		} else if (_displayState.getDeadlineTasks().isEmpty()) {
+			GUILogger.log(Level.INFO, LOG_DEADLINE_TASKS_ARE_EMPTY);
+			_deadlineTaskView.setText(EMPTY_STRING);
+			_mainViewArea.remove(_deadlineTaskView);
+		}
+	}
+
+	/**
+	 * Routine to add the deadline task to the GUI
+	 * 
+	 * @param index
+	 *            Index of the task to be added
+	 * @param task
+	 *            The task to be added
+	 * @return The index of the next task
+	 */
+	private int addDeadlineTaskToPane(int index, DeadlineTask task) {
+		String taskTags = EMPTY_STRING;
+		String deadlineTaskText = EMPTY_STRING;
+		String taskNum = TAB_SPACE + (++index) + INDEX_SUFFIX;
+		taskTags = task.getTagString() + NEW_LINE;
+		String taskDeadline = task.getDeadlineString();
+
+		deadlineTaskText += task.getTaskDescription() + TAB_SPACE;
+		appendToPane(_deadlineTaskView, taskNum, _bodyAttributes);
+
+		if (task.isComplete()) {
+			appendToPane(_deadlineTaskView, deadlineTaskText,
+					completedAttributes);
+		} else if (task.isExpired()) {
+			appendToPane(_deadlineTaskView, deadlineTaskText, expiredAttributes);
+		} else {
+			appendToPane(_deadlineTaskView, deadlineTaskText, _bodyAttributes);
+		}
+
+		appendToPane(_deadlineTaskView, taskTags, _tagAttributes);
+
+		appendToPane(_deadlineTaskView, DEADLINE_PREFIX, _tagAttributes);
+		appendToPane(_deadlineTaskView, taskDeadline + NEW_LINE,
+				_bodyAttributes);
+		return index;
+	}
+
+	/**
+	 * Routine to update the floating tasks field
+	 */
+	private void updateFloatingTaskField() {
+		if (!_displayState.getFloatingTasks().isEmpty()) {
+			_floatingTaskView.setText(EMPTY_STRING);
+
+			appendToPane(_floatingTaskView, FLEXIBLE_HEADER, _headerAttributes);
+
+			int index = 0;
+			for (FloatingTask task : _displayState.getFloatingTasks()) {
+				index = addTasksToFloatingPane(index, task);
+			}
+
+			_mainViewArea.add(_floatingTaskView);
+		} else if (_displayState.getFloatingTasks().isEmpty()) {
+			GUILogger.log(Level.INFO, LOG_FLOATING_TASKS_ARE_EMPTY);
+			_floatingTaskView.setText(EMPTY_STRING);
+			_mainViewArea.remove(_floatingTaskView);
+		}
+	}
+
+	/**
+	 * Routine to add floating tasks to the GUI
+	 * 
+	 * @param Index
+	 *            Index of the task to be added
+	 * @param Task
+	 *            the task to be added
+	 * @return The index of the next task
+	 */
+	private int addTasksToFloatingPane(int index, FloatingTask task) {
+		String floatingTaskText;
+		String taskTags;
+		String taskNum;
+		taskTags = EMPTY_STRING;
+		floatingTaskText = EMPTY_STRING;
+		taskNum = TAB_SPACE + (++index) + INDEX_SUFFIX;
+		floatingTaskText += task.getTaskDescription() + TAB_SPACE;
+		appendToPane(_floatingTaskView, taskNum, _bodyAttributes);
+		if (task.isComplete()) {
+			appendToPane(_floatingTaskView, floatingTaskText,
+					completedAttributes);
+		} else {
+			appendToPane(_floatingTaskView, floatingTaskText, _bodyAttributes);
+		}
+		taskTags = task.getTagString() + NEW_LINE;
+		appendToPane(_floatingTaskView, taskTags, _tagAttributes);
+		return index;
+	}
+
+	/**
+	 * Routine to get the current time to be displayed
+	 * 
+	 * @return Current time to be displayed as a string
+	 */
+	private static String getCurrentDisplayTime() {
+		SimpleDateFormat dateTimeFormat = new SimpleDateFormat(
+				CLOCK_DISPLAY_FORMAT);
+		Calendar currTime = Calendar.getInstance();
+		return dateTimeFormat.format(currTime.getTime());
+
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		_currentDateTimeArea.setText(getCurrentDisplayTime());
+		if (!_scrolledTop) {
+			scrollToTop();
+			_scrolledTop = true;
+		}
+	}
+
+	private static void scrollToTop() {
+		_taskScrollPane.getVerticalScrollBar().setValue(0);
+	}
+}
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\GUI.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\State.java
+	 */
+
+ * 
+ */
+
+public class State {
+
+	/**
+	 * Stores the feedback to be displayed
+	 */
+	private Feedback _feedback;
+	/**
+	 * ArrayLists to store the three types of tasks
+	 */
+
+	private TreeSet<TimedTask> _currentTimedTasks;
+	private TreeSet<FloatingTask> _currentFloatingTasks;
+	private TreeSet<DeadlineTask> _currentDeadlineTasks;
+
+	// Stores pointers to previous and next states for undo/redo
+	private State _previous;
+	private State _next;
+
+	State() {
+		_currentTimedTasks = new TreeSet<TimedTask>();
+		_currentFloatingTasks = new TreeSet<FloatingTask>();
+		_currentDeadlineTasks = new TreeSet<DeadlineTask>();
+		_feedback = new Feedback();
+		_previous = null;
+		_next = null;
+	}
+
+	/**
+	 * Initialize a new State with the context of an earlier state
+	 * 
+	 * @param previous
+	 */
+	State(State previous) {
+		this();
+		_currentTimedTasks = new TreeSet<TimedTask>(previous.getTimedTasks());
+		_currentDeadlineTasks = new TreeSet<DeadlineTask>(previous
+				.getDeadlineTasks());
+		_currentFloatingTasks = new TreeSet<FloatingTask>(previous
+				.getFloatingTasks());
+		_feedback = new Feedback(previous.getFeedback());
+		_previous = previous.getPrevious();
+		_next = previous.getNext();
+	}
+
+	/**
+	 * Routine to get a list of all timed tasks
+	 * 
+	 * @return an ArrayList with all timed tasks
+	 */
+	protected TreeSet<TimedTask> getTimedTasks() {
+		return _currentTimedTasks;
+	}
+
+	/**
+	 * Routine to get a list of all floating tasks
+	 * 
+	 * @return an ArrayList with all floating tasks
+	 */
+	protected TreeSet<FloatingTask> getFloatingTasks() {
+		return _currentFloatingTasks;
+	}
+
+	/**
+	 * Routine to get a list of all deadline tasks
+	 * 
+	 * @return an ArrayList with all deadline tasks
+	 */
+	protected TreeSet<DeadlineTask> getDeadlineTasks() {
+		return _currentDeadlineTasks;
+	}
+
+	/**
+	 * Routine to get a list of all tasks
+	 * 
+	 * @return an arraylist containing all tasks
+	 */
+	protected ArrayList<Task> getAllTasks() {
+		ArrayList<Task> allTasks = new ArrayList<Task>();
+
+		allTasks.addAll(getFloatingTasks());
+		allTasks.addAll(getTimedTasks());
+		allTasks.addAll(getDeadlineTasks());
+
+		return allTasks;
+	}
+
+	/**
+	 * Routine to add a generic task object
+	 * 
+	 * @param task
+	 *            task to be added
+	 */
+	protected void addTask(Task task) {
+		if (task instanceof FloatingTask) {
+			addTask((FloatingTask) (task));
+		} else if (task instanceof TimedTask) {
+			addTask((TimedTask) (task));
+		} else if (task instanceof DeadlineTask) {
+			addTask((DeadlineTask) (task));
+		}
+	}
+
+	/**
+	 * Routine to add a task to the timed tasks list
+	 * 
+	 * @param task
+	 *            Timed task to be added
+	 */
+	private void addTask(TimedTask task) {
+		_currentTimedTasks.add(task);
+	}
+
+	/**
+	 * Routine to add a task to the floating tasks list
+	 * 
+	 * @param task
+	 *            floating task to be added
+	 */
+	private void addTask(FloatingTask task) {
+		_currentFloatingTasks.add(task);
+	}
+
+	/**
+	 * Routine to add a task to the deadline tasks list
+	 * 
+	 * @param task
+	 *            deadline task to be added
+	 */
+	private void addTask(DeadlineTask task) {
+		_currentDeadlineTasks.add(task);
+	}
+
+	/**
+	 * Routine to check whether a particular string is in the description of any
+	 * task
+	 * 
+	 * @param taskSnippet
+	 *            String segment to search for
+	 * 
+	 * @return a boolean signifying whether String was found
+	 */
+	protected boolean hasTask(String taskSnippet) {
+		if (hasTask(taskSnippet, getTimedTasks())) {
+			return true;
+		}
+		if (hasTask(taskSnippet, getDeadlineTasks())) {
+			return true;
+		}
+		if (hasTask(taskSnippet, getFloatingTasks())) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Routine to check whether a particular string is in the description of any
+	 * task
+	 * 
+	 * @param taskSnippet
+	 * @param taskList
+	 * @return
+	 */
+	protected boolean hasTask(String taskSnippet,
+			TreeSet<? extends Task> taskList) {
+		for (Task task : taskList) {
+			if (task.getTaskDescription().contains(taskSnippet)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Routine to remove a particular task from timed tasks
+	 * 
+	 * @param task
+	 *            Task to be removed
+	 */
+	private void removeTask(TimedTask task) {
+		_currentTimedTasks.remove(task);
+	}
+
+	/**
+	 * Routine to remove a particular task from floating tasks
+	 * 
+	 * @param task
+	 *            Task to be removed
+	 */
+	private void removeTask(FloatingTask task) {
+		_currentFloatingTasks.remove(task);
+	}
+
+	/**
+	 * Routine to remove a particular task from deadline tasks
+	 * 
+	 * @param task
+	 *            Task to be removed
+	 */
+	private void removeTask(DeadlineTask task) {
+		_currentDeadlineTasks.remove(task);
+	}
+
+	/**
+	 * Routine to remove generic task object
+	 * 
+	 * @param task
+	 *            task object to be removed
+	 */
+	protected void removeTask(Task task) {
+		if (task instanceof FloatingTask) {
+			removeTask((FloatingTask) (task));
+		} else if (task instanceof TimedTask) {
+			removeTask((TimedTask) (task));
+		} else if (task instanceof DeadlineTask) {
+			removeTask((DeadlineTask) (task));
+		}
+	}
+
+	/**
+	 * Routine to get all tasks containing a given snippet
+	 * 
+	 * @param taskSnippet
+	 *            Task snippet contained
+	 * @return list of all tasks with a given snippet
+	 */
+	protected ArrayList<Task> getTasks(String taskSnippet) {
+		ArrayList<Task> requiredTasks = new ArrayList<Task>();
+
+		ArrayList<Task> allTasks = getAllTasks();
+
+		for (Task task : allTasks) {
+			if (task.getTaskDescription().contains(taskSnippet)) {
+				requiredTasks.add(task);
+			}
+		}
+
+		return requiredTasks;
+	}
+
+	/**
+	 * Routine to set the feedback to a string
+	 * 
+	 * @param feedback
+	 *            feedback to be set
+	 */
+	protected void setFeedback(Feedback feedback) {
+		_feedback = feedback;
+	}
+
+	/**
+	 * Routine to get the feedback to be displayed
+	 * 
+	 * @return the feedback currently set
+	 */
+	protected Feedback getFeedback() {
+		return _feedback;
+	}
+
+	/**
+	 * Routine to check whether a task with a date/time is present in the state
+	 * 
+	 * @return true if the current state has tasks with date/time
+	 */
+	protected boolean hasDateTasks() {
+		boolean hasDeadlineTasks = !this.getDeadlineTasks().isEmpty();
+		boolean hasTimedTasks = !this.getTimedTasks().isEmpty();
+		return hasDeadlineTasks || hasTimedTasks;
+	}
+
+	/**
+	 * Gets previous state in state chain
+	 * 
+	 * @return previous state
+	 */
+	protected State getPrevious() {
+		return _previous;
+	}
+
+	/**
+	 * Sets previous state in state chain to given state
+	 * 
+	 * @param state
+	 *            state which previous state is to be set to
+	 * 
+	 */
+	protected void setPrevious(State state) {
+		_previous = state;
+	}
+
+	/**
+	 * Checks if there is a previous state in state chain
+	 * 
+	 * @return true if there is a previous state, false otherwise
+	 */
+	protected boolean hasPrevious() {
+		return _previous != null;
+	}
+
+	/**
+	 * Get next state in state chain
+	 * 
+	 * @return next state
+	 */
+	protected State getNext() {
+		return _next;
+	}
+
+	/**
+	 * Set next state in state chain to given state
+	 * 
+	 * @param state
+	 *            state which next state is to be set to
+	 */
+	protected void setNext(State state) {
+		_next = state;
+	}
+
+	/**
+	 * Checks if there is next state in state chain
+	 * 
+	 * @return true if there is a next state, false otherwise
+	 */
+	protected boolean hasNext() {
+		return _next != null;
+	}
+}
+
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\State.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\StateTest.java
+	 */
+
+ *
+ */
+public class StateTest {
+
+	private State s;
+	private boolean cleared;
+	FloatingTask ftask;
+	DeadlineTask dtask;
+	TimedTask etask;
+	/**
+	 * Sets up sample state
+	 * 
+	 * @throws Exception
+	 */
+	@Before
+	public void setUp() throws Exception {
+		cleared = false;
+
+		s = new State();
+
+		Feedback f = new Feedback("added tasks", true);
+		s.setFeedback(f);
+
+		ftask = new FloatingTask("study hard",
+				new ArrayList<String>());
+		s.addTask(ftask);
+
+		ArrayList<String> dtags = new ArrayList<String>();
+		dtags.add("EE2020");
+		Calendar deadline = Calendar.getInstance();
+		dtask = new DeadlineTask("complete assignment 1", dtags,
+				deadline);
+		s.addTask(dtask);
+
+		ArrayList<String> etags = new ArrayList<String>();
+		etags.add("EE2021");
+		etags.add("priority");
+		Calendar start = Calendar.getInstance();
+		Calendar end = Calendar.getInstance();
+		etask = new TimedTask("complete report", etags, start, end);
+		s.addTask(etask);
+	}
+
+	/**
+	 * Routine to test get tasks 
+	 */
+	@Test
+	public void getTasksTest() {
+		if (!cleared) {
+			assertFalse(s.getAllTasks().isEmpty());
+			ArrayList<Task> taskList = s.getAllTasks();
+			assertTrue(taskList.size() == 3);
+		} else {
+			assertTrue(s.getAllTasks().isEmpty());
+		}
+	}
+
+	/**
+	 * Routine to test for feedback 
+	 */
+	@Test
+	public void getFeedbackTest() {
+		if (!cleared) {
+			assertTrue(s.getFeedback().getDisplay().equals("added tasks"));
+			assertTrue(s.getFeedback().isPositive());
+		} else {
+			assertTrue(s.getFeedback().getDisplay().equals(null));
+		}
+	}
+
+	/**
+	 *	Routine to check for correct floating tasks 
+	 */
+	@Test
+	public void getFloatingTasksTest() {
+		if (!cleared) {
+			assertFalse(s.getFloatingTasks() == null);
+			TreeSet<FloatingTask> taskList = s.getFloatingTasks();
+			FloatingTask task = taskList.first();
+			assertFalse(task.hasTag("priority"));
+		} else {
+			assertTrue(s.getFloatingTasks() == null);
+		}
+	}
+
+	/**
+	 * Routine to test for correct timed tasks
+	 */
+	@Test
+	public void getTimedTasksTest() {
+		if (!cleared) {
+			assertFalse(s.getTimedTasks() == null);
+			TreeSet<TimedTask> taskList = s.getTimedTasks();
+			TimedTask task = taskList.first();
+			assertTrue(task.getTaskDescription().equals("complete report"));
+			assertFalse(task.hasTag("EE2020"));
+		} else {
+			assertTrue(s.getTimedTasks() == null);
+		}
+	}
+
+	/**
+	 *	Routine to test for correct deadline tasks 
+	 */
+	@Test
+	public void getDeadlineTasksTest() {
+		if (!cleared) {
+			assertFalse(s.getDeadlineTasks() == null);
+		} else {
+			assertTrue(s.getDeadlineTasks() == null);
+		}
+	}
+
+	/**
+	 * Routine to test for correct floating tasks 
+	 */
+	@Test
+	public void getFlotingTasksTest() {
+		if (!cleared) {
+			assertTrue(s.hasDateTasks());
+		} else {
+			assertFalse(s.hasDateTasks());
+		}
+	}
+	
+	/**
+	 * Routine to test for removeTask
+	 */
+	@Test
+	public void removeTaskTest() {
+		if(!cleared) {
+			assertTrue(s.hasTask("study"));
+			s.removeTask(ftask);
+			assertFalse(s.hasTask("study hard"));
+			
+			assertTrue(s.hasTask("assignment"));
+			s.removeTask(dtask);
+			assertFalse(s.hasTask("assignment"));
+			
+			assertTrue(s.hasTask("report"));
+			s.removeTask(etask);
+			assertFalse(s.hasTask("report"));
+			
+			s.addTask(etask);
+			s.addTask(dtask);
+			s.addTask(ftask);
+		} else {
+			assertFalse(s.hasDateTasks());
+		}
+	}
+
+	/**
+	 * Routine to test for next and previous functionality and clear the state for testing 
+	 */
+	@Test
+	public void nextPreviousTestAndClear() {
+		State newState = new State();
+		s.setNext(newState);
+		newState.setPrevious(s);
+		assertTrue(s.hasNext());
+		assertTrue(newState.hasPrevious());
+		
+		s = s.getNext();
+		cleared = true;
+	}
+}
+
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\StateTest.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\SystemTesting.java
+	 */
+
+	public void checkClearCommandAfterAdd() {
+
+		// Add task
+		State displayState = handler.handleInput("do assignment");
+
+		// Check Feedback
+		String feedbackAdd = displayState.getFeedback().getDisplay();
+		assertEquals("added new floating task: do assignment", feedbackAdd);
+
+		// Check task fields
+		TreeSet<FloatingTask> floatingTasks = displayState.getFloatingTasks();
+		assertTrue(!floatingTasks.isEmpty());
+
+		TreeSet<DeadlineTask> deadlineTasks = displayState.getDeadlineTasks();
+		assertTrue(deadlineTasks.isEmpty());
+
+		TreeSet<TimedTask> timedTasks = displayState.getTimedTasks();
+		assertTrue(timedTasks.isEmpty());
+
+		// Add task
+		displayState = handler.handleInput("do assignment by tomorrow");
+
+		// Check Feedback
+		feedbackAdd = displayState.getFeedback().getDisplay();
+		assertEquals("added new deadline task: do assignment", feedbackAdd);
+
+		// Check task fields
+		floatingTasks = displayState.getFloatingTasks();
+		assertTrue(!floatingTasks.isEmpty());
+
+		deadlineTasks = displayState.getDeadlineTasks();
+		assertTrue(!deadlineTasks.isEmpty());
+
+		timedTasks = displayState.getTimedTasks();
+		assertTrue(timedTasks.isEmpty());
+
+		// Run Clear
+		displayState = handler.handleInput("clear");
+
+		// Check Feedback
+		String feedback = displayState.getFeedback().getDisplay();
+		assertEquals("all tasks cleared", feedback);
+
+		// Check task fields
+		floatingTasks = displayState.getFloatingTasks();
+		assertTrue(floatingTasks.isEmpty());
+
+		deadlineTasks = displayState.getDeadlineTasks();
+		assertTrue(deadlineTasks.isEmpty());
+
+		timedTasks = displayState.getTimedTasks();
+		assertTrue(timedTasks.isEmpty());
+
+		State currentState = handler.getCurrentState();
+		// Check Feedback in Current State
+		feedback = currentState.getFeedback().getDisplay();
+		assertEquals("all tasks cleared", feedback);
+
+		// Check task fields
+		floatingTasks = currentState.getFloatingTasks();
+		assertTrue(floatingTasks.isEmpty());
+
+		deadlineTasks = currentState.getDeadlineTasks();
+		assertTrue(deadlineTasks.isEmpty());
+
+		timedTasks = currentState.getTimedTasks();
+		assertTrue(timedTasks.isEmpty());
+	}
+
+	// Test to check if adding of a deadline task works
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\SystemTesting.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\Task.java
+	 */
+
+ * 
+ */
+class Task {
+	/**
+	 * Stores the task descriptions and user defined tags as well as expiry as
+	 * private members
+	 */
+	private String _description;
+	private TreeSet<String> _tags;
+	private boolean _expired;
+	private boolean _done;
+
+	/**
+	 * Default constructor
+	 */
+	Task() {
+		_description = "";
+		_tags = new TreeSet<String>();
+		_expired = false;
+		_done = false;
+	}
+
+	/**
+	 * Constructor for Tasks
+	 * 
+	 * @param description
+	 *            Description of task
+	 * 
+	 * @param tags
+	 *            Task tags
+	 */
+	Task(String description, ArrayList<String> tags) {
+		_description = description;
+		_tags = new TreeSet<String>(tags);;
+		_expired = false;
+		_done = false;
+	}
+	
+	/**
+	 * Constructor for Tasks
+	 * 
+	 * @param description
+	 *            Description of task
+	 * 
+	 * @param tags
+	 *            Task tags
+	 */
+	Task(String description, TreeSet<String> tags) {
+		_description = description;
+		_tags = tags;
+		_expired = false;
+		_done = false;
+	}
+
+	/**
+	 * Routine to set task description
+	 * 
+	 * @param description
+	 *            Task description to be set
+	 */
+	protected void setTaskDescription(String description) {
+		_description = description;
+	}
+
+	/**
+	 * Routine to get Task description
+	 * 
+	 * @return task description as a string
+	 */
+	protected String getTaskDescription() {
+		return _description;
+	}
+
+	/**
+	 * Routine to add a tag to a task
+	 * 
+	 * @param tag
+	 *            tag to be added
+	 */
+	protected void addTag(String tag) {
+		if (!hasTag(tag)) {
+			_tags.add(tag);
+		}
+	}
+
+	/**
+	 * Routine to check whether a Task has a particular tag
+	 * 
+	 * @param tag
+	 *            tag to check for
+	 * 
+	 * @return a boolean for whether a tag was found in this Task
+	 */
+	protected boolean hasTag(String tag) {
+		if (_tags.contains(tag)) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Routine to remove a tag from a Task
+	 * 
+	 * @param tag
+	 *            tag to be removed
+	 */
+	protected void removeTag(String tag) {
+		if (hasTag(tag)) {
+			_tags.remove(tag);
+		}
+	}
+
+	/**
+	 * Routine to get list of tags
+	 * 
+	 * @return tags list for a task
+	 */
+	protected TreeSet<String> getTags() {
+		return _tags;
+	}
+
+	/**
+	 * Routine to get the tag list as a String
+	 * 
+	 * @return the tag list as a String
+	 */
+	protected String getTagString() {
+		String tagString = "";
+		for (String tag : getTags()) {
+			tagString += "#" + tag + " ";
+		}
+		return tagString;
+	}
+
+	/**
+	 * Routine to check expiry status
+	 * 
+	 * @return expiry status
+	 */
+	protected boolean isExpired() {
+		return _expired;
+	}
+
+	/**
+	 * Routine to set a task as expired
+	 */
+	protected void expire() {
+		_expired = true;
+	}
+
+	/**
+	 * Routine to unmark an expired task
+	 */
+	protected void renew() {
+		_expired = false;
+	}
+
+	/**
+	 * Marks a task as done
+	 */
+	protected void markAsDone() {
+		_done = true;
+	}
+
+	/**
+	 * Marks a task as not done
+	 */
+	protected void markAsPending() {
+		_done = false;
+	}
+
+	/**
+	 * Gets the completion status of a task
+	 */
+	protected boolean isComplete() {
+		return _done;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	protected Task clone() {
+		String desc = this.getTaskDescription();
+		ArrayList<String> tags = new ArrayList<String>(this.getTags());
+		Task result = new Task(desc, tags);
+		if (this.isComplete()) {
+			result.markAsDone();
+		}
+		if (this.isExpired()) {
+			result.expire();
+		}
+		return result;
+	}
+}
+
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\Task.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\TestTask.java
+	 */
+
+ *
+ */
+public class TestTask {
+	Task task;
+	DeadlineTask deadlinetask;
+	String description;
+	String tag1;
+	String tag2;
+	TreeSet<String> tags;
+	Calendar cal1;
+	Calendar cal2;
+	TimedTask timedtask;
+
+	@Before
+	public void setUp() {
+		task = new Task();
+		deadlinetask = new DeadlineTask();
+		description = "Task description 222*^";
+		tag1 = "home";
+		tag2 = "priority";
+		cal1 = Calendar.getInstance();
+		cal2 = Calendar.getInstance();
+		cal2.setTimeInMillis(cal1.getTimeInMillis() + 1000000);
+		;
+		tags = new TreeSet<String>();
+		tags.add(tag1);
+		tags.add(tag2);
+	}
+
+	@Test
+	public void testNullTasks() {
+		Task task = new Task();
+		assertTrue(task.getTagString() == "");
+		assertTrue(task.getTaskDescription() == "");
+		assertTrue(task.getTagString() == "");
+	}
+
+	@Test
+	public void testTaskDescriptionMethods() {
+		assertTrue(task.getTaskDescription() == "");
+
+		task.setTaskDescription(description);
+		assertTrue(task.getTaskDescription().equals(description));
+	}
+
+	@Test
+	public void testTagMethods() {
+
+		task.addTag(tag1);
+		task.addTag(tag2);
+
+		assertTrue(task.hasTag(tag1));
+
+		assertTrue(task.hasTag(tag1));
+		assertTrue(task.hasTag(tag2));
+
+		assertTrue(task.getTags().equals(tags));
+	}
+
+	@Test
+	public void testDeadlineMethods() {
+		deadlinetask.setTaskDescription(description);
+		deadlinetask.addTag(tag1);
+		deadlinetask.setDeadline(cal1);
+		assertTrue(deadlinetask.getDeadline().equals(cal1));
+	}
+
+	@Test
+	public void testTimedMethods() {
+		timedtask = new TimedTask(description, tags, cal1, cal2);
+		timedtask.setStartDate(cal1);
+		timedtask.setEndDate(cal2);
+
+		assertTrue(timedtask.getStartDate().equals(cal1));
+		assertTrue(timedtask.getEndDate().equals(cal2));
+	}
+
+	@Test
+	public void testExpiryMethods() {
+		assertFalse(task.isExpired());
+		task.expire();
+		assertTrue(task.isExpired());
+		task.renew();
+		assertFalse(task.isExpired());
+	}
+}
+
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\TestTask.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\TimedTask.java
+	 */
+
+ * 
+ */
+class TimedTask extends Task implements Comparable<TimedTask> {
+	/**
+	 * Variables to store start and end times of tasks as Calendar objects
+	 */
+	private Calendar _startDate;
+	private Calendar _endDate;
+
+	/**
+	 * Constructor to set up TimedTasks
+	 * 
+	 * @param description
+	 *            Task description
+	 * @param tags
+	 *            Task tags
+	 * @param startDate
+	 *            Task start Calendar object
+	 * @param endDate
+	 *            Task end Calendar object
+	 */
+	TimedTask(String description, ArrayList<String> tags, Calendar startDate,
+			Calendar endDate) {
+		super(description, tags);
+		_startDate = startDate;
+		_endDate = endDate;
+	}
+	
+	/**
+	 * Constructor to set up TimedTasks
+	 * 
+	 * @param description
+	 *            Task description
+	 * @param tags
+	 *            Task tags
+	 * @param startDate
+	 *            Task start Calendar object
+	 * @param endDate
+	 *            Task end Calendar object
+	 */
+	TimedTask(String description, TreeSet<String> tags, Calendar startDate,
+			Calendar endDate) {
+		super(description, tags);
+		_startDate = startDate;
+		_endDate = endDate;
+	}
+
+	/**
+	 * Checks whether a task is an empty slot
+	 * 
+	 * @return whether a task is an empty slot
+	 */
+	protected boolean isEmpty() {
+		if (this.getTaskDescription().trim().equals("[EMPTY]")) {
+			return true;
+		}
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see todo.Task#isExpired()
+	 */
+	protected boolean isExpired() {
+		Calendar currentTime = Calendar.getInstance();
+
+		if (currentTime.getTimeInMillis() > this.getEndDate().getTimeInMillis()
+				|| this.getEndDate().getTimeInMillis() < this.getStartDate()
+						.getTimeInMillis()) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Routine to set the start date of a Task
+	 * 
+	 * @param startDate
+	 *            start date to be set
+	 */
+	protected void setStartDate(Calendar startDate) {
+		_startDate = startDate;
+	}
+
+	/**
+	 * Routine to set the end date of a Task
+	 * 
+	 * @param endDate
+	 *            end date to be set
+	 */
+	protected void setEndDate(Calendar endDate) {
+		_endDate = endDate;
+	}
+
+	/**
+	 * Routine to get the start date of a Task
+	 * 
+	 * @return the start date as a Calendar object
+	 */
+	protected Calendar getStartDate() {
+		return _startDate;
+	}
+
+	/**
+	 * Routine to get the end date of a Task
+	 * 
+	 * @return the end date as a Calendar object
+	 */
+	protected Calendar getEndDate() {
+		return _endDate;
+	}
+
+	/**
+	 * Routine to get the start time as a String
+	 * 
+	 * @return the start time as a string
+	 */
+	protected String getStartString() {
+		String startString = "";
+		String timeFormat = "hh:mm aa 'on' EEEEEEEEE',' dd MMMMMMMMM, yyyy ";
+
+		SimpleDateFormat sdf = new SimpleDateFormat(timeFormat);
+
+		startString = sdf.format(getStartDate().getTime());
+		return startString;
+	}
+
+	/**
+	 * Routine to get the end time as a String
+	 * 
+	 * @return the end time as a String
+	 */
+	protected String getEndString() {
+		String endString = "";
+		String timeFormat = "hh:mm aa 'on' EEEEEEEEE',' dd MMMMMMMMM, yyyy ";
+
+		SimpleDateFormat sdf = new SimpleDateFormat(timeFormat);
+
+		endString = sdf.format(getEndDate().getTime());
+		return endString;
+	}
+
+	/**
+	 * Routine that returns a timed task as a String
+	 */
+	@Override
+	public String toString() {
+		String taskString = "";
+		String timedTaskFormat = "hh:mm aa 'on' EEEEEEEEE ',' dd MMMMMMMMM, yyyy ";
+		SimpleDateFormat sdf = new SimpleDateFormat(timedTaskFormat);
+		taskString = getTaskDescription() + " from "
+				+ sdf.format(getStartDate().getTime()) + "to "
+				+ sdf.format(getEndDate().getTime());
+
+		for (String tag : getTags()) {
+			taskString += (" #" + tag);
+		}
+
+		return taskString;
+	}
+
+	@Override
+	public int compareTo(TimedTask otherTask) {
+		if (this.getStartDate().before(otherTask.getStartDate())) {
+			return -1;
+		} else if (this.getStartDate().after(otherTask.getStartDate())) {
+			return 1;
+		} else {
+			if (this.getEndDate().before(otherTask.getEndDate())) {
+				return -1;
+			} else if (this.getEndDate().after(otherTask.getEndDate())) {
+				return 1;
+			} else {
+				int descCompare = this.getTaskDescription().compareTo(
+						otherTask.getTaskDescription());
+				if (descCompare != 0) {
+					return descCompare;
+				} else {
+					if (this.getTags().equals(otherTask.getTags())) {
+						return 0;
+					} else {
+						return this.getTags().toString().compareTo(
+								otherTask.getTags().toString());
+					}
+				}
+			}
+		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof TimedTask)) {
+			return false;
+		} else {
+			TimedTask timedO = (TimedTask) o;
+			boolean sameStart = this.getStartDate().equals(
+					timedO.getStartDate());
+			boolean sameEnd = this.getEndDate().equals(timedO.getEndDate());
+			boolean sameName = this.getTaskDescription().equals(
+					timedO.getTaskDescription());
+			boolean sameTags = this.getTags().equals(timedO.getTags());
+			return sameStart && sameEnd && sameName && sameTags;
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		String startString = this.getStartDate().toString();
+		String endString = this.getEndDate().toString();
+		String nameString = this.getTaskDescription();
+		String tagString = this.getTags().toString();
+		return (startString + endString + nameString + tagString).hashCode();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see todo.Task#clone()
+	 */
+	protected TimedTask clone() {
+		String desc = this.getTaskDescription();
+		ArrayList<String> tags = new ArrayList<String>(this.getTags());
+		Calendar start = Calendar.getInstance();
+		Calendar end = Calendar.getInstance();
+		start.setTimeInMillis(this.getStartDate().getTimeInMillis());
+		end.setTimeInMillis(this.getEndDate().getTimeInMillis());
+		TimedTask result = new TimedTask(desc, tags, start, end);
+		if (this.isComplete()) {
+			result.markAsDone();
+		}
+		return result;
+	}
+}
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\TimedTask.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\ViewCommand.java
+	 */
+
+	 */
+	private State executeViewDate(State state) {
+		State s = new State();
+		int dd = date.get(Calendar.DATE);
+		int mm = date.get(Calendar.MONTH);
+		int yy = date.get(Calendar.YEAR);
+		TreeSet<DeadlineTask> deadline = state.getDeadlineTasks();
+		TreeSet<TimedTask> timed = state.getTimedTasks();
+		for (DeadlineTask cur : deadline) {
+			if (isSameDate(dd, mm, yy, cur)) {
+				s.addTask(cur);
+			}
+		}
+		Calendar previousEndTime = Calendar.getInstance();
+		Calendar nextStartTime = Calendar.getInstance();
+
+		if (!timed.isEmpty()) {
+			Calendar startOfDay = Calendar.getInstance();
+			startOfDay.clear();
+			previousEndTime.clear();
+			nextStartTime.clear();
+
+			startOfDay.set(Calendar.YEAR, yy);
+			startOfDay.set(Calendar.MONTH, mm);
+			startOfDay.set(Calendar.DATE, dd);
+
+			startOfDay.set(Calendar.HOUR_OF_DAY, 0);
+			startOfDay.set(Calendar.MINUTE, 0);
+			startOfDay.set(Calendar.SECOND, 0);
+			startOfDay.set(Calendar.MILLISECOND, 0);
+
+			findFirstEmptyTime(timed, previousEndTime, startOfDay);
+		}
+
+		for (TimedTask cur : timed) {
+			if (startDayMatches(dd, mm, yy, cur)
+					|| endDayMatches(dd, mm, yy, cur)) {
+				incrementBlankTasksInState(s, previousEndTime, nextStartTime,
+						cur);
+			}
+		}
+
+		if (previousEndTime.get(Calendar.DATE) == dd) {
+			addLastBlankTask(s, dd, mm, yy, previousEndTime);
+		}
+
+		String dateStr = String.format(DATE_FORMAT, String.valueOf(dd), String
+				.valueOf(mm + MONTH_OFFSET), String.valueOf(yy));
+		s.setFeedback(new Feedback(String.format(FEEDBACK_VIEW_DATE, dateStr),
+				true));
+
+		if (!s.hasDateTasks()) {
+			state.setFeedback(new Feedback(String.format(
+					FEEDBACK_VIEW_DATE_NOT_FOUND, dateStr), false));
+			return state;
+		}
+
+		return s;
+	}
+
+	/**
+	 * Adds the last blank task to the state
+	 * 
+	 * @param s
+	 *            State to be updated
+	 * 
+	 * @param dd
+	 *            Current Date
+	 * @param mm
+	 *            Current Month
+	 * @param yy
+	 *            Current Year
+	 * @param previousEndTime
+	 *            End time of last task
+	 */
+	private void addLastBlankTask(State s, int dd, int mm, int yy,
+			Calendar previousEndTime) {
+		Calendar last = Calendar.getInstance();
+		last.clear();
+		last.set(Calendar.DATE, dd);
+		last.set(Calendar.MONTH, mm);
+		last.set(Calendar.YEAR, yy);
+		last.set(Calendar.HOUR, 23);
+		last.set(Calendar.MINUTE, 59);
+		last.set(Calendar.SECOND, 59);
+		last.set(Calendar.MILLISECOND, 999);
+		TimedTask lastEmptyTask = getEmptyTask(previousEndTime, last);
+		s.addTask(lastEmptyTask);
+	}
+
+	/**
+	 * Adds a blank task to the state
+	 * 
+	 * @param s
+	 *            State to be updated
+	 * @param previousEndTime
+	 *            Blank task start time
+	 * @param nextStartTime
+	 *            Blank task end time
+	 * @param cur
+	 *            current task before blank
+	 */
+	private void incrementBlankTasksInState(State s, Calendar previousEndTime,
+			Calendar nextStartTime, TimedTask cur) {
+		nextStartTime.setTimeInMillis(cur.getStartDate().getTimeInMillis());
+
+		TimedTask blankTask = getEmptyTask(previousEndTime, nextStartTime);
+
+		if (previousEndTime.getTimeInMillis() < cur.getEndDate()
+				.getTimeInMillis()) {
+			previousEndTime.setTimeInMillis(cur.getEndDate().getTimeInMillis());
+		}
+
+		if (blankTask != null) {
+			s.addTask(blankTask);
+		}
+		s.addTask(cur);
+	}
+
+	/**
+	 * Finds the first empty slot for a given date
+	 * 
+	 * @param timed
+	 *            List of timed tasks
+	 * @param previousEndTime
+	 *            Calendar object to update
+	 * @param startOfDay
+	 *            Start of the date to be viewed
+	 */
+	private void findFirstEmptyTime(TreeSet<TimedTask> timed,
+			Calendar previousEndTime, Calendar startOfDay) {
+		for (TimedTask task : timed) {
+			if (startOfDay.getTimeInMillis() > task.getStartDate()
+					.getTimeInMillis()
+					&& startOfDay.getTimeInMillis() < task.getEndDate()
+							.getTimeInMillis()) {
+				previousEndTime.setTimeInMillis(task.getEndDate()
+						.getTimeInMillis());
+				break;
+			} else {
+				previousEndTime.setTimeInMillis(startOfDay.getTimeInMillis());
+			}
+		}
+	}
+
+	/**
+	 * Routine to check whether the date equality with a deadline task
+	 * 
+	 * @param dd
+	 *            Date viewed
+	 * @param mm
+	 *            Month viewed
+	 * @param yy
+	 *            Year viewed
+	 * @param cur
+	 *            Current Deadline task
+	 * @return whether the view date matches a deadline
+	 */
+	private boolean isSameDate(int dd, int mm, int yy, DeadlineTask cur) {
+		return dd == cur.getDeadline().get(Calendar.DATE)
+				&& mm == cur.getDeadline().get(Calendar.MONTH)
+				&& yy == cur.getDeadline().get(Calendar.YEAR);
+	}
+
+	/**
+	 * Routine that creates and return an empty timed task to be added to
+	 * current state
+	 * 
+	 * @param previousEndTime
+	 *            The end time of the previous timed task
+	 * @param nextStartTime
+	 *            The start time of the next timed task
+	 * @return a new blank timed task if possible, else null
+	 */
+	private TimedTask getEmptyTask(Calendar previousEndTime,
+			Calendar nextStartTime) {
+		if (previousEndTime.getTimeInMillis() >= nextStartTime
+				.getTimeInMillis())
+			return null;
+
+		Calendar start = Calendar.getInstance();
+		start.clear();
+		start.setTimeInMillis(previousEndTime.getTimeInMillis());
+
+		Calendar end = Calendar.getInstance();
+		end.clear();
+		end.setTimeInMillis(nextStartTime.getTimeInMillis());
+
+		TimedTask blankTask = new TimedTask(TASK_DESCRIPTION_EMPTY,
+				new ArrayList<String>(), start, end);
+		return blankTask;
+	}
+
+	/**
+	 * Checks whether the ending Day for a timed task is the same as what need
+	 * to be viewed
+	 * 
+	 * @param dd
+	 *            Date Viewed
+	 * @param mm
+	 *            Month Viewed
+	 * @param yy
+	 *            Year Viewed
+	 * @param cur
+	 *            Current Timed Task
+	 * @return equality of end date
+	 */
+	private boolean endDayMatches(int dd, int mm, int yy, TimedTask cur) {
+		return dd == cur.getEndDate().get(Calendar.DATE)
+				&& mm == cur.getEndDate().get(Calendar.MONTH)
+				&& yy == cur.getEndDate().get(Calendar.YEAR);
+	}
+
+	/**
+	 * Checks whether the starting Day for a timed task is the same as what
+	 * needs to be viewed
+	 * 
+	 * @param dd
+	 *            Date viewed
+	 * @param mm
+	 *            Month viewed
+	 * @param yy
+	 *            Year viewed
+	 * @param cur
+	 *            Current Timed Task
+	 * @return equality of start date
+	 */
+	private boolean startDayMatches(int dd, int mm, int yy, TimedTask cur) {
+		return dd == cur.getStartDate().get(Calendar.DATE)
+				&& mm == cur.getStartDate().get(Calendar.MONTH)
+				&& yy == cur.getStartDate().get(Calendar.YEAR);
+	}
+
+	/**
+	 * Executes view tag command
+	 * 
+	 * @param state
+	 *            current state of program
+	 * @return state after executing command
+	 * 
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\ViewCommand.java
+
+
+
+
+

@@ -1,0 +1,3300 @@
+//@author: a0097199h
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\AddCommand.java
+	 */
+
+ * 
+ */	
+public class AddCommand extends Command {
+	private static final String FEEDBACK_TIMED = "added new timed task: %1$s";
+	private static final String FEEDBACK_DEADLINE = "added new deadline task: %1$s";
+	private static final String FEEDBACK_FLOATING = "added new floating task: %1$s";
+	private static final String FEEDBACK_DUPLICATE = "failed to add: a similar task already exists";
+	
+	private static final String LOG_ERROR = "error executing add";
+	private static final String LOG_MESSAGE = "executing add";
+	private static final String LOG_DUPLICATE = "duplicate found in add";
+	
+	private Task task;
+	
+	/**
+	 * Constructor for AddCommand
+	 * 
+	 * @param t
+	 * 			the task to be added
+	 * 
+	 */
+	AddCommand(Task t) {
+		super(true);
+		task = t;
+	}
+	
+	@Override
+	protected boolean isValid() {
+		if (task == null) {
+			return false;
+		}
+		
+		if (!isValidDescription(task.getTaskDescription())) {
+			return false;
+		}
+
+		if (task instanceof DeadlineTask) {
+			return isValidDeadlineTask((DeadlineTask) task);
+		}
+		if (task instanceof TimedTask) {
+			return isValidTimedTask((TimedTask) task);
+		}
+		return true;
+	}
+	
+	/**
+	 * Checks whether a task's description is valid
+	 * Used in isValid method
+	 * Description should not be null or empty string.
+	 * 
+	 * @param desc
+	 * 			the description of the task
+	 * 
+	 * @return true if description is valid. false if otherwise.
+	 * 
+	 */
+	private boolean isValidDescription(String desc) {
+		return (desc != null && !desc.isEmpty());
+	}
+	
+	/**
+	 * Checks whether a DeadlineTask is valid
+	 * Used in isValid method
+	 * Deadline must not be null for it to be valid.
+	 * 
+	 * @param task
+	 * 			the DeadlineTask
+	 * 
+	 * @return true if DeadlineTask is valid. false if otherwise.
+	 * 
+	 */
+	private boolean isValidDeadlineTask(DeadlineTask task) {
+		return (task.getDeadline() != null);
+	}
+	
+	/**
+	 * Checks whether a TimedTask is valid
+	 * Used in isValid method
+	 * Start time and end time must not be null.
+	 * Start time must be before end time.
+	 * 
+	 * @param task
+	 * 			the TimedTask
+	 * 
+	 * @return true if TimedTask is valid. false if otherwise.
+	 * 
+	 */
+	private boolean isValidTimedTask(TimedTask task) {
+		if (task.getStartDate() == null || task.getEndDate() == null) {
+			return false;
+		}
+		return task.getStartDate().before(task.getEndDate());
+	}
+	
+	@Override
+	protected State execute(State state) throws Exception {
+		assert(this.isValid());
+		State s = new State(state);
+		
+		if (hasDuplicateTask(state, task)) {
+			logger.log(Level.INFO, LOG_DUPLICATE);
+			Feedback f = new Feedback(FEEDBACK_DUPLICATE, false);
+			s.setFeedback(f);
+			return s;
+		}
+		
+		s.addTask(task);
+		String desc = task.getTaskDescription();
+		logger.log(Level.INFO, LOG_MESSAGE);
+		if (task instanceof TimedTask) {
+			Feedback f = new Feedback(String.format(FEEDBACK_TIMED, desc),true);
+			s.setFeedback(f);
+			return s;
+		} else if (task instanceof DeadlineTask) {
+			Feedback f = new Feedback(String.format(FEEDBACK_DEADLINE, desc),true);
+			s.setFeedback(f);
+			return s;
+		} else if (task instanceof FloatingTask) {
+			Feedback f = new Feedback(String.format(FEEDBACK_FLOATING, desc),true);
+			s.setFeedback(f);
+			return s;
+		} else {
+			logger.log(Level.WARNING, LOG_ERROR);
+			throw new Exception();
+		}
+	}
+	
+	/**
+	 * Checks if state has duplicate task
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @param task
+	 * 			task to be searched in state
+	 * 
+	 * @return true if duplicate is found, false otherwise
+	 */
+	private boolean hasDuplicateTask(State state, Task task) {
+		return (state.getAllTasks().contains(task)) ;
+	}
+}
+
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\AddCommand.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\ClearCommand.java
+	 */
+
+ * 
+ */
+public class ClearCommand extends Command {
+	public static final int MODE_CLEAR_ALL = 0;
+	public static final int MODE_CLEAR_FLOATING = 1;
+	public static final int MODE_CLEAR_DEADLINE = 2;
+	public static final int MODE_CLEAR_TIMED = 3;
+	public static final int MODE_CLEAR_EXPIRED = 4;
+	public static final int MODE_CLEAR_DONE = 5;
+	
+	private static final String FEEDBACK_CLEAR_ALL = "all tasks cleared";
+	private static final String FEEDBACK_CLEAR_DEADLINE = "deadlines cleared";
+	private static final String FEEDBACK_CLEAR_TIMED = "events cleared";
+	private static final String FEEDBACK_CLEAR_FLOATING = "flexible tasks cleared";
+	private static final String FEEDBACK_CLEAR_EXPIRED = "expired tasks cleared";
+	private static final String FEEDBACK_CLEAR_DONE = "completed tasks cleared";
+	
+	private int mode;
+	/**
+	 * Constructor for ClearCommand
+	 */
+	public ClearCommand() {
+		super(true);
+		this.mode = MODE_CLEAR_ALL;
+	}
+	
+	/**
+	 * Constructor for ClearCommand
+	 * 
+	 * @param mode
+	 * 			defines what clear command does
+	 * 			possible modes:
+	 * 				MODE_CLEAR_ALL, MODE_CLEAR_DEADLINE,
+	 * 				MODE_CLEAR_TIMED, MODE_CLEAR_EXPIRED,
+	 * 				MODE_CLEAR_DONE
+	 */
+	public ClearCommand(int mode) {
+		super(true);
+		this.mode = mode;
+	}
+
+	@Override
+	protected boolean isValid() {
+		return mode == MODE_CLEAR_ALL ||
+				mode == MODE_CLEAR_FLOATING ||
+				mode == MODE_CLEAR_DEADLINE ||
+				mode == MODE_CLEAR_TIMED ||
+				mode == MODE_CLEAR_EXPIRED ||
+				mode == MODE_CLEAR_DONE;
+	}
+
+	@Override
+	protected State execute(State state) throws Exception {
+		State s = new State(state);
+		if (mode == MODE_CLEAR_ALL) {
+			s.getDeadlineTasks().clear();
+			s.getFloatingTasks().clear();
+			s.getTimedTasks().clear();
+			Feedback f = new Feedback(FEEDBACK_CLEAR_ALL, true);
+			s.setFeedback(f);
+			return s;
+		} else if (mode == MODE_CLEAR_DEADLINE) {
+			s.getDeadlineTasks().clear();
+			Feedback f = new Feedback(FEEDBACK_CLEAR_DEADLINE, true);
+			s.setFeedback(f);
+			return s;
+		} else if (mode == MODE_CLEAR_TIMED) {
+			s.getTimedTasks().clear();
+			Feedback f = new Feedback(FEEDBACK_CLEAR_TIMED, true);
+			s.setFeedback(f);
+			return s;
+		} else if (mode == MODE_CLEAR_FLOATING) {
+			s.getFloatingTasks().clear();
+			Feedback f = new Feedback(FEEDBACK_CLEAR_FLOATING, true);
+			s.setFeedback(f);
+			return s;
+		} else if (mode == MODE_CLEAR_EXPIRED) {
+			for (Task t : s.getAllTasks()) {
+				if (t.isExpired()) {
+					s.removeTask(t);
+				}
+			}
+			Feedback f = new Feedback(FEEDBACK_CLEAR_EXPIRED, true);
+			s.setFeedback(f);
+			return s;
+		} else if (mode == MODE_CLEAR_DONE) {
+			for (Task t : s.getAllTasks()) {
+				if (t.isComplete()) {
+					s.removeTask(t);
+				}
+			}
+			Feedback f = new Feedback(FEEDBACK_CLEAR_DONE, true);
+			s.setFeedback(f);
+			return s;
+		} else {
+			throw new Exception();
+		}
+	}
+}
+
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\ClearCommand.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\Command.java
+	 */
+
+ * 
+ */
+abstract class Command {
+	
+	private boolean mutator;
+	private boolean oldState;
+	protected static Logger logger = Logger.getLogger("Command");
+	
+	
+	/**
+	 * Constructor for Command
+	 * 
+	 * @param isMutator
+	 * 			whether command changes data
+	 * 			ie. needs to write to store
+	 * 
+	 * This is for most commands.
+	 * Most commands are not an old state.
+	 * 
+	 */
+	Command(boolean isMutator) {
+		mutator = isMutator;
+		oldState = false;
+	}
+	
+	/**
+	 * Constructor for Command
+	 * 
+	 * @param isMutator
+	 * 			whether command changes data
+	 * 			ie. needs to write to store
+	 * 
+	 * @param isOldState
+	 * 			whether command gets an old state
+	 * 			ie. on execution, command returns a previous state
+	 * 
+	 */
+	Command(boolean isMutator, boolean isOldState) {
+		mutator = isMutator;
+		oldState = isOldState;
+	}
+	
+	/**
+	 * Checks whether Command is valid
+	 * 
+	 * @return true if command is valid. false if otherwise.
+	 * 
+	 */
+	abstract protected boolean isValid();
+	
+	/**
+	 * Executes Command by modifying state
+	 * 
+	 * @param state
+	 * 			the current state of the program
+	 * 
+	 * @return new state if execution of command is successful. null if otherwise.
+	 * 
+	 */
+	abstract protected State execute(State state) throws Exception;
+	
+	/**
+	 * Executes Command by modifying state
+	 * Default behaviour: Ignores displayState and executes based on state.
+	 * 
+	 * @param state
+	 * 			the current state of the program
+	 * 
+	 * @param displayState
+	 * 			the current state being displayed
+	 * 
+	 * @return new state if execution of command is successful. null if otherwise.
+	 * 
+	 */
+	protected State execute(State state, State displayState) throws Exception {
+		return execute(state);
+	}
+	
+	/**
+	 * Returns whether command mutates state
+	 * 
+	 * @return true if command mutates state, false otherwise.
+	 */
+	protected boolean isMutator() {
+		return mutator;
+	}
+	
+	/**
+	 * Sets whether command mutates state
+	 * 
+	 * @param value
+	 * 			true if command mutates state, false otherwise.
+	 */
+	protected void setMutator(boolean value) {
+		mutator = value;
+	}
+	
+	/**
+	 * Returns whether command is a previous state
+	 * 
+	 * @return true if command is a previous state, false otherwise.
+	 */
+	protected boolean isOldState() {
+		return oldState;
+	}
+	
+	/**
+	 * Sets whether command is a previous state
+	 * 
+	 * @param value
+	 * 			true if command is a previous state, false otherwise.
+	 */
+	protected void setOldState(boolean value) {
+		oldState = value;
+	}
+}
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\Command.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\CommandHandler.java
+	 */
+
+ *
+ */
+class CommandHandler {
+	
+	private static final String FEEDBACK_CORRUPTED = "corrupted previous state";
+	private static final String FEEDBACK_EXECUTE_ERROR = "error encountered executing command";
+	private static final String FEEDBACK_INVALID_COMMAND = "invalid command";
+	
+	private Interpreter interpreter;
+	private State state;
+	private State displayState;
+	private JSONStorage store;
+	
+	/**
+	 * Constructor for CommandHandler
+	 * Initializes interpreter and stateList
+	 * 
+	 */
+	public CommandHandler(){
+		interpreter = new Interpreter();
+		store = new JSONStorage();
+		state = readStorage();
+		displayState = state;
+	}
+	
+	
+	/**
+	 * Takes in a user input string and returns the new state
+	 * 
+	 * 
+	 * @param commandString
+	 * 			user input string
+	 * 
+	 * @return a State to be displayed
+	 */
+	protected State handleInput(String commandString){
+		Command command = interpreter.parseInput(commandString);
+		displayState = handle(command);
+		return displayState;
+	}
+	
+	/**
+	 * Checks if command is valid
+	 * 
+	 * @param command
+	 * 			Command created by interpreter
+	 * 
+	 * @return true if command is valid, false otherwise.
+	 * 
+	 */
+	protected boolean isValidCommand(Command command) {
+		return command != null && command.isValid();
+	}
+	
+	/**
+	 * Handles the execution of a command
+	 * If command is not valid, returns an invalid state.
+	 * 
+	 * @param command
+	 * 			Command created by interpreter
+	 * 
+	 * @return State
+	 */
+	protected State handle(Command command) {
+		if (isValidCommand(command)) {
+			State newState;
+			try {
+				newState = command.execute(getCurrentState(), getDisplayState());
+			} catch (Exception e) {
+				return makeInvalidState(new Feedback(FEEDBACK_EXECUTE_ERROR, false));
+			}
+			if (command.isMutator()) {
+				handleMutator(command, newState);
+			}
+			return newState;
+		} else {
+			return makeInvalidState(new Feedback(FEEDBACK_INVALID_COMMAND, false));
+		}
+	}
+	
+	/**
+	 * Handles the execution of a mutator command
+	 * Updates current state
+	 * 
+	 * @param command
+	 * 			Command created by parser
+	 * 
+	 * @param newState
+	 * 			state after execution of command
+	 * 
+	 */
+	protected void handleMutator(Command command, State newState) {
+		updateStorage(newState);
+		if (!command.isOldState()) {
+			addNewState(newState);
+		}
+		state = newState;
+	}
+	
+	/**
+	 * Gets the current state
+	 * 
+	 * @return the current State
+	 */
+	protected State getCurrentState() {
+		return state;
+	}
+	
+	/**
+	 * Gets the current display state
+	 * 
+	 * @return the current State
+	 */
+	protected State getDisplayState() {
+		return displayState;
+	}
+	
+	/**
+	 * Adds new state to state chain
+	 * 
+	 */
+	private void addNewState(State newState) {
+		state.setNext(newState);
+		newState.setPrevious(state);
+		newState.setNext(null);
+	}
+	
+	/**
+	 * Makes an invalid state by copying the current state
+	 * and adding a feedback
+	 * 
+	 * @param feedback
+	 * 			String that represents the feedback of the invalid state
+	 * 
+	 * @return an invalid State
+	 */
+	protected State makeInvalidState(Feedback feedback) {
+		State s = new State(getCurrentState());
+		s.setFeedback(feedback);
+		return s;
+	}
+	
+	/**
+	 * Updates text file with new state
+	 * 
+	 * @param state
+	 * 			state to be used to update Storage
+	 * 
+	 * @return true if update is successful.
+	 */
+	private boolean updateStorage(State state) {
+		assert(store != null);
+		try {
+			store.writeStore(state);
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	/**
+	 * Reads storage to get init state
+	 * 
+	 * 
+	 * @return initial state if successful, empty state otherwise.
+	 */
+	private State readStorage() {
+		assert(store != null);
+		State initState = new State();
+		try {
+			initState = store.readStore();
+			return initState;
+		} catch (Exception e) {
+			initState.setFeedback(new Feedback(FEEDBACK_CORRUPTED,false));
+			return initState;
+		}
+	}
+}
+
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\CommandHandler.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\CommandTest.java
+	 */
+
+ *
+ */
+public class CommandTest {
+
+	@Test
+	public void testAdd() {
+		Task testAddTask;
+		Command addCommand;
+		State testState;
+		State resultState;
+		
+		// null task name
+		testAddTask = new FloatingTask(null, new ArrayList<String>());
+		addCommand = new AddCommand(testAddTask);
+		assertFalse(addCommand.isValid());
+		
+		// empty task name
+		testAddTask = new FloatingTask("", new ArrayList<String>());
+		addCommand = new AddCommand(testAddTask);
+		assertFalse(addCommand.isValid());
+		
+		// valid floating task
+		testAddTask = new FloatingTask("floating task", new ArrayList<String>());
+		addCommand = new AddCommand(testAddTask);
+		assertTrue(addCommand.isValid());
+		
+		// add floating task
+		testState = new State();
+		try {
+			resultState = addCommand.execute(testState);
+			assertTrue(resultState.getFloatingTasks().contains(testAddTask));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// null deadline
+		testAddTask = new DeadlineTask("deadline task", new ArrayList<String>(),
+				null);
+		addCommand = new AddCommand(testAddTask);
+		assertFalse(addCommand.isValid());
+		
+		// valid deadline task
+		testAddTask = new DeadlineTask("deadline task", new ArrayList<String>(),
+				Calendar.getInstance());
+		addCommand = new AddCommand(testAddTask);
+		assertTrue(addCommand.isValid());
+		
+		// add deadline task
+		try {
+			resultState = addCommand.execute(testState);
+			assertTrue(resultState.getDeadlineTasks().contains(testAddTask));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// null start time
+		testAddTask = new TimedTask("timed task", new ArrayList<String>(),
+				null, Calendar.getInstance());
+		addCommand = new AddCommand(testAddTask);
+		assertFalse(addCommand.isValid());
+		
+		// null end time
+		testAddTask = new TimedTask("timed task", new ArrayList<String>(),
+				Calendar.getInstance(), null);
+		addCommand = new AddCommand(testAddTask);
+		assertFalse(addCommand.isValid());
+		
+		// start time after end time
+		Calendar startDate = Calendar.getInstance();
+		startDate.add(Calendar.DATE, 1);
+		Calendar endDate = Calendar.getInstance();
+		testAddTask = new TimedTask("timed task", new ArrayList<String>(),
+				startDate, endDate);
+		addCommand = new AddCommand(testAddTask);
+		assertFalse(addCommand.isValid());
+		
+		// valid timed task
+		startDate = Calendar.getInstance();
+		endDate = Calendar.getInstance();
+		endDate.add(Calendar.DATE, 1);
+		testAddTask = new TimedTask("timed task", new ArrayList<String>(),
+				startDate, endDate);
+		addCommand = new AddCommand(testAddTask);
+		assertTrue(addCommand.isValid());
+		
+		// add timed task
+		try {
+			resultState = addCommand.execute(testState);
+			assertTrue(resultState.getTimedTasks().contains(testAddTask));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+	}
+	
+	@Test
+	public void testView() {
+		Command viewCommand;
+		State testState;
+		State resultState;
+		
+		Task floating = new FloatingTask("floating", new ArrayList<String>());
+		Task deadline = new DeadlineTask("deadline", new ArrayList<String>(), Calendar.getInstance());
+		Calendar startDate = Calendar.getInstance();
+		Calendar endDate = Calendar.getInstance();
+		endDate.add(Calendar.DATE, 1);
+		Task timed = new TimedTask("timed task", new ArrayList<String>(),
+				startDate, endDate);
+		
+		testState = new State();
+		testState.addTask(floating);
+		testState.addTask(deadline);
+		testState.addTask(timed);
+		
+		// view all
+		viewCommand = new ViewCommand(ViewCommand.MODE_VIEW_ALL);
+		assertTrue(viewCommand.isValid());
+		
+		try {
+			resultState = viewCommand.execute(testState);
+			assertTrue(resultState.getAllTasks().contains(floating) &&
+					resultState.getAllTasks().contains(deadline) &&
+					resultState.getAllTasks().contains(timed));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// view floating
+		viewCommand = new ViewCommand(ViewCommand.MODE_VIEW_FLOATING);
+		assertTrue(viewCommand.isValid());
+
+		try {
+			resultState = viewCommand.execute(testState);
+			assertTrue(resultState.getAllTasks().contains(floating) &&
+					!resultState.getAllTasks().contains(deadline) &&
+					!resultState.getAllTasks().contains(timed));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// view timed
+		viewCommand = new ViewCommand(ViewCommand.MODE_VIEW_TIMED);
+		assertTrue(viewCommand.isValid());
+
+		try {
+			resultState = viewCommand.execute(testState);
+			assertTrue(!resultState.getAllTasks().contains(floating) &&
+					!resultState.getAllTasks().contains(deadline) &&
+					resultState.getAllTasks().contains(timed));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// view deadline
+		viewCommand = new ViewCommand(ViewCommand.MODE_VIEW_DEADLINE);
+		assertTrue(viewCommand.isValid());
+
+		try {
+			resultState = viewCommand.execute(testState);
+			assertTrue(!resultState.getAllTasks().contains(floating) &&
+					resultState.getAllTasks().contains(deadline) &&
+					!resultState.getAllTasks().contains(timed));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// view done
+		floating.markAsDone();
+		viewCommand = new ViewCommand(ViewCommand.MODE_VIEW_DONE);
+		assertTrue(viewCommand.isValid());
+		try {
+			resultState = viewCommand.execute(testState);
+			assertTrue(resultState.getAllTasks().contains(floating) &&
+					!resultState.getAllTasks().contains(deadline) &&
+					!resultState.getAllTasks().contains(timed));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// view expired
+		floating.markAsPending();
+		floating.expire();
+		viewCommand = new ViewCommand(ViewCommand.MODE_VIEW_EXPIRED);
+		assertTrue(viewCommand.isValid());
+		try {
+			resultState = viewCommand.execute(testState);
+			assertTrue(resultState.getAllTasks().contains(floating) &&
+					resultState.getAllTasks().contains(deadline) &&
+					!resultState.getAllTasks().contains(timed));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// view expired
+		deadline.markAsDone();
+		viewCommand = new ViewCommand(ViewCommand.MODE_VIEW_EXPIRED);
+		assertTrue(viewCommand.isValid());
+		try {
+			resultState = viewCommand.execute(testState);
+			assertTrue(resultState.getAllTasks().contains(floating) &&
+					!resultState.getAllTasks().contains(deadline) &&
+					!resultState.getAllTasks().contains(timed));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+	}
+	
+	@Test
+	public void testModify() {
+		Command modifyCommand;
+		State testState;
+		State resultState;
+		
+		// change 
+		testState = new State();
+		Task floating = new FloatingTask("floating", new ArrayList<String>());
+		testState.addTask(floating);
+		modifyCommand = new ModifyCommand("floating", "renamed floating");
+		assertTrue(modifyCommand.isValid());
+		try {
+			resultState = modifyCommand.execute(testState, testState);
+			assertTrue(resultState.getFloatingTasks().first().getTaskDescription().equals("renamed floating"));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// change by index
+		testState = new State();
+		floating = new FloatingTask("floating", new ArrayList<String>());
+		testState.addTask(floating);
+		modifyCommand = new ModifyCommand(1, ModifyCommand.INDEX_FLOATING, "renamed floating");
+		assertTrue(modifyCommand.isValid());
+		try {
+			resultState = modifyCommand.execute(testState, testState);
+			assertTrue(resultState.getFloatingTasks().first().getTaskDescription().equals("renamed floating"));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// index not in range
+		testState = new State();
+		floating = new FloatingTask("floating", new ArrayList<String>());
+		testState.addTask(floating);
+		modifyCommand = new ModifyCommand(2, ModifyCommand.INDEX_FLOATING, "renamed floating");
+		assertTrue(modifyCommand.isValid());
+		try {
+			resultState = modifyCommand.execute(testState, testState);
+			assertTrue(resultState.getFeedback().getDisplay().equals("invalid index"));
+			assertTrue(resultState.getFloatingTasks().first().equals(floating));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+	}
+	
+	@Test
+	public void testClear() {
+		Command clearCommand;
+		State testState;
+		State resultState;
+		
+		Task floating = new FloatingTask("floating", new ArrayList<String>());
+		Task deadline = new DeadlineTask("deadline", new ArrayList<String>(), Calendar.getInstance());
+		Calendar startDate = Calendar.getInstance();
+		Calendar endDate = Calendar.getInstance();
+		endDate.add(Calendar.DATE, 1);
+		Task timed = new TimedTask("timed task", new ArrayList<String>(),
+				startDate, endDate);
+		
+		testState = new State();
+		testState.addTask(floating);
+		testState.addTask(deadline);
+		testState.addTask(timed);
+		
+		// clear all
+		clearCommand = new ClearCommand(ClearCommand.MODE_CLEAR_ALL);
+		assertTrue(clearCommand.isValid());
+		try {
+			resultState = clearCommand.execute(testState);
+			assertTrue(resultState.getAllTasks().isEmpty());
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// clear floating
+		clearCommand = new ClearCommand(ClearCommand.MODE_CLEAR_FLOATING);
+		assertTrue(clearCommand.isValid());
+		try {
+			resultState = clearCommand.execute(testState);
+			assertTrue(resultState.getFloatingTasks().isEmpty() &&
+					resultState.getDeadlineTasks().contains(deadline) &&
+					resultState.getTimedTasks().contains(timed));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// clear timed
+		clearCommand = new ClearCommand(ClearCommand.MODE_CLEAR_TIMED);
+		assertTrue(clearCommand.isValid());
+		try {
+			resultState = clearCommand.execute(testState);
+			assertTrue(resultState.getTimedTasks().isEmpty() &&
+					resultState.getDeadlineTasks().contains(deadline) &&
+					resultState.getFloatingTasks().contains(floating));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// clear deadline
+		clearCommand = new ClearCommand(ClearCommand.MODE_CLEAR_DEADLINE);
+		assertTrue(clearCommand.isValid());
+		try {
+			resultState = clearCommand.execute(testState);
+			assertTrue(resultState.getDeadlineTasks().isEmpty() &&
+					resultState.getTimedTasks().contains(timed) &&
+					resultState.getFloatingTasks().contains(floating));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+	}
+	
+	public void testDelete() {
+		Command deleteCommand;
+		State testState;
+		State resultState;
+		
+		Task floating = new FloatingTask("floating", new ArrayList<String>());
+		Task deadline = new DeadlineTask("deadline", new ArrayList<String>(), Calendar.getInstance());
+		Calendar startDate = Calendar.getInstance();
+		Calendar endDate = Calendar.getInstance();
+		endDate.add(Calendar.DATE, 1);
+		Task timed = new TimedTask("timed task", new ArrayList<String>(),
+				startDate, endDate);
+		
+		testState = new State();
+		testState.addTask(floating);
+		testState.addTask(deadline);
+		testState.addTask(timed);
+		
+		// delete by name
+		deleteCommand = new DeleteCommand("floating");
+		assertTrue(deleteCommand.isValid());
+		try {
+			resultState = deleteCommand.execute(testState);
+			assertFalse(resultState.getAllTasks().contains(floating));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// delete by index
+		deleteCommand = new DeleteCommand(1, DeleteCommand.INDEX_FLOATING);
+		assertTrue(deleteCommand.isValid());
+		try {
+			resultState = deleteCommand.execute(testState);
+			assertFalse(resultState.getAllTasks().contains(floating));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// index not in range
+		deleteCommand = new DeleteCommand(2, DeleteCommand.INDEX_TIMED);
+		assertTrue(deleteCommand.isValid());
+		try {
+			resultState = deleteCommand.execute(testState);
+			assertTrue(resultState.getAllTasks().size() == 3);
+			assertTrue(resultState.getFeedback().getDisplay().equals("invalid index"));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+	}
+	
+	public void testUndo() {
+		Command undoCommand;
+		State testState;
+		State testState2;
+		State testState3;
+		State resultState;
+		
+		testState = new State();
+		testState2 = new State();
+		testState3 = new State();
+		testState.setNext(testState2);
+		testState2.setPrevious(testState);
+		testState2.setNext(testState3);
+		testState3.setPrevious(testState2);
+		
+		// single undo
+		undoCommand = new UndoCommand();
+		assertTrue(undoCommand.isValid());
+		try {
+			resultState = undoCommand.execute(testState2);
+			assertEquals(resultState, testState);
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// invalid undo
+		undoCommand = new UndoCommand(-1);
+		assertFalse(undoCommand.isValid());
+		
+		// multiple undo
+		undoCommand = new UndoCommand(2);
+		try {
+			resultState = undoCommand.execute(testState3);
+			assertEquals(resultState, testState);
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// multiple undo larger than number of states
+		undoCommand = new UndoCommand(10);
+		try {
+			resultState = undoCommand.execute(testState3);
+			assertEquals(resultState, testState);
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// single redo
+		undoCommand = new UndoCommand(1, true);
+		assertTrue(undoCommand.isValid());
+		try {
+			resultState = undoCommand.execute(testState2);
+			assertEquals(resultState, testState3);
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// invalid redo
+		undoCommand = new UndoCommand(-1, true);
+		assertFalse(undoCommand.isValid());
+		
+		// multiple undo
+		undoCommand = new UndoCommand(2, true);
+		try {
+			resultState = undoCommand.execute(testState);
+			assertEquals(resultState, testState3);
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// multiple undo larger than number of states
+		undoCommand = new UndoCommand(10, true);
+		try {
+			resultState = undoCommand.execute(testState);
+			assertEquals(resultState, testState3);
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+	}
+	
+	public void testSearch() {
+		Command searchCommand;
+		State testState;
+		State resultState;
+		
+		Task floating = new FloatingTask("floating task", new ArrayList<String>());
+		Task deadline = new DeadlineTask("deadline task", new ArrayList<String>(), Calendar.getInstance());
+		Calendar startDate = Calendar.getInstance();
+		Calendar endDate = Calendar.getInstance();
+		endDate.add(Calendar.DATE, 1);
+		Task timed = new TimedTask("timed task", new ArrayList<String>(),
+				startDate, endDate);
+		testState = new State();
+		testState.addTask(floating);
+		testState.addTask(deadline);
+		testState.addTask(timed);
+		
+		// search "task"
+		ArrayList<String> includedWords = new ArrayList<String>();
+		includedWords.add("task");
+		ArrayList<String> excludedWords = new ArrayList<String>();
+		ArrayList<String> includedTags = new ArrayList<String>();
+		ArrayList<String> excludedTags = new ArrayList<String>();
+		searchCommand = new SearchCommand(includedWords, excludedWords,
+				includedTags, excludedTags);
+		assertTrue(searchCommand.isValid());
+		try {
+			resultState = searchCommand.execute(testState);
+			assertTrue(resultState.getAllTasks().size() == 3);
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+		
+		// search "task" without "deadline"
+		includedWords = new ArrayList<String>();
+		includedWords.add("task");
+		excludedWords = new ArrayList<String>();
+		excludedWords.add("deadline");
+		includedTags = new ArrayList<String>();
+		excludedTags = new ArrayList<String>();
+		searchCommand = new SearchCommand(includedWords, excludedWords,
+				includedTags, excludedTags);
+		assertTrue(searchCommand.isValid());
+		try {
+			resultState = searchCommand.execute(testState);
+			assertFalse(resultState.getAllTasks().contains(deadline));
+		} catch (Exception e) {
+			fail("exception occurred in execution");
+		}
+	}
+}
+
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\CommandTest.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\DeleteCommand.java
+	 */
+
+ * 
+ */
+public class DeleteCommand extends Command {
+	public static final int INDEX_FLOATING = 0;
+	public static final int INDEX_TIMED = 1;
+	public static final int INDEX_DEADLINE = 2;
+	
+	
+	private static final String FEEDBACK_NOT_FOUND = "no tasks containing %1$s can be found";
+	private static final String FEEDBACK_MULTIPLE_FOUND = "multiple tasks containing %1$s found - refine your keywords";
+	private static final String FEEDBACK_DELETED = "deleted: %1$s";
+	private static final String FEEDBACK_BAD_INDEX = "invalid index";
+	
+	private static final String LOG_ERROR = "error executing delete";
+	
+	
+	private String taskString;
+	private int indexPos;
+	private int indexType;
+	private boolean isByIndex;
+	
+	/**
+	 * Constructor for DeleteCommand
+	 * 
+	 * @param taskString
+	 * 			task name/description
+	 * 
+	 * 
+	 */
+	DeleteCommand(String taskString) {
+		super(true);
+		this.taskString = taskString;
+		this.isByIndex = false;
+	}
+	
+	/**
+	 * Constructor for DeleteCommand
+	 * 
+	 * @param indexPos
+	 * 			index of task in display state
+	 * 
+	 * @param indexType
+	 * 			type of task,
+	 * 			can be the following: INDEX_FLOATING, INDEX_DEADLINE, INDEX_TIMED
+	 * 
+	 */
+	DeleteCommand(int indexPos, int indexType) {
+		super(true);
+		this.indexPos = indexPos;
+		this.indexType = indexType;
+		this.isByIndex = true;
+	}
+
+	@Override
+	protected boolean isValid() {
+		return isValidTaskString() || isValidByIndex();
+	}
+	
+	/**
+	 * Checks validity of taskString
+	 * 
+	 * @return true if taskString is valid
+	 */
+	private boolean isValidTaskString() {
+		return !isByIndex && taskString != null && !taskString.isEmpty();
+	}
+	
+	/**
+	 * Checks validity of index type and position
+	 * 
+	 * @return true if index type and position is valid
+	 */
+	private boolean isValidByIndex() {
+		return isByIndex && isValidIndexType() && indexPos > 0;
+	}
+	
+	/**
+	 * Checks validity of index type
+	 * 
+	 * @return true if index type is valid
+	 */
+	private boolean isValidIndexType() {
+		return (indexType == INDEX_FLOATING || 
+				indexType == INDEX_TIMED || 
+				indexType == INDEX_DEADLINE);
+	}
+
+	@Override
+	protected State execute(State state) throws Exception {
+		logger.log(Level.WARNING, LOG_ERROR);
+		throw new Exception();			
+	}
+	
+	@Override
+	protected State execute(State state, State displayState) throws Exception {
+		assert(this.isValid());
+		
+		if (isByIndex) {
+			return executeByIndex(state, displayState);
+		}
+		
+		if (!state.hasTask(taskString)) {
+			return makeErrorState(displayState, new Feedback(String.format(FEEDBACK_NOT_FOUND, taskString),false));
+		} else if (isOnlyTask(state)) {
+			return executeTaskFound(state, displayState, false);
+		} else if (isOnlyTask(displayState)) {
+			return executeTaskFound(state, displayState, true);
+		} else {
+			return makeErrorState(displayState, new Feedback(String.format(FEEDBACK_MULTIPLE_FOUND, taskString),false));
+		}
+	}
+	
+	/**
+	 * Executes delete by index
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @param displayState
+	 * 			state program is displaying
+	 * 
+	 * @return state after execution
+	 */
+	protected State executeByIndex(State state, State displayState) throws Exception {
+		Task task = getTaskByIndex(displayState);
+		if (task == null) {
+			return makeErrorState(displayState, new Feedback(FEEDBACK_BAD_INDEX, false));
+		}
+		State s = new State(state);
+		s.removeTask(task);
+		s.setFeedback(new Feedback(String.format(FEEDBACK_DELETED, task.getTaskDescription()),true));
+		return s;
+	}
+	
+	/**
+	 * Retrieves a task by its index
+	 * 
+	 * @param displayState
+	 * 			display state of the program
+	 * 
+	 * @return task with given index
+	 */
+	private Task getTaskByIndex(State displayState) throws Exception {
+		TreeSet<? extends Task> tasks;
+		if (indexType == INDEX_FLOATING) {
+			tasks = displayState.getFloatingTasks();
+		} else if (indexType == INDEX_TIMED) {
+			tasks = displayState.getTimedTasks();
+		} else if (indexType == INDEX_DEADLINE) {
+			tasks = displayState.getDeadlineTasks();
+		} else {
+			logger.log(Level.WARNING, LOG_ERROR);
+			throw new Exception();
+		}
+		
+		int i = 1;
+		for (Task task : tasks) {
+			if (i > indexPos) {
+				return null;
+			} else if (i == indexPos) {
+				return task;
+			}
+			i++;
+		}
+		return null;
+	}
+
+	/**
+	 * Makes an error state to be returned
+	 * 
+	 * @param state
+	 * 			current state of program
+	 * 
+	 * @param feedback
+	 * 			feedback of error state
+	 * @return
+	 */
+	private State makeErrorState(State state, Feedback feedback) {
+		this.setMutator(false);
+		State s = new State(state);
+		s.setFeedback(feedback);
+		return s;
+	}
+	
+	/**
+	 * Execution when single task found
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @param displayState
+	 * 			state being displayed by program
+	 * 
+	 * @param isFromDisplay
+	 * 			whether task found is from display state
+	 * 
+	 * @return state after execution of command
+	 */
+	private State executeTaskFound(State state, State displayState, boolean isFromDisplay) {
+		Task deletedTask;
+		if (isFromDisplay) {
+			deletedTask = findTask(displayState);
+		} else {
+			deletedTask = findTask(state);
+		}
+		State s = new State(state);
+		s.removeTask(deletedTask);
+		Feedback f = new Feedback(String.format(FEEDBACK_DELETED, deletedTask.getTaskDescription()),true);
+		s.setFeedback(f);
+		return s;
+	}
+	
+	/**
+	 * Checks if state has only a single task that contains taskString
+	 * 
+	 * @param state
+	 * 			state which contains task to be found
+	 * 
+	 * @return true if state has single Task with occurrence of taskString
+	 */
+	private boolean isOnlyTask(State state) {
+		return state.getTasks(taskString).size() == 1;
+	}
+
+	/**
+	 * Finds task that contains taskString in state
+	 * 
+	 * @param state
+	 * 			state which contains task to be found
+	 * 
+	 * @return first Task which is found in state with occurrence of taskString
+	 */
+	private Task findTask(State state) {
+		return state.getTasks(taskString).get(0);
+	}
+}
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\DeleteCommand.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\ModifyCommand.java
+	 */
+
+ * 
+ */
+public class ModifyCommand extends Command {
+	public static final int INDEX_FLOATING = 0;
+	public static final int INDEX_TIMED = 1;
+	public static final int INDEX_DEADLINE = 2;
+	
+	private static final int MODE_CHANGE = 0;
+	private static final int MODE_RESCHEDULE_DEADLINE = 1;
+	private static final int MODE_RESCHEDULE_TIMED = 2;
+	private static final int MODE_MARK = 3;
+	private static final int MODE_TAG = 4;
+	
+	private static final String HASHTAG_SYMBOL = "#";
+	private static final String EMPTY_STRING = "";
+	private static final String FEEDBACK_NOT_FOUND = "no tasks containing %1$s can be found";
+	private static final String FEEDBACK_MULTIPLE_FOUND = "multiple tasks containing %1$s found - refine your keywords";
+	private static final String FEEDBACK_NOT_DEADLINE = "%1$s is not a deadline";
+	private static final String FEEDBACK_NOT_TIMED = "%1$s is not an event";
+	private static final String FEEDBACK_CHANGED = "changed: \"%1$s\" to \"%2$s\"";
+	private static final String FEEDBACK_RESCHEDULE_DEADLINE = "rescheduled deadline of: %1$s";
+	private static final String FEEDBACK_RESCHEDULE_TIMED = "reschedule event: %1$s";
+	private static final String FEEDBACK_ALREADY_MARKED = "%1$s is already marked";
+	private static final String FEEDBACK_ALREADY_UNMARKED = "%1$s is already unmarked";
+	private static final String FEEDBACK_MARK_SUCCESS = "marked: %1$s";
+	private static final String FEEDBACK_UNMARK_SUCCESS = "unmarked: %1$s";
+	private static final String FEEDBACK_TAG_SUCCESS = "added tag(s): %1$s to %2$s";
+	private static final String FEEDBACK_TAG_FAILURE = "%1$s already has tag(s): %2$s";
+	private static final String FEEDBACK_UNTAG_SUCCESS = "removed tags: %1$s from %2$s";
+	private static final String FEEDBACK_UNTAG_FAILURE = "%1$s does not have tag(s): %2$s";
+	private static final String FEEDBACK_BAD_INDEX = "invalid index";
+	private static final String FEEDBACK_DUPLICATE = "failed: a similar task already exists";
+	
+	private static final String LOG_ERROR = "error executing modify";
+	
+	private String taskString;
+	private String newTaskString;
+	private Calendar newDeadline;
+	private Calendar newStartDate;
+	private Calendar newEndDate;
+	private boolean mark;
+	private boolean tag;
+	private TreeSet<String> tags;
+	private int mode;
+	private boolean isByIndex;
+	private int indexPos;
+	private int indexType;
+	
+	/**
+	 * Constructor for ModifyCommand
+	 * 
+	 * @param taskString
+	 * 			task name/description
+	 * 
+	 * @param newTaskString
+	 * 			modified task name/description
+	 * 
+	 */
+	ModifyCommand(String taskString, String newTaskString) {
+		super(true);
+		this.taskString = taskString;
+		this.newTaskString = newTaskString;
+		this.mode = MODE_CHANGE;
+		isByIndex = false;
+	}
+	
+	/**
+	 * Constructor for ModifyCommand
+	 * 
+	 * @param indexPos
+	 * 			task index position
+	 * 
+	 * @param indexType
+	 * 			type of task,
+	 * 			can be the following: INDEX_FLOATING, INDEX_DEADLINE, INDEX_TIMED
+	 * 
+	 * @param newTaskString
+	 * 			modified task name/description
+	 * 
+	 */
+	ModifyCommand(int indexPos, int indexType, String newTaskString) {
+		super(true);
+		this.indexPos = indexPos;
+		this.indexType = indexType;
+		this.newTaskString = newTaskString;
+		this.mode = MODE_CHANGE;
+		isByIndex = true;
+	}
+	
+	/**
+	 * Constructor for ModifyCommand
+	 * 
+	 * @param taskString
+	 * 			task name/description
+	 * 
+	 * @param newDeadline
+	 * 			modified deadline
+	 * 
+	 */
+	ModifyCommand(String taskString, Calendar newDeadline) {
+		super(true);
+		this.taskString = taskString;
+		this.newDeadline = newDeadline;
+		this.mode = MODE_RESCHEDULE_DEADLINE;
+		isByIndex = false;
+	}
+	
+	/**
+	 * Constructor for ModifyCommand
+	 * 
+	 * @param indexPos
+	 * 			task index position
+	 * 
+	 * @param indexType
+	 * 			type of task,
+	 * 			can be the following: INDEX_FLOATING, INDEX_DEADLINE, INDEX_TIMED
+	 * 
+	 * @param newDeadline
+	 * 			modified deadline
+	 * 
+	 */
+	ModifyCommand(int indexPos, int indexType, Calendar newDeadline) {
+		super(true);
+		this.indexPos = indexPos;
+		this.indexType = indexType;
+		this.newDeadline = newDeadline;
+		this.mode = MODE_RESCHEDULE_DEADLINE;
+		isByIndex = true;
+	}
+	
+	/**
+	 * Constructor for ModifyCommand
+	 * 
+	 * @param taskString
+	 * 			task name/description
+	 * 
+	 * @param mark
+	 * 			true to mark, false to unmark
+	 * 
+	 */
+	ModifyCommand(String taskString, boolean mark) {
+		super(true);
+		this.taskString = taskString;
+		this.mark = mark;
+		this.mode = MODE_MARK;
+		isByIndex = false;
+	}
+	
+	/**
+	 * Constructor for ModifyCommand
+	 * 
+	 * @param indexPos
+	 * 			task index position
+	 * 
+	 * @param indexType
+	 * 			type of task,
+	 * 			can be the following: INDEX_FLOATING, INDEX_DEADLINE, INDEX_TIMED
+	 * 
+	 * @param mark
+	 * 			true to mark, false to unmark
+	 * 
+	 */
+	ModifyCommand(int indexPos, int indexType, boolean mark) {
+		super(true);
+		this.indexPos = indexPos;
+		this.indexType = indexType;
+		this.mark = mark;
+		this.mode = MODE_MARK;
+		isByIndex = true;
+	}
+	
+	/**
+	 * Constructor for ModifyCommand
+	 * 
+	 * @param taskString
+	 * 			task name/description
+	 * 
+	 * @param newStartDate
+	 * 			modified start date
+	 * 
+	 * @param newEndDate
+	 * 			modified end date
+	 * 
+	 */
+	ModifyCommand(String taskString, Calendar newStartDate, Calendar newEndDate) {
+		super(true);
+		this.taskString = taskString;
+		this.newStartDate = newStartDate;
+		this.newEndDate = newEndDate;
+		this.mode = MODE_RESCHEDULE_TIMED;
+		isByIndex = false;
+	}
+	
+	/**
+	 * Constructor for ModifyCommand
+	 * 
+	 * @param indexPos
+	 * 			task index position
+	 * 
+	 * @param indexType
+	 * 			type of task,
+	 * 			can be the following: INDEX_FLOATING, INDEX_DEADLINE, INDEX_TIMED
+	 * 
+	 * @param newStartDate
+	 * 			modified start date
+	 * 
+	 * @param newEndDate
+	 * 			modified end date
+	 * 
+	 */
+	ModifyCommand(int indexPos, int indexType, Calendar newStartDate, Calendar newEndDate) {
+		super(true);
+		this.indexPos = indexPos;
+		this.indexType = indexType;
+		this.newStartDate = newStartDate;
+		this.newEndDate = newEndDate;
+		this.mode = MODE_RESCHEDULE_TIMED;
+		isByIndex = true;
+	}
+	
+	/**
+	 * Constructor for ModifyCommand
+	 * 
+	 * @param taskString
+	 * 			task name/description
+	 * 
+	 * @param tags
+	 * 			tags to be tagged/untagged
+	 * 
+	 * @param tag
+	 * 			true to tag, false to untag
+	 * 
+	 */
+	ModifyCommand(String taskString, ArrayList<String> tags, boolean tag) {
+		super(true);
+		this.taskString = taskString;
+		this.tags = new TreeSet<String>(tags);
+		this.tag = tag;
+		this.mode = MODE_TAG;
+		isByIndex = false;
+	}
+	
+	/**
+	 * Constructor for ModifyCommand
+	 * 
+	 * @param indexPos
+	 * 			task index position
+	 * 
+	 * @param indexType
+	 * 			type of task,
+	 * 			can be the following: INDEX_FLOATING, INDEX_DEADLINE, INDEX_TIMED
+	 * 
+	 * @param tags
+	 * 			tags to be tagged/untagged
+	 * 
+	 * @param tag
+	 * 			true to tag, false to untag
+	 * 
+	 */
+	ModifyCommand(int indexPos, int indexType, ArrayList<String> tags, boolean tag) {
+		super(true);
+		this.indexPos = indexPos;
+		this.indexType = indexType;
+		this.tags = new TreeSet<String>(tags);
+		this.tag = tag;
+		this.mode = MODE_TAG;
+		isByIndex = true;
+	}
+
+	@Override
+	protected boolean isValid() {
+		return (isValidTaskString() || isValidByIndex()) && 
+				(isChange() || isRescheduleDeadline() ||
+				 isRescheduleTimed() || isMark() ||
+				 isTag());
+	}
+	
+	/**
+	 * Checks if taskString is valid
+	 * 
+	 * @return true if taskString is valid, false otherwise
+	 */
+	private boolean isValidTaskString() {
+		return !isByIndex && taskString != null && !taskString.isEmpty();
+	}
+	
+	/**
+	 * Checks validity of index type and position
+	 * 
+	 * @return true if index type and position is valid
+	 */
+	private boolean isValidByIndex() {
+		return isByIndex && isValidIndexType() && indexPos > 0;
+	}
+	
+	/**
+	 * Checks validity of index type
+	 * 
+	 * @return true if index type is valid
+	 */
+	private boolean isValidIndexType() {
+		return (indexType == INDEX_FLOATING || 
+				indexType == INDEX_TIMED || 
+				indexType == INDEX_DEADLINE);
+	}
+	
+	/**
+	 * Checks if ModifyCommand is a change command (modify task's name)
+	 * 
+	 * @return true if command is a change command, false otherwise.
+	 */
+	private boolean isChange() {
+		return mode == MODE_CHANGE && newTaskString != null && !newTaskString.isEmpty();
+	}
+	
+	/**
+	 * Checks if ModifyCommand is a reschedule deadline (modify task's deadline)
+	 * 
+	 * @return true if command is a reschedule deadline, false otherwise.
+	 */
+	private boolean isRescheduleDeadline() {
+		return mode == MODE_RESCHEDULE_DEADLINE && newDeadline != null;
+	}
+	
+	/**
+	 * Checks if ModifyCommand is a reschedule timed (modify a timed task start and end dates)
+	 * 
+	 * @return true if command is a reschedule timed, false otherwise.
+	 */
+	private boolean isRescheduleTimed() {
+		return mode == MODE_RESCHEDULE_TIMED &&
+				newStartDate != null &&
+				newEndDate != null &&
+				newStartDate.before(newEndDate);
+	}
+	
+	/**
+	 * Checks if ModifyCommand is a mark command
+	 * 
+	 * @return true if command is a mark command, false otherwise.
+	 */
+	private boolean isMark() {
+		return mode == MODE_MARK;
+	}
+	
+	/**
+	 * Checks if ModifyCommand is a tag command
+	 * 
+	 * @return true if command is a tag command, false otherwise.
+	 */
+	private boolean isTag() {
+		return mode == MODE_TAG && tags != null && !tags.isEmpty();
+	}
+	/**
+	 * Checks if state has only a single task that contains taskString
+	 * 
+	 * @param state
+	 * 			state which contains task to be found
+	 * 
+	 * @return true if state has single Task with occurrence of taskString
+	 */
+	private boolean isOnlyTask(State state) {
+		return state.getTasks(taskString).size() == 1;
+	}
+	
+	/**
+	 * Finds task that contains taskString in state
+	 * 
+	 * @param state
+	 * 			state which contains task to be found
+	 * 
+	 * @return first Task which is found in state with occurrence of taskString
+	 */
+	private Task findTask(State state) {
+		return state.getTasks(taskString).get(0);
+	}
+
+	@Override
+	protected State execute(State state) throws Exception {
+		logger.log(Level.WARNING, LOG_ERROR);
+		throw new Exception();
+	}
+
+	@Override
+	protected State execute(State state, State displayState) throws Exception {
+		assert(this.isValid());
+		
+		if (isByIndex) {
+			return executeByIndex(state, displayState);
+		}
+		
+		if (!state.hasTask(taskString)) {
+			return makeErrorState(displayState,
+								  new Feedback(String.format(FEEDBACK_NOT_FOUND, taskString),false));
+		} else if (isOnlyTask(state)) {
+			return executeTaskFound(state, displayState, false);
+		} else if (isOnlyTask(displayState)) {
+			return executeTaskFound(state, displayState, true);
+		} else {
+			return makeErrorState(displayState,
+								  new Feedback(String.format(FEEDBACK_MULTIPLE_FOUND, taskString),false));
+		}
+	}
+	
+	/**
+	 * Makes an error state to be returned
+	 * 
+	 * @param state
+	 * 			current state of program
+	 * 
+	 * @param feedback
+	 * 			feedback of error state
+	 * @return
+	 */
+	private State makeErrorState(State state, Feedback feedback) {
+		this.setMutator(false);
+		State s = new State(state);
+		s.setFeedback(feedback);
+		return s;
+	}
+	
+	/**
+	 * Execution by index
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @param displayState
+	 * 			display state of program
+	 * 
+	 * @return state after execution of command
+	 */
+	private State executeByIndex(State state, State displayState) throws Exception {
+		State newState = new State(state);
+		Task t = getTaskByIndex(displayState);
+		if (t == null) {
+			return makeErrorState(displayState, new Feedback(FEEDBACK_BAD_INDEX, false));
+		}
+		if (isChange()) {
+			return executeChange(newState, t);
+		} else if (isRescheduleDeadline()) {
+			return executeRescheduleDeadline(newState, displayState, t);
+		} else if (isRescheduleTimed()) {
+			return executeRescheduleTimed(newState, displayState, t);
+		} else if (isMark()) {
+			return executeMark(newState, t);
+		} else if (isTag()) {
+			return executeTag(newState, t);
+		} else {
+			logger.log(Level.WARNING, LOG_ERROR);
+			throw new Exception();
+		}		
+	}
+	
+	/**
+	 * Retrieves a task by its index
+	 * 
+	 * @param displayState
+	 * 			display state of the program
+	 * 
+	 * @return task with given index
+	 */
+	private Task getTaskByIndex(State displayState) throws Exception {
+		TreeSet<? extends Task> tasks;
+		if (indexType == INDEX_FLOATING) {
+			tasks = displayState.getFloatingTasks();
+		} else if (indexType == INDEX_TIMED) {
+			tasks = displayState.getTimedTasks();
+		} else if (indexType == INDEX_DEADLINE) {
+			tasks = displayState.getDeadlineTasks();
+		} else {
+			logger.log(Level.WARNING, LOG_ERROR);
+			throw new Exception();
+		}
+		
+		int i = 1;
+		for (Task task : tasks) {
+			if (i > indexPos) {
+				return null;
+			} else if (i == indexPos) {
+				return task;
+			}
+			i++;
+		}
+		return null;
+	}
+	
+	/**
+	 * Execution when single task found in state
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @param displayState
+	 * 			display state of program
+	 * 
+	 * @param isFromDisplay
+	 * 			true if task found is from display state, false if task is from state
+	 * 
+	 * @return state after execution of command
+	 */
+	private State executeTaskFound(State state, State displayState, boolean isFromDisplay) throws Exception {
+		Task t;
+		if (isFromDisplay) {
+			t = findTask(displayState);
+		} else {
+			t = findTask(state);
+		}
+		State newState = new State(state);
+		if (isChange()) {
+			return executeChange(newState, t);
+		} else if (isRescheduleDeadline()) {
+			return executeRescheduleDeadline(newState, displayState, t);
+		} else if (isRescheduleTimed()) {
+			return executeRescheduleTimed(newState, displayState, t);
+		} else if (isMark()) {
+			return executeMark(newState, t);
+		} else if (isTag()) {
+			return executeTag(newState, t);
+		} else {
+			logger.log(Level.WARNING, LOG_ERROR);
+			throw new Exception();
+		}
+	}
+	
+	/**
+	 * Executes change command
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @param task
+	 * 			task being changed
+	 * 
+	 * @return state after executing command
+	 */
+	private State executeChange(State state, Task task) {
+		state.removeTask(task);
+		Task cloned = task.clone();
+		String old = task.getTaskDescription();
+		cloned.setTaskDescription(newTaskString);
+		if (hasDuplicateTask(state, cloned)) {
+			state.addTask(task);
+			return executeDuplicateTask(state);
+		}
+		state.addTask(cloned);
+		state.setFeedback(new Feedback(String.format(FEEDBACK_CHANGED, old, newTaskString), true));
+		return state;
+	}
+	
+	/**
+	 * Executes reschedule deadline
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @param displayState
+	 * 			state of display of program
+	 * 
+	 * @param task
+	 * 			deadline task being rescheduled
+	 * 
+	 * @return state after executing command
+	 */
+	private State executeRescheduleDeadline(State state, State displayState, Task task) {
+		DeadlineTask t;
+		if (task instanceof DeadlineTask) {
+			t = (DeadlineTask) task;
+		} else {
+			return makeErrorState(displayState,
+								  new Feedback(String.format(FEEDBACK_NOT_DEADLINE, task.getTaskDescription()),false));
+		}
+		state.removeTask(task);
+		DeadlineTask cloned = t.clone();
+		cloned.setDeadline(newDeadline);
+		if (hasDuplicateTask(state, cloned)) {
+			state.addTask(task);
+			return executeDuplicateTask(state);
+		}
+		state.addTask(cloned);
+		state.setFeedback(new Feedback(String.format(FEEDBACK_RESCHEDULE_DEADLINE,
+				cloned.getTaskDescription()),true));
+		return state;
+	}
+	
+	/**
+	 * Executes reschedule timed
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @param displayState
+	 * 			state of display of program
+	 * 
+	 * @param task
+	 * 			timed task being rescheduled
+	 * 
+	 * @return state after executing command
+	 */
+	private State executeRescheduleTimed(State state, State displayState, Task task) {
+		TimedTask t;
+		if (task instanceof TimedTask) {
+			t = (TimedTask) task;
+		} else {
+			return makeErrorState(displayState,
+								  new Feedback(String.format(FEEDBACK_NOT_TIMED, task.getTaskDescription()),false));
+		}
+		state.removeTask(task);
+		TimedTask cloned = t.clone();
+		cloned.setStartDate(newStartDate);
+		cloned.setEndDate(newEndDate);
+		if (hasDuplicateTask(state, cloned)) {
+			state.addTask(task);
+			return executeDuplicateTask(state);
+		}
+		state.addTask(cloned);
+		state.setFeedback(new Feedback(String.format(FEEDBACK_RESCHEDULE_TIMED, cloned.getTaskDescription()), true));
+		return state;
+	}
+	
+	/**
+	 * Executes mark command
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @param task
+	 * 			task being marked/unmarked
+	 * 
+	 * @return state after executing command
+	 */
+	private State executeMark(State state, Task task) {
+		state.removeTask(task);
+		Task cloned = task.clone();
+		if (mark) {
+			executeMarkOnly(state, cloned);
+		} else {
+			executeUnmarkOnly(state, cloned);
+		}
+		if (hasDuplicateTask(state, cloned)) {
+			state.addTask(task);
+			return executeDuplicateTask(state);
+		}
+		state.addTask(cloned);
+		return state;
+	}
+	
+	/**
+	 * Executes mark command, mutates task and state.
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @param task
+	 * 			task being marked/unmarked
+	 * 
+	 */
+	private void executeMarkOnly(State state, Task task) {
+		if (task.isComplete()) {
+			state.setFeedback(new Feedback(String.format(FEEDBACK_ALREADY_MARKED, task.getTaskDescription()), false));
+		} else {
+			task.markAsDone();
+			state.setFeedback(new Feedback(String.format(FEEDBACK_MARK_SUCCESS, task.getTaskDescription()), true));
+		}
+	}
+	
+	/**
+	 * Executes unmark command, mutates task and state
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @param task
+	 * 			task being marked/unmarked
+	 * 
+	 */
+	private void executeUnmarkOnly(State state, Task task) {
+		if (!task.isComplete()) {
+			state.setFeedback(new Feedback(String.format(FEEDBACK_ALREADY_UNMARKED, task.getTaskDescription()),false));
+		} else {
+			task.markAsPending();
+			state.setFeedback(new Feedback(String.format(FEEDBACK_UNMARK_SUCCESS, task.getTaskDescription()), true));
+		}
+	}
+	
+	/**
+	 * Executes tag command
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @param task
+	 * 			task being tag/untagged
+	 * 
+	 * @return state after executing command
+	 */
+	private State executeTag(State state, Task task) {
+		state.removeTask(task);
+		Task cloned = task.clone();
+		TreeSet<String> success = new TreeSet<String>();
+		TreeSet<String> failure = new TreeSet<String>();
+		for (String t : tags) {
+			if (tag) {
+				executeTag(cloned, t, success, failure);
+			} else {
+				executeUntag(cloned, t, success, failure);
+			}
+		}
+		String feedback = getTagFeedback(cloned, success, failure);
+		state.setFeedback(new Feedback(feedback, true));
+
+		if (hasDuplicateTask(state, cloned)) {
+			state.addTask(task);
+			return executeDuplicateTask(state);
+		}
+		state.addTask(cloned);
+		return state;
+	}
+	
+	/**
+	 * Tags task and adds tag to success if task does not already has tag.
+	 * Otherwise adds tag to failure
+	 * 
+	 * @param task
+	 * 			task to be tagged
+	 * @param tag
+	 * 			tag to be added
+	 * @param success
+	 * 			all tags that were added successfully
+	 * @param failure
+	 * 			all tags that were not added successfully
+	 */
+	private void executeTag(Task task, String tag, TreeSet<String> success, TreeSet<String> failure) {
+		if (task.hasTag(tag)) {
+			addTagToList(failure, tag);
+		} else {
+			task.addTag(tag);
+			addTagToList(success, tag);
+		}
+	}
+	
+	/**
+	 * Untags task and adds tag to success if task has tag.
+	 * Otherwise adds tag to failure
+	 * 
+	 * @param task
+	 * 			task to be tagged
+	 * @param tag
+	 * 			tag to be removed
+	 * @param success
+	 * 			all tags that were removed successfully
+	 * @param failure
+	 * 			all tags that were not removed successfully
+	 */
+	private void executeUntag(Task task, String tag, TreeSet<String> success, TreeSet<String> failure) {
+		if (task.hasTag(tag)) {
+			task.removeTag(tag);
+			addTagToList(success, tag);
+		} else {
+			addTagToList(failure, tag);
+		}
+	}
+	
+	/**
+	 * Gets String feedback for tag command
+	 * @param task
+	 * 			task to be tagged/untagged
+	 * @param success
+	 * 			tags that were tagged/untagged successfully
+	 * @param failure
+	 * 			tags that were not tagged/untagged successfully
+	 * @return feedback string
+	 */
+	private String getTagFeedback(Task task, TreeSet<String> success, TreeSet<String> failure) {
+		String successFeedback = getTagSuccessFeedback(task, EMPTY_STRING, success);
+		String finalFeedback = getTagFailureFeedback(task, successFeedback, failure);
+		return finalFeedback;
+	}
+	
+	/**
+	 * Gets String feedback for tag command
+	 * @param task
+	 * 			task to be tagged/untagged
+	 * @param feedback
+	 * 			current feedback
+	 * @param success
+	 * 			tags that were tagged/untagged successfully
+	 * @return feedback appended with success feedback
+	 */
+	private String getTagSuccessFeedback(Task task, String feedback, TreeSet<String> success) {
+		if (success.isEmpty()) {
+			return feedback;
+		}
+		String msg;
+		if (tag) {
+			msg = FEEDBACK_TAG_SUCCESS;
+		} else {
+			msg = FEEDBACK_UNTAG_SUCCESS;
+		}
+		feedback += String.format(msg,
+				getTagString(success),
+				task.getTaskDescription());
+		return feedback;
+	}
+	
+	/**
+	 * Gets String feedback for tag command
+	 * @param task
+	 * 			task to be tagged/untagged
+	 * @param feedback
+	 * 			current feedback
+	 * @param failure
+	 * 			tags that were not tagged/untagged successfully
+	 * @return feedback appended with failure feedback
+	 */
+	private String getTagFailureFeedback(Task task, String feedback, TreeSet<String> failure) {
+		if (failure.isEmpty()) {
+			return feedback;
+		}
+		if (!feedback.isEmpty()) {
+			feedback += System.lineSeparator();
+		}
+		String msg;
+		if (tag) {
+			msg = FEEDBACK_TAG_FAILURE;
+		} else {
+			msg = FEEDBACK_UNTAG_FAILURE;
+		}
+		feedback += String.format(msg,
+				task.getTaskDescription(),
+				getTagString(failure));
+		return feedback;
+	}
+	
+	/**
+	 * Adds a tag to a tags list, appending "#" in front
+	 * 
+	 * @param tagList
+	 * 			list of tags
+	 * 
+	 * @param tagStr
+	 * 			tag to be added to list
+	 * 
+	 * @return string of tags
+	 */
+	private void addTagToList(TreeSet<String> tagList, String tagStr) {
+		if (tagList == null) {
+			return;
+		} else {
+			tagList.add(HASHTAG_SYMBOL + tagStr);
+		}
+	}
+	
+	/**
+	 * Gets string representation of tags list, without square brackets
+	 * 
+	 * @param tagList
+	 * 			list of tags
+	 * 
+	 * @return string of tags
+	 */
+	private String getTagString(TreeSet<String> tagList) {
+		if (tagList == null || tagList.isEmpty()) {
+			return EMPTY_STRING;
+		} else {
+			String tagStr = tagList.toString();
+			return tagStr.substring(1, tagStr.length()-1);
+		}
+	}
+	
+	/**
+	 * Checks if state has duplicate task
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @param task
+	 * 			task to be searched in state
+	 * 
+	 * @return true if duplicate is found, false otherwise
+	 */
+	private boolean hasDuplicateTask(State state, Task task) {
+		return (state.getAllTasks().contains(task)) ;
+	}
+	
+	private State executeDuplicateTask(State state) {
+		return makeErrorState(state, new Feedback(FEEDBACK_DUPLICATE, false));
+	}
+}
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\ModifyCommand.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\SearchCommand.java
+	 */
+
+ * 
+ */
+public class SearchCommand extends Command {
+	private static final String FEEDBACK_NONE = "no tasks found";
+	private static final String FEEDBACK_FOUND = "search results found";
+	
+	private static final String LOG_MESSAGE = "executing search";
+	private static final String LOG_NONE = "no tasks found";
+	private static final String LOG_FOUND = "tasks found";
+	
+	private ArrayList<String> includedWords;
+	private ArrayList<String> excludedWords;
+	private ArrayList<String> includedTags;
+	private ArrayList<String> excludedTags;
+	private Calendar date;
+	private Calendar startDate;
+	private Calendar endDate;
+	
+	/**
+	 * Constructor for SearchCommand
+	 * 
+	 * @param includedWords
+	 * 				words to be included in results
+	 *
+	 * @param excludedWords
+	 * 				words to be excluded in results
+	 * 
+	 * @param includedTags
+	 * 				tags to be included in results
+	 * 
+	 * @param excludedTags
+	 * 				tags to be excluded in results
+	 * 
+	 */
+	SearchCommand(ArrayList<String> includedWords, ArrayList<String> excludedWords,
+			ArrayList<String> includedTags, ArrayList<String> excludedTags) {
+		super(false);
+		this.includedWords = includedWords;
+		this.excludedWords = excludedWords;
+		this.includedTags = includedTags;
+		this.excludedTags = excludedTags;
+	}
+
+	/**
+	 * Constructor for SearchCommand
+	 * 
+	 * @param includedWords
+	 * 				words to be included in results
+	 *
+	 * @param excludedWords
+	 * 				words to be excluded in results
+	 * 
+	 * @param includedTags
+	 * 				tags to be included in results
+	 * 
+	 * @param excludedTags
+	 * 				tags to be excluded in results
+	 * 
+	 * @param date
+	 * 				date which tasks occur
+	 * 
+	 */
+	SearchCommand(ArrayList<String> includedWords, ArrayList<String> excludedWords,
+			ArrayList<String> includedTags, ArrayList<String> excludedTags,
+			Calendar date) {
+		super(false);
+		this.includedWords = includedWords;
+		this.excludedWords = excludedWords;
+		this.includedTags = includedTags;
+		this.excludedTags = excludedTags;
+		this.date = date;
+		setStartTime(this.date);
+	}
+	
+	/**
+	 * Constructor for SearchCommand
+	 * 
+	 * @param includedWords
+	 * 				words to be included in results
+	 *
+	 * @param excludedWords
+	 * 				words to be excluded in results
+	 * 
+	 * @param includedTags
+	 * 				tags to be included in results
+	 * 
+	 * @param excludedTags
+	 * 				tags to be excluded in results
+	 * 
+	 * @param startDate
+	 * 				start date of interval which tasks occur in
+	 * 
+	 * @param endDate
+	 * 				end date of interval which tasks occur in
+	 * 
+	 */
+	SearchCommand(ArrayList<String> includedWords, ArrayList<String> excludedWords,
+			ArrayList<String> includedTags, ArrayList<String> excludedTags,
+			Calendar startDate, Calendar endDate) {
+		super(false);
+		this.includedWords = includedWords;
+		this.excludedWords = excludedWords;
+		this.includedTags = includedTags;
+		this.excludedTags = excludedTags;
+		this.startDate = startDate;
+		this.endDate = endDate;
+		setStartTime(this.startDate);
+		setEndTime(this.endDate);
+	}
+	
+	@Override
+	protected boolean isValid() {
+		return isSearchWithoutDate() || isSearchDate() || isSearchInterval();
+	}
+	
+	/**
+	 * Checks if search is valid is without dates
+	 * 
+	 * @return true if search is valid without dates
+	 */
+	private boolean isSearchWithoutDate() {
+		return includedWords != null &&
+				excludedWords != null &&
+				includedTags != null &&
+				excludedTags != null;
+	}
+	
+	/**
+	 * Checks if search is valid is with single dates
+	 * 
+	 * @return true if search is valid with single date
+	 */
+	private boolean isSearchDate() {
+		return includedWords != null &&
+				excludedWords != null &&
+				includedTags != null &&
+				excludedTags != null &&
+				date != null;
+	}
+	
+	/**
+	 * Checks if search is valid is with start and end dates
+	 * 
+	 * @return true if search is valid with start and end dates
+	 */
+	private boolean isSearchInterval() {
+		return includedWords != null &&
+				excludedWords != null &&
+				includedTags != null &&
+				excludedTags != null &&
+				startDate != null &&
+				endDate != null &&
+				startDate.before(endDate);
+	}
+
+	@Override
+	protected State execute(State state) throws Exception {
+		assert(this.isValid());
+		logger.log(Level.INFO, LOG_MESSAGE);
+		
+		ArrayList<Task> found = state.getAllTasks();
+		removeIncludedWords(found);
+		removeExcludedWords(found);
+		removeIncludedTags(found);
+		removeExcludedTags(found);
+		
+		if (isSearchDate()) {
+			removeDate(found);
+		} else if (isSearchInterval()) {
+			removeInterval(found);
+		}
+		
+		State s = new State();
+		if (found.isEmpty()) {
+			logger.log(Level.INFO, LOG_NONE);
+			s.setFeedback(new Feedback(FEEDBACK_NONE, false));
+			return s;
+		} else {
+			logger.log(Level.INFO, LOG_FOUND);
+			for (Task t: found) {
+				s.addTask(t);
+			}
+			s.setFeedback(new Feedback(FEEDBACK_FOUND, true));
+			return s;
+		}
+	}
+	
+	/**
+	 * Remove tasks that do not contain included words
+	 * 
+	 * @param tasks
+	 * 			list of remaining search results
+	 */
+	private void removeIncludedWords(ArrayList<Task> tasks) {
+		if (tasks.isEmpty()) {
+			return;
+		}
+		for (String word : includedWords) {
+			removeIncludedWord(tasks, word);
+		}
+	}
+	
+	/**
+	 * Checks tasks for word and remove those without word
+	 * 
+	 * @param tasks
+	 * 			remaining search results
+	 * @param word
+	 * 			search keyword
+	 */
+	private void removeIncludedWord(ArrayList<Task> tasks, String word) {
+		int i = 0;
+		while (i<tasks.size()) {
+			Task task = tasks.get(i);
+			if (task.getTaskDescription().indexOf(word) == -1) {
+				tasks.remove(i);
+			} else {
+				i++;
+			}
+		}
+	}
+	
+	/**
+	 * Remove tasks that contain excluded words
+	 * 
+	 * @param tasks
+	 * 			list of remaining search results
+	 */
+	private void removeExcludedWords(ArrayList<Task> tasks) {
+		if (tasks.isEmpty()) {
+			return;
+		}
+		for (String word : excludedWords) {
+			removeExcludedWord(tasks, word);
+		}
+	}
+	
+	/**
+	 * Checks tasks for word and remove those with word
+	 * 
+	 * @param tasks
+	 * 			remaining search results
+	 * @param word
+	 * 			search keyword
+	 */
+	private void removeExcludedWord(ArrayList<Task> tasks, String word) {
+		int i = 0;
+		while (i<tasks.size()) {
+			Task task = tasks.get(i);
+			if (task.getTaskDescription().indexOf(word) != -1) {
+				tasks.remove(i);
+			} else {
+				i++;
+			}
+		}
+	}
+	
+	/**
+	 * Remove tasks that do not contain included tags
+	 * 
+	 * @param tasks
+	 * 			list of remaining search results
+	 */
+	private void removeIncludedTags(ArrayList<Task> tasks) {
+		if (tasks.isEmpty()) {
+			return;
+		}
+		for (String tag : includedTags) {
+			removeIncludedTag(tasks, tag);
+		}
+	}
+	
+	/**
+	 * Checks tasks for tag and remove those without tag
+	 * 
+	 * @param tasks
+	 * 			remaining search results
+	 * @param tag
+	 * 			search tag
+	 */
+	private void removeIncludedTag(ArrayList<Task> tasks, String tag) {
+		int i = 0;
+		while (i<tasks.size()) {
+			Task task = tasks.get(i);
+			if (!task.hasTag(tag)) {
+				tasks.remove(i);
+			} else {
+				i++;
+			}
+		}
+	}
+	
+	/**
+	 * Remove tasks that contain excluded tags
+	 * 
+	 * @param tasks
+	 * 			list of remaining search results
+	 */
+	private void removeExcludedTags(ArrayList<Task> tasks) {
+		if (tasks.isEmpty()) {
+			return;
+		}
+		for (String tag : excludedTags) {
+			removeExcludedTag(tasks, tag);
+		}
+	}
+	
+	/**
+	 * Checks tasks for tag and remove those with tag
+	 * 
+	 * @param tasks
+	 * 			remaining search results
+	 * @param tag
+	 * 			search tag
+	 */
+	private void removeExcludedTag(ArrayList<Task> tasks, String tag) {
+		int i = 0;
+		while (i<tasks.size()) {
+			Task task = tasks.get(i);
+			if (!task.hasTag(tag)) {
+				tasks.remove(i);
+			} else {
+				i++;
+			}
+		}
+	}
+	
+	/**
+	 * Remove tasks not on date
+	 * 
+	 * @param tasks
+	 * 			remaining search results
+	 */
+	private void removeDate(ArrayList<Task> tasks) {
+		int i = 0;
+		while (i<tasks.size()) {
+			Task task = tasks.get(i);
+			boolean toRemove = false;
+			if (task instanceof DeadlineTask) {
+				toRemove = !isSameDate((DeadlineTask) task);
+			} else if (task instanceof TimedTask) {
+				toRemove = !isSameDate((TimedTask) task);
+			} else {
+				toRemove = false;
+			}
+			if (toRemove) {
+				tasks.remove(i);
+			} else {
+				i++;
+			}
+		}
+	}
+	
+	/**
+	 * Checks if deadline task is same date as search date
+	 * 
+	 * @param task
+	 * 			deadline task to be compared
+	 * @return true if same date, false otherwise
+	 */
+	private boolean isSameDate(DeadlineTask task) {
+		Calendar tempDate = Calendar.getInstance();
+		tempDate.setTimeInMillis(task.getDeadline().getTimeInMillis());
+		setStartTime(tempDate);
+		return (tempDate.getTimeInMillis() == date.getTimeInMillis());
+	}
+	
+	/**
+	 * Checks if timed task is same date as search date
+	 * 
+	 * @param task
+	 * 			timed task to be compared
+	 * @return true if same date, false otherwise
+	 */
+	private boolean isSameDate(TimedTask task) {
+		Calendar tempStartDate = Calendar.getInstance();
+		Calendar tempEndDate = Calendar.getInstance();
+		tempStartDate.setTimeInMillis(task.getStartDate().getTimeInMillis());
+		setStartTime(tempStartDate);
+		tempEndDate.setTimeInMillis(task.getEndDate().getTimeInMillis());
+		setEndTime(tempEndDate);
+		return (tempStartDate.compareTo(date) <= 0 &&
+				tempEndDate.compareTo(date) >= 0);
+	}
+	
+	/**
+	 * Remove tasks not within interval
+	 * 
+	 * @param tasks
+	 * 			remaining search results
+	 */
+	private void removeInterval(ArrayList<Task> tasks) {
+		int i = 0;
+		while (i<tasks.size()) {
+			Task task = tasks.get(i);
+			boolean toRemove = false;
+			if (task instanceof DeadlineTask) {
+				toRemove = !isWithinInterval((DeadlineTask) task);
+			} else if (task instanceof TimedTask) {
+				toRemove = !isWithinInterval((TimedTask) task);
+			} else {
+				toRemove = false;
+			}
+			if (toRemove) {
+				tasks.remove(i);
+			} else {
+				i++;
+			}
+		}
+	}
+	
+	/**
+	 * Checks if deadline task is within search interval
+	 * 
+	 * @param task
+	 * 			deadline task to be compared
+	 * @return true if within interval, false otherwise
+	 */
+	private boolean isWithinInterval(DeadlineTask task) {
+		return (startDate.compareTo(task.getDeadline()) <= 0 &&
+				endDate.compareTo(task.getDeadline()) >= 0);
+	}
+	
+	/**
+	 * Checks if timed task is within search interval
+	 * 
+	 * @param task
+	 * 			timed task to be compared
+	 * @return true if within interval, false otherwise
+	 */
+	private boolean isWithinInterval(TimedTask task) {
+		return (endDate.compareTo(task.getStartDate()) >= 0 &&
+				startDate.compareTo(task.getEndDate()) <= 0);
+	}
+	
+	/**
+	 * Sets the time parameters of a Calendar object
+	 * 
+	 * @param calObj
+	 * 			Calendar object which time is being set
+	 * @param h
+	 * 			hour to set to (0 to 23)
+	 * @param m
+	 * 			minute to set to (0 to 59)
+	 * @param s
+	 * 			second to set to (0 to 59)
+	 * @param ms
+	 * 			milliseconds to set to (0 to 999)
+	 */
+	private void setTime(Calendar calObj, int h, int m, int s, int ms) {
+		calObj.set(Calendar.HOUR_OF_DAY, h);
+		calObj.set(Calendar.MINUTE, m);
+		calObj.set(Calendar.SECOND, s);
+		calObj.set(Calendar.MILLISECOND, ms);
+	}
+	
+	/**
+	 * Sets time of calendar to 00:00:00:000
+	 * 
+	 * @param calObj
+	 * 			calendar obj to be set
+	 */
+	private void setStartTime(Calendar calObj) {
+		setTime(calObj, 0, 0, 0, 0);
+	}
+	
+	/**
+	 * Sets time of calendar to 23:59:59:999
+	 * 
+	 * @param calObj
+	 * 			calendar obj to be set
+	 */
+	private void setEndTime(Calendar calObj) {
+		setTime(calObj, 23, 59, 59, 999);
+	}
+}
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\SearchCommand.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\UndoCommand.java
+	 */
+
+ * 
+ */
+public class UndoCommand extends Command {
+	private static final String FEEDBACK_UNDO_NONE = "undo cannot be performed";
+	private static final String FEEDBACK_UNDO_SINGLE = "undo last command";
+	private static final String FEEDBACK_UNDO_MULTIPLE = "undo last %1$s commands";
+	private static final String FEEDBACK_MAX_UNDO = "no commands left to undo";
+	private static final String FEEDBACK_REDO_NONE = "redo cannot be performed";
+	private static final String FEEDBACK_REDO_SINGLE = "redo last command";
+	private static final String FEEDBACK_REDO_MULTIPLE = "redo last %1$s commands";
+	private static final String FEEDBACK_MAX_REDO = "no commands left to redo";
+	
+	private int n;
+	private boolean redo;
+	
+	/**
+	 * Constructor for UndoCommand
+	 * Default of 1 undo
+	 */
+	UndoCommand() {
+		super(true, true);
+		n = 1;
+		redo = false;
+	}
+	
+	/**
+	 * Constructor for UndoCommand
+	 * 
+	 * @param number
+	 * 			number of undos to be performed
+	 */
+	UndoCommand(int number) {
+		this();
+		n = number;
+	}
+	
+	/**
+	 * Constructor for UndoCommand
+	 * 
+	 * @param number
+	 * 			number of undos/redo to be performed
+	 * 
+	 * @param redo
+	 * 			true if command is redo, false if undo
+	 */
+	UndoCommand(int number, boolean redo) {
+		this(number);
+		this.redo = redo;
+	}
+
+	@Override
+	protected boolean isValid() {
+		return n > 0;
+	}
+
+	@Override
+	protected State execute(State state) {
+		assert(this.isValid());
+		if (!this.redo) {
+			return executeUndo(state);
+		} else {
+			return executeRedo(state);
+		}
+		
+	}
+	
+	/**
+	 * Performs execution for undo
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @return new state after undo executed
+	 */
+	private State executeUndo(State state) {
+		State currentState = state;
+		int done = 0;
+		while (done < n) {
+			if (!currentState.hasPrevious())  {
+				break;
+			}
+			currentState = currentState.getPrevious();
+			done++;
+		}
+		String feedback;
+		if (done == 0) {
+			currentState.setFeedback(new Feedback(FEEDBACK_UNDO_NONE, false));
+			return currentState;
+		} else if (done == 1) {
+			feedback = FEEDBACK_UNDO_SINGLE;
+		} else {
+			feedback = String.format(FEEDBACK_UNDO_MULTIPLE, String.valueOf(done));
+		}
+		if (done < n) {
+			feedback += System.lineSeparator();
+			feedback += FEEDBACK_MAX_UNDO;
+		}
+		currentState.setFeedback(new Feedback(feedback, true));
+		return currentState;
+	}
+	
+	/**
+	 * Performs execution for redo
+	 * 
+	 * @param state
+	 * 			state of program
+	 * 
+	 * @return new state after redo executed
+	 */
+	private State executeRedo(State state) {
+		State currentState = state;
+		int done = 0;
+		while (done < n) {
+			if (!currentState.hasNext())  {
+				break;
+			}
+			currentState = currentState.getNext();
+			done++;
+		}
+		String feedback;
+		if (done == 0) {
+			currentState.setFeedback(new Feedback(FEEDBACK_REDO_NONE,false));
+			return currentState;
+		} else if (done == 1) {
+			feedback = FEEDBACK_REDO_SINGLE;
+		} else {
+			feedback = String.format(FEEDBACK_REDO_MULTIPLE, String.valueOf(done));
+		}
+		if (done < n) {
+			feedback += System.lineSeparator();
+			feedback += FEEDBACK_MAX_REDO;
+		}
+		currentState.setFeedback(new Feedback(feedback, true));
+		return currentState;
+	}
+}
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\UndoCommand.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\ViewCommand.java
+	 */
+
+ * 
+ */
+public class ViewCommand extends Command {
+	private static final String TASK_DESCRIPTION_EMPTY = "[EMPTY]";
+
+	public static final int MODE_VIEW_ALL = 0;
+	public static final int MODE_VIEW_FLOATING = 1;
+	public static final int MODE_VIEW_TIMED = 2;
+	public static final int MODE_VIEW_DEADLINE = 3;
+	public static final int MODE_VIEW_DATE = 4;
+	public static final int MODE_VIEW_TAG = 5;
+	public static final int MODE_VIEW_EXPIRED = 6;
+	public static final int MODE_VIEW_DONE = 7;
+	public static final int MODE_VIEW_INTERVAL = 8;
+
+	private static final String FEEDBACK_VIEW_ALL = "viewing all tasks";
+	private static final String FEEDBACK_VIEW_FLOATING = "viewing flexible tasks";
+	private static final String FEEDBACK_VIEW_TIMED = "viewing events";
+	private static final String FEEDBACK_VIEW_DEADLINE = "viewing deadlines";
+	private static final String FEEDBACK_VIEW_DATE = "viewing date: %1$s";
+	private static final String FEEDBACK_VIEW_TAG = "viewing tag: #%1$s";
+	private static final String FEEDBACK_VIEW_DATE_NOT_FOUND = "no tasks found for %1$s";
+	private static final String FEEDBACK_VIEW_EXPIRED = "viewing expired tasks";
+	private static final String FEEDBACK_VIEW_DONE = "viewing completed tasks";
+	private static final String FEEDBACK_VIEW_INTERVAL = "viewing from %1$s to %2$s";
+
+	private static final String LOG_ERROR = "error executing view";
+	private static final String LOG_VIEW_ALL = "executing view all";
+	private static final String LOG_VIEW_FLOATING = "executing view floating";
+	private static final String LOG_VIEW_TIMED = "executing view timed";
+	private static final String LOG_VIEW_DEADLINE = "executing view deadline";
+	private static final String LOG_VIEW_DATE = "executing view date";
+	private static final String LOG_VIEW_TAG = "executing view tag";
+	private static final String LOG_VIEW_EXPIRED = "executing view expired";
+	private static final String LOG_VIEW_DONE = "executing view done";
+	private static final String LOG_VIEW_INTERVAL = "executing view interval";
+
+	private static final String DATE_FORMAT = "%1$s/%2$s/%3$s";
+	private static final int MONTH_OFFSET = 1;
+
+	private Calendar date;
+	private Calendar startDate;
+	private Calendar endDate;
+	private String tag;
+	private int mode;
+
+	/**
+	 * Empty constructor for ViewCommand
+	 * 
+	 * Represents a view all command
+	 * 
+	 */
+	ViewCommand() {
+		super(false);
+		mode = MODE_VIEW_ALL;
+	}
+
+	/**
+	 * Constructor for ViewCommand
+	 * 
+	 * @param mode
+	 *            defines what the viewCommand does possible modes:
+	 *            MODE_VIEW_ALL, MODE_VIEW_FLOATING, MODE_VIEW_DEADLINE,
+	 *            MODE_VIEW_TIMED, MODE_VIEW_EXPIRED, MODE_VIEW_DONE
+	 * 
+	 */
+	ViewCommand(int mode) {
+		this();
+		this.mode = mode;
+	}
+
+	/**
+	 * Constructor for ViewCommand
+	 * 
+	 * @param date
+	 *            date to view tasks by
+	 * 
+	 */
+	ViewCommand(Calendar date) {
+		this();
+		this.date = date;
+		this.mode = MODE_VIEW_DATE;
+	}
+
+	/**
+	 * Constructor for ViewCommand
+	 * 
+	 * @param date
+	 *            date to view tasks by
+	 * 
+	 */
+	ViewCommand(Calendar startDate, Calendar endDate) {
+		this();
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.mode = MODE_VIEW_INTERVAL;
+		setTime(this.startDate, 0, 0, 0, 0);
+		setTime(this.endDate, 23, 59, 59, 999);
+	}
+
+	/**
+	 * Constructor for ViewCommand
+	 * 
+	 * @param tag
+	 *            tag to view tasks by
+	 * 
+	 */
+	ViewCommand(String tag) {
+		this();
+		this.tag = tag;
+		this.mode = MODE_VIEW_TAG;
+	}
+
+	@Override
+	protected boolean isValid() {
+		return (isViewAll() || isViewFloating() || isViewDeadline()
+				|| isViewTimed() || isViewDate() || isViewTag()
+				|| isViewExpired() || isViewDone() || isViewInterval());
+	}
+
+	/**
+	 * Checks if command is a "view all" command
+	 * 
+	 */
+	private boolean isViewAll() {
+		return mode == MODE_VIEW_ALL;
+	}
+
+	/**
+	 * Checks if command is a "view floating" command
+	 * 
+	 */
+	private boolean isViewFloating() {
+		return mode == MODE_VIEW_FLOATING;
+	}
+
+	/**
+	 * Checks if command is a "view deadline" command
+	 * 
+	 */
+	private boolean isViewDeadline() {
+		return mode == MODE_VIEW_DEADLINE;
+	}
+
+	/**
+	 * Checks if command is a "view timed" command
+	 * 
+	 */
+	private boolean isViewTimed() {
+		return mode == MODE_VIEW_TIMED;
+	}
+
+	/**
+	 * Checks if command is a "view date" command
+	 * 
+	 */
+	private boolean isViewDate() {
+		return (mode == MODE_VIEW_DATE && date != null);
+	}
+
+	/**
+	 * Checks if command is a "view tags" command
+	 * 
+	 */
+	private boolean isViewTag() {
+		return (mode == MODE_VIEW_TAG && tag != null);
+	}
+
+	/**
+	 * Checks if command is a "view expired" command
+	 * 
+	 */
+	private boolean isViewExpired() {
+		return mode == MODE_VIEW_EXPIRED;
+	}
+
+	/**
+	 * Checks if command is a "view done" command
+	 * 
+	 */
+	private boolean isViewDone() {
+		return mode == MODE_VIEW_DONE;
+	}
+
+	/**
+	 * Checks if command is a "view interval" command
+	 * 
+	 */
+	private boolean isViewInterval() {
+		return mode == MODE_VIEW_INTERVAL && startDate != null
+				&& endDate != null;
+	}
+
+	@Override
+	protected State execute(State state) throws Exception {
+		assert (this.isValid());
+		if (isViewAll()) {
+			logger.log(Level.INFO, LOG_VIEW_ALL);
+			return executeViewAll(state);
+		} else if (isViewFloating()) {
+			logger.log(Level.INFO, LOG_VIEW_FLOATING);
+			return executeViewFloating(state);
+		} else if (isViewDeadline()) {
+			logger.log(Level.INFO, LOG_VIEW_DEADLINE);
+			return executeViewDeadline(state);
+		} else if (isViewTimed()) {
+			logger.log(Level.INFO, LOG_VIEW_TIMED);
+			return executeViewTimed(state);
+		} else if (isViewDate()) {
+			logger.log(Level.INFO, LOG_VIEW_DATE);
+			return executeViewDate(state);
+		} else if (isViewTag()) {
+			logger.log(Level.INFO, LOG_VIEW_TAG);
+			return executeViewTag(state);
+		} else if (isViewExpired()) {
+			logger.log(Level.INFO, LOG_VIEW_EXPIRED);
+			return executeViewExpired(state);
+		} else if (isViewDone()) {
+			logger.log(Level.INFO, LOG_VIEW_DONE);
+			return executeViewDone(state);
+		} else if (isViewInterval()) {
+			logger.log(Level.INFO, LOG_VIEW_INTERVAL);
+			return executeViewInterval(state);
+		} else {
+			logger.log(Level.WARNING, LOG_ERROR);
+			throw new Exception();
+		}
+	}
+
+	/**
+	 * Executes view all command
+	 * 
+	 * @param state
+	 *            current state of program
+	 * @return state after executing command
+	 */
+	private State executeViewAll(State state) {
+		State s = new State(state);
+		s.setFeedback(new Feedback(FEEDBACK_VIEW_ALL, true));
+		return s;
+	}
+
+	/**
+	 * Executes view floating command
+	 * 
+	 * @param state
+	 *            current state of program
+	 * @return state after executing command
+	 */
+	private State executeViewFloating(State state) {
+		State s = new State(state);
+		s.getDeadlineTasks().clear();
+		s.getTimedTasks().clear();
+		s.setFeedback(new Feedback(FEEDBACK_VIEW_FLOATING, true));
+		return s;
+	}
+
+	/**
+	 * Executes view deadline command
+	 * 
+	 * @param state
+	 *            current state of program
+	 * @return state after executing command
+	 */
+	private State executeViewDeadline(State state) {
+		State s = new State(state);
+		s.getFloatingTasks().clear();
+		s.getTimedTasks().clear();
+		s.setFeedback(new Feedback(FEEDBACK_VIEW_DEADLINE, true));
+		return s;
+	}
+
+	/**
+	 * Executes view timed command
+	 * 
+	 * @param state
+	 *            current state of program
+	 * @return state after executing command
+	 */
+	private State executeViewTimed(State state) {
+		State s = new State(state);
+		s.getDeadlineTasks().clear();
+		s.getFloatingTasks().clear();
+		s.setFeedback(new Feedback(FEEDBACK_VIEW_TIMED, true));
+		return s;
+	}
+
+	/**
+	 * Executes view date command
+	 * 
+	 * @param state
+	 *            current state of program
+	 * @return state after executing command
+	 * 
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\ViewCommand.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\ViewCommand.java
+	 */
+
+	 */
+	private State executeViewTag(State state) {
+		State s = new State();
+		ArrayList<Task> tasks = state.getAllTasks();
+		for (Task t : tasks) {
+			if (t.hasTag(tag)) {
+				s.addTask(t);
+			}
+		}
+		s.setFeedback(new Feedback(String.format(FEEDBACK_VIEW_TAG, tag), true));
+		return s;
+	}
+
+	/**
+	 * Executes view expired command
+	 * 
+	 * @param state
+	 *            state of current program
+	 * 
+	 * @return state after execution
+	 */
+	private State executeViewExpired(State state) {
+		State s = new State();
+		for (Task t : state.getAllTasks()) {
+			if (t.isExpired() && !t.isComplete()) {
+				s.addTask(t);
+			}
+		}
+		s.setFeedback(new Feedback(FEEDBACK_VIEW_EXPIRED, true));
+		return s;
+	}
+
+	/**
+	 * Executes view done command
+	 * 
+	 * @param state
+	 *            state of current program
+	 * 
+	 * @return state after execution
+	 */
+	private State executeViewDone(State state) {
+		State s = new State();
+		for (Task t : state.getAllTasks()) {
+			if (t.isComplete()) {
+				s.addTask(t);
+			}
+		}
+		s.setFeedback(new Feedback(FEEDBACK_VIEW_DONE, true));
+		return s;
+	}
+
+	/**
+	 * Executes view interval command
+	 * 
+	 * @param state
+	 *            current state of program
+	 * @return state after executing command
+	 */
+	private State executeViewInterval(State state) {
+		State s = new State();
+		TreeSet<DeadlineTask> deadline = state.getDeadlineTasks();
+		TreeSet<TimedTask> timed = state.getTimedTasks();
+		for (DeadlineTask cur : deadline) {
+			if (startDate.compareTo(cur.getDeadline()) <= 0
+					&& endDate.compareTo(cur.getDeadline()) >= 0) {
+				s.addTask(cur);
+			}
+		}
+
+		for (TimedTask cur : timed) {
+			if ((startDate.compareTo(cur.getStartDate()) <= 0 && endDate
+					.compareTo(cur.getStartDate()) >= 0)
+					|| (startDate.compareTo(cur.getEndDate()) <= 0 && endDate
+							.compareTo(cur.getEndDate()) >= 0)) {
+				s.addTask(cur);
+			}
+		}
+
+		String startDateStr = String.format(DATE_FORMAT, String
+				.valueOf(startDate.get(Calendar.DATE)), String
+				.valueOf(startDate.get(Calendar.MONTH) + MONTH_OFFSET), String
+				.valueOf(startDate.get(Calendar.YEAR)));
+
+		String endDateStr = String.format(DATE_FORMAT, String.valueOf(endDate
+				.get(Calendar.DATE)), String.valueOf(endDate
+				.get(Calendar.MONTH)
+				+ MONTH_OFFSET), String.valueOf(endDate.get(Calendar.YEAR)));
+
+		s.setFeedback(new Feedback(String.format(FEEDBACK_VIEW_INTERVAL,
+				startDateStr, endDateStr), true));
+
+		return s;
+	}
+
+	/**
+	 * Sets the time parameters of a Calendar object
+	 * 
+	 * @param calObj
+	 *            Calendar object which time is being set
+	 * @param h
+	 *            hour to set to (0 to 23)
+	 * @param m
+	 *            minute to set to (0 to 59)
+	 * @param s
+	 *            second to set to (0 to 59)
+	 * @param ms
+	 *            milliseconds to set to (0 to 999)
+	 */
+	private void setTime(Calendar calObj, int h, int m, int s, int ms) {
+		calObj.set(Calendar.HOUR_OF_DAY, h);
+		calObj.set(Calendar.MINUTE, m);
+		calObj.set(Calendar.SECOND, s);
+		calObj.set(Calendar.MILLISECOND, ms);
+	}
+}
+	// End of segment: C:\Users\Eugene\Dropbox\NUS\Y2S1\CS2103\cs2103aug2013-f09-1j\src\todo\ViewCommand.java
+
+
+
+
+
