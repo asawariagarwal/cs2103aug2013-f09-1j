@@ -733,12 +733,12 @@ public class GUI implements ActionListener {
 		 * Toggles to and from min mode
 		 */
 		private void toggleMinMode() {
-			if (min) {
+			if (_isMin) {
 				deactivateMinMode();
-				min = false;
+				_isMin = false;
 			} else {
 				activateMinMode();
-				min = true;
+				_isMin = true;
 			}
 		}
 
@@ -824,7 +824,7 @@ public class GUI implements ActionListener {
 	/**
 	 * Stores whether in min or max mode
 	 */
-	private static boolean min = true;
+	private static boolean _isMin = false;
 
 	private String HELP_PROMPT = "\nFeeling Lost?\nTry keying in 'help'";
 	private SimpleAttributeSet completedAttributes;
@@ -944,8 +944,6 @@ public class GUI implements ActionListener {
 		initHelpPane();
 
 		deactivateMinMode();
-
-		activateMinMode();
 
 		initAudioFeedBack();
 
