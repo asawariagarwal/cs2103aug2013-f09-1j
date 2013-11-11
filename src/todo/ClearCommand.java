@@ -3,7 +3,7 @@ package todo;
 /**
  * Subclass to encapsulate clear commands
  * 
- * @author Eugene
+ * @author A0097199H
  * 
  */
 public class ClearCommand extends Command {
@@ -13,6 +13,13 @@ public class ClearCommand extends Command {
 	public static final int MODE_CLEAR_TIMED = 3;
 	public static final int MODE_CLEAR_EXPIRED = 4;
 	public static final int MODE_CLEAR_DONE = 5;
+	
+	private static final String FEEDBACK_CLEAR_ALL = "all tasks cleared";
+	private static final String FEEDBACK_CLEAR_DEADLINE = "deadlines cleared";
+	private static final String FEEDBACK_CLEAR_TIMED = "events cleared";
+	private static final String FEEDBACK_CLEAR_FLOATING = "flexible tasks cleared";
+	private static final String FEEDBACK_CLEAR_EXPIRED = "expired tasks cleared";
+	private static final String FEEDBACK_CLEAR_DONE = "completed tasks cleared";
 	
 	private int mode;
 	/**
@@ -55,22 +62,22 @@ public class ClearCommand extends Command {
 			s.getDeadlineTasks().clear();
 			s.getFloatingTasks().clear();
 			s.getTimedTasks().clear();
-			Feedback f = new Feedback("all tasks cleared", true);
+			Feedback f = new Feedback(FEEDBACK_CLEAR_ALL, true);
 			s.setFeedback(f);
 			return s;
 		} else if (mode == MODE_CLEAR_DEADLINE) {
 			s.getDeadlineTasks().clear();
-			Feedback f = new Feedback("deadlines cleared", true);
+			Feedback f = new Feedback(FEEDBACK_CLEAR_DEADLINE, true);
 			s.setFeedback(f);
 			return s;
 		} else if (mode == MODE_CLEAR_TIMED) {
 			s.getTimedTasks().clear();
-			Feedback f = new Feedback("events cleared", true);
+			Feedback f = new Feedback(FEEDBACK_CLEAR_TIMED, true);
 			s.setFeedback(f);
 			return s;
 		} else if (mode == MODE_CLEAR_FLOATING) {
 			s.getFloatingTasks().clear();
-			Feedback f = new Feedback("flexible tasks cleared", true);
+			Feedback f = new Feedback(FEEDBACK_CLEAR_FLOATING, true);
 			s.setFeedback(f);
 			return s;
 		} else if (mode == MODE_CLEAR_EXPIRED) {
@@ -79,7 +86,7 @@ public class ClearCommand extends Command {
 					s.removeTask(t);
 				}
 			}
-			Feedback f = new Feedback("expired tasks cleared", true);
+			Feedback f = new Feedback(FEEDBACK_CLEAR_EXPIRED, true);
 			s.setFeedback(f);
 			return s;
 		} else if (mode == MODE_CLEAR_DONE) {
@@ -88,7 +95,7 @@ public class ClearCommand extends Command {
 					s.removeTask(t);
 				}
 			}
-			Feedback f = new Feedback("completed tasks cleared", true);
+			Feedback f = new Feedback(FEEDBACK_CLEAR_DONE, true);
 			s.setFeedback(f);
 			return s;
 		} else {
