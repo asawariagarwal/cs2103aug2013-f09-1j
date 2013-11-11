@@ -327,7 +327,7 @@ public class ViewCommand extends Command {
 			startOfDay.clear();
 			previousEndTime.clear();
 			nextStartTime.clear();
-			
+
 			startOfDay.set(Calendar.YEAR, yy);
 			startOfDay.set(Calendar.MONTH, mm);
 			startOfDay.set(Calendar.DATE, dd);
@@ -337,53 +337,21 @@ public class ViewCommand extends Command {
 			startOfDay.set(Calendar.SECOND, 0);
 			startOfDay.set(Calendar.MILLISECOND, 0);
 
-			for(TimedTask task: timed) {
-				if (startOfDay.getTimeInMillis() > task.getStartDate()
-					.getTimeInMillis() && startOfDay.getTimeInMillis() < task.getEndDate().getTimeInMillis() ) {
-					previousEndTime.setTimeInMillis(task.getEndDate().getTimeInMillis());
-					break;
-				} else {
-					previousEndTime.setTimeInMillis(startOfDay.getTimeInMillis());
-				}
-			}
+			findFirstEmptyTime(timed, previousEndTime, startOfDay);
 		}
 
 		for (TimedTask cur : timed) {
 			if (startDayMatches(dd, mm, yy, cur)
 					|| endDayMatches(dd, mm, yy, cur)) {
-				nextStartTime.setTimeInMillis(cur.getStartDate()
-						.getTimeInMillis());
-
-				TimedTask blankTask = getEmptyTask(previousEndTime,
-						nextStartTime);
-
-				if (previousEndTime.getTimeInMillis() < cur.getEndDate()
-						.getTimeInMillis()) {
-					previousEndTime.setTimeInMillis(cur.getEndDate()
-							.getTimeInMillis());
-				}
-
-				if (blankTask != null) {
-					s.addTask(blankTask);
-				}
-				s.addTask(cur);
+				incrementBlankTasksInState(s, previousEndTime, nextStartTime,
+						cur);
 			}
 		}
-		
-		if(previousEndTime.get(Calendar.DATE) == dd) {
-			Calendar last = Calendar.getInstance();
-			last.clear();
-			last.set(Calendar.DATE, dd);
-			last.set(Calendar.MONTH, mm);
-			last.set(Calendar.YEAR, yy);
-			last.set(Calendar.HOUR, 23);
-			last.set(Calendar.MINUTE, 59);
-			last.set(Calendar.SECOND, 59);
-			last.set(Calendar.MILLISECOND, 999);
-			TimedTask lastEmptyTask = getEmptyTask(previousEndTime, last);
-			s.addTask(lastEmptyTask);
+
+		if (previousEndTime.get(Calendar.DATE) == dd) {
+			addLastBlankTask(s, dd, mm, yy, previousEndTime);
 		}
-		
+
 		String dateStr = String.format(DATE_FORMAT, String.valueOf(dd), String
 				.valueOf(mm + MONTH_OFFSET), String.valueOf(yy));
 		s.setFeedback(new Feedback(String.format(FEEDBACK_VIEW_DATE, dateStr),
@@ -396,6 +364,91 @@ public class ViewCommand extends Command {
 		}
 
 		return s;
+	}
+
+	/**
+	 * Adds the last blank task to the state
+	 * 
+	 * @param s
+	 *            State to be updated
+	 * 
+	 * @param dd
+	 *            Current Date
+	 * @param mm
+	 *            Current Month
+	 * @param yy
+	 *            Current Year
+	 * @param previousEndTime
+	 *            End time of last task
+	 */
+	private void addLastBlankTask(State s, int dd, int mm, int yy,
+			Calendar previousEndTime) {
+		Calendar last = Calendar.getInstance();
+		last.clear();
+		last.set(Calendar.DATE, dd);
+		last.set(Calendar.MONTH, mm);
+		last.set(Calendar.YEAR, yy);
+		last.set(Calendar.HOUR, 23);
+		last.set(Calendar.MINUTE, 59);
+		last.set(Calendar.SECOND, 59);
+		last.set(Calendar.MILLISECOND, 999);
+		TimedTask lastEmptyTask = getEmptyTask(previousEndTime, last);
+		s.addTask(lastEmptyTask);
+	}
+
+	/**
+	 * Adds a blank task to the state
+	 * 
+	 * @param s
+	 *            State to be updated
+	 * @param previousEndTime
+	 *            Blank task start time
+	 * @param nextStartTime
+	 *            Blank task end time
+	 * @param cur
+	 *            current task before blank
+	 */
+	private void incrementBlankTasksInState(State s, Calendar previousEndTime,
+			Calendar nextStartTime, TimedTask cur) {
+		nextStartTime.setTimeInMillis(cur.getStartDate().getTimeInMillis());
+
+		TimedTask blankTask = getEmptyTask(previousEndTime, nextStartTime);
+
+		if (previousEndTime.getTimeInMillis() < cur.getEndDate()
+				.getTimeInMillis()) {
+			previousEndTime.setTimeInMillis(cur.getEndDate().getTimeInMillis());
+		}
+
+		if (blankTask != null) {
+			s.addTask(blankTask);
+		}
+		s.addTask(cur);
+	}
+
+	/**
+	 * Finds the first empty slot for a given date
+	 * 
+	 * @param timed
+	 *            List of timed tasks
+	 * @param previousEndTime
+	 *            Calendar object to update
+	 * @param startOfDay
+	 *            Start of the date to be viewed
+	 */
+	private void findFirstEmptyTime(TreeSet<TimedTask> timed,
+			Calendar previousEndTime, Calendar startOfDay) {
+		for (TimedTask task : timed) {
+			if (startOfDay.getTimeInMillis() > task.getStartDate()
+					.getTimeInMillis()
+					&& startOfDay.getTimeInMillis() < task.getEndDate()
+							.getTimeInMillis()) {
+				previousEndTime.setTimeInMillis(task.getEndDate()
+						.getTimeInMillis());
+				break;
+			} else {
+				previousEndTime.setTimeInMillis(startOfDay.getTimeInMillis());
+			}
+		}
 	}
 
 	/**
