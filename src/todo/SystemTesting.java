@@ -35,7 +35,7 @@ public class SystemTesting {
 
 	@Test
 	// Test to check edge case of all tasks cleared after adding two task
-	// @author A0098219
+	// @author A0098219U
 	public void checkClearCommandAfterAdd() {
 
 		// Add task
@@ -106,7 +106,7 @@ public class SystemTesting {
 	}
 
 	// Test to check if adding of a deadline task works
-	// @author A0098127N
+	// @author A0098167N
 	@Test
 	public void addDeadlineTest() throws ParseException {
 
