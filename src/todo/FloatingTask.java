@@ -6,7 +6,7 @@ import java.util.TreeSet;
 /**
  * Subclass to encapsulate floating tasks
  * 
- * @author Karan
+ * @author A0098219
  * 
  */
 class FloatingTask extends Task implements Comparable<FloatingTask> {

@@ -9,7 +9,7 @@ import java.util.TreeSet;
  * 
  * Subclasses : FloatingTasks, DeadlineTasks, TimedTasks
  * 
- * @author Karan
+ * @author A0098219
  * 
  */
 class Task {

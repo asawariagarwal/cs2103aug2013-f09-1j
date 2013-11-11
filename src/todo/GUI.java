@@ -80,7 +80,7 @@ import com.melloware.jintellitype.JIntellitype;
  * nested input processor class and audio class to communicate with the rest of
  * the architecture and give audio feedback.
  * 
- * @author Karan
+ * @author A0098219
  * 
  */
 public class GUI implements ActionListener {
@@ -221,7 +221,7 @@ public class GUI implements ActionListener {
 	/**
 	 * Class for custom scroll bar implementation
 	 * 
-	 * @author Karan
+	 * @author A0098219
 	 * 
 	 */
 	private static class CustomScrollBar extends MetalScrollBarUI {
@@ -289,7 +289,7 @@ public class GUI implements ActionListener {
 	/**
 	 * Class that creates the Scroll Image
 	 * 
-	 * @author Karan
+	 * @author A0098219
 	 * 
 	 */
 	private static class ScrollImage {
@@ -310,7 +310,7 @@ public class GUI implements ActionListener {
 	/**
 	 * Nested class for Audio feedback
 	 * 
-	 * @author Karan
+	 * @author A0098219
 	 * 
 	 */
 	private final static class AudioFeedBack {
@@ -501,7 +501,7 @@ public class GUI implements ActionListener {
 	/**
 	 * Nested class to handle user input
 	 * 
-	 * @author Karan
+	 * @author A0098219
 	 * 
 	 */
 	private final class InputProcessor extends KeyAdapter {
@@ -855,7 +855,7 @@ public class GUI implements ActionListener {
 	/**
 	 * Class to return a static instance of the GUI class
 	 * 
-	 * @author Karan
+	 * @author A0098219
 	 * 
 	 */
 	public static class GUIFactory {
