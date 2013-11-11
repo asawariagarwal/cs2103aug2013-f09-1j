@@ -6,7 +6,7 @@ package todo;
  * a boolean representing the positive or negative
  * nature of the feedback
  * 
- * @author Jishnu
+ * @author A0100784L
  *
  */
 public class Feedback {

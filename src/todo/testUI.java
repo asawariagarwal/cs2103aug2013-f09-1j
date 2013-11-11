@@ -34,7 +34,7 @@ import javax.swing.JScrollPane;
 import java.awt.GridLayout;
 
 /**
- * @author A0098219
+ * @author A0098219U
  *
  */
 public class testUI implements ActionListener {
