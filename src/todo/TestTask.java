@@ -2,7 +2,6 @@ package todo;
 
 import static org.junit.Assert.*;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TreeSet;
 
@@ -41,7 +40,7 @@ public class TestTask {
 		Task task = new Task();
 		assertTrue(task.getTagString() == "");
 		assertTrue(task.getTaskDescription() == "");
-		assertTrue(task.getTagString()=="");
+		assertTrue(task.getTagString() == "");
 	}
 
 	@Test

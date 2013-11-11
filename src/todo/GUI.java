@@ -11,7 +11,6 @@ import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.Rectangle;
 import java.awt.SystemTray;
-import java.awt.Toolkit;
 import java.awt.TrayIcon;
 
 import javax.imageio.ImageIO;
@@ -33,12 +32,9 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -210,6 +206,11 @@ public class GUI implements ActionListener {
 		private static final int SCROLL_IMAGE_DIMENSION = 32;
 		private Image imageThumb, imageTrack;
 		private JButton b = new JButton() {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
 
 			@Override
 			public Dimension getPreferredSize() {
