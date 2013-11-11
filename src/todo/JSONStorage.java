@@ -18,6 +18,13 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+/**
+ * This class implements storage to file
+ * saving a textfile formatted in JSON-encoding
+ * 
+ * @author Jishnu
+ *
+ */
 public class JSONStorage {
 	
 	private static String _filename = "C:\\ToDo\\taskstore.txt";
