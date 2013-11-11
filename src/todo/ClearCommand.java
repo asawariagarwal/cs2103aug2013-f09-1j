@@ -40,7 +40,12 @@ public class ClearCommand extends Command {
 
 	@Override
 	protected boolean isValid() {
-		return mode >= MODE_CLEAR_ALL && mode <= MODE_CLEAR_DONE;
+		return mode == MODE_CLEAR_ALL ||
+				mode == MODE_CLEAR_FLOATING ||
+				mode == MODE_CLEAR_DEADLINE ||
+				mode == MODE_CLEAR_TIMED ||
+				mode == MODE_CLEAR_EXPIRED ||
+				mode == MODE_CLEAR_DONE;
 	}
 
 	@Override
